@@ -74,7 +74,7 @@ External dependencies: `gcc >=4.6, pin, scons, libconfig, libhdf5, libelfg0`
   3.3 (OPTIONAL) polarssl (currently used just for their SHA-1 hash function),
       http://www.polarssl.org Install locally as in 3.1 and define the env var
       `POLARSSLPATH=<polarssl install path>`.
-      
+
       NOTE: You may need to add `-fPIC` to the Makefile's C(PP/XX)FLAGS depending
       on the version.
 
@@ -198,7 +198,7 @@ well when getting started:
    launch a few runs. Config files have three sections, sys (configures the
    simulated system, e.g., core and cache parameters), sim (configures simulation
    parameters, e.g., how frequent are periodic stats output, phase length, etc.),
-   and process{0, 1, 2, ...} entries (what processes to run). 
+   and process{0, 1, 2, ...} entries (what processes to run).
 
 2. Most parameters have implicit defaults. zsim produces an out.cfg file that
    includes all the default choices (and we recommend that your analysis scripts
@@ -232,4 +232,3 @@ current style used elsewhere. For example, the parts of code that deal with Pin
 follow a style consistent with pintools.
 
 Happy hacking, and hope you find zsim useful!
-
