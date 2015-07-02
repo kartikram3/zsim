@@ -85,4 +85,3 @@ TextBackend::TextBackend(const char* filename, AggregateStat* rootStat) {
 void TextBackend::dump(bool buffered) {
     backend->dump(buffered);
 }
-

@@ -60,6 +60,9 @@
 #include "trace_driver.h"
 #include "virt/virt.h"
 
+//#include "pinplay.H" //added pinplay extension to zsim
+                       //add this later to check if it works
+
 //#include <signal.h> //can't include this, conflicts with PIN's
 
 /* Command-line switches (used to pass info from harness that cannot be passed through the config file, most config is file-based) */

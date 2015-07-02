@@ -415,4 +415,3 @@ void ContentionSim::finish() {
     terminate = true;
     __sync_synchronize();
 }
-
