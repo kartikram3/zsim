@@ -295,17 +295,22 @@ VOID FFITrackNFFInterval() {
     auto ffiFire = [p, _ffiFFStartInstrs, _ffiPrevFFStartInstrs]() {
         info("FFI: Entering fast-forward for process %d", p);
 
+    static uint64_t count_temp;
     string pathStr = zinfo->outputDir;
     pathStr += "/";
 
     g_string ss(zinfo->sim_name);
     const char * sname = ss.c_str();
     std::string sstring(sname);
-    const char* statsFile = gm_strdup((sstring + "_zsim_FF.out" ).c_str());
+    count_temp = zinfo->processStats->getProcessInstrs(p);
+    std::string ff_string = std::to_string(count_temp);
+    const char* statsFile = gm_strdup((sstring + "_"+ff_string+"_zsim_FF.out" ).c_str());
 
     StatsBackend* textStats = new TextBackend(statsFile, zinfo->rootStat);
 
     textStats->dump(false); //dump the text stats
+
+   
 
 
         /* Note this is sufficient due to the lack of reinstruments on FF, and this way we do not need to touch global state */
