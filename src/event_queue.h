@@ -55,6 +55,7 @@ class AdaptiveEvent : public Event {
 
     public:
         AdaptiveEvent(G _get, F _fire, uint64_t _start, uint64_t _target, uint64_t _maxRate) : Event(0), get(_get), fire(_fire), target(_target), maxRate(_maxRate) {
+
             assert(target >= _start);
             period = (target - _start)/maxRate;
             if (!period) period = 1;

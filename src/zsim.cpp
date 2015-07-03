@@ -383,6 +383,14 @@ void EnterFastForward() {
     procTreeNode->enterFastForward();
     __sync_synchronize(); //Make change globally visible
 
+
+    for (StatsBackend* backend : *(zinfo->statsBackends)) backend->dump(false /*unbuffered, write out*/);
+    for (AccessTraceWriter* t : *(zinfo->traceWriters)) t->dump(false);  // flushes trace writer
+                                  //dump stats at the start of fast-forward
+                                  //which is the end of some phase
+
+
+
     //Re-instrument; VM/client lock are not needed
     if (zinfo->ffReinstrument) {
         PIN_RemoveInstrumentation();
@@ -399,6 +407,7 @@ void ExitFastForward() {
     VirtCaptureClocks(true /*exiting ffwd*/);
 
     procTreeNode->exitFastForward();
+
     __sync_synchronize(); //make change globally visible
 
     //Re-instrument; VM/client lock are not needed
