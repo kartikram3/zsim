@@ -794,7 +794,11 @@ static void PostInitStats(bool perProcessDir, Config& config) {
     const char* pStatsFile = gm_strdup((pathStr + "zsim.h5").c_str());
     const char* evStatsFile = gm_strdup((pathStr + "zsim-ev.h5").c_str());
     const char* cmpStatsFile = gm_strdup((pathStr + "zsim-cmp.h5").c_str());
-    const char* statsFile = gm_strdup((pathStr + "zsim.out").c_str());
+    const char* sim_name = config.get<const char*>("sim.sim_name", "");
+    //zinfo->sim_name_str = sim_name;
+    zinfo->sim_name = gm_strdup(sim_name);
+    std::string ss(zinfo->sim_name);
+    const char* statsFile = gm_strdup((pathStr + ss + "_zsim.out").c_str());
 
     if (zinfo->statsPhaseInterval) {
         const char* periodicStatsFilter = config.get<const char*>("sim.periodicStatsFilter", "");

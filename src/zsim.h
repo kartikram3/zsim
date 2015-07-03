@@ -181,6 +181,9 @@ struct GlobSimInfo {
     // Trace-driven simulation (no cores)
     bool traceDriven;
     TraceDriver* traceDriver;
+
+    //sim_name_info
+    const char * sim_name;  
 };
 
 

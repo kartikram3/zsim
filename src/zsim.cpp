@@ -294,6 +294,20 @@ VOID FFITrackNFFInterval() {
     auto ffiGet = [p, startInstrs]() { return zinfo->processStats->getProcessInstrs(p) - startInstrs; };
     auto ffiFire = [p, _ffiFFStartInstrs, _ffiPrevFFStartInstrs]() {
         info("FFI: Entering fast-forward for process %d", p);
+
+    string pathStr = zinfo->outputDir;
+    pathStr += "/";
+
+    g_string ss(zinfo->sim_name);
+    const char * sname = ss.c_str();
+    std::string sstring(sname);
+    const char* statsFile = gm_strdup((sstring + "_zsim_FF.out" ).c_str());
+
+    StatsBackend* textStats = new TextBackend(statsFile, zinfo->rootStat);
+
+    textStats->dump(false); //dump the text stats
+
+
         /* Note this is sufficient due to the lack of reinstruments on FF, and this way we do not need to touch global state */
         futex_lock(&zinfo->ffLock);
         assert(!zinfo->procArray[p]->isInFastForward());
@@ -383,15 +397,9 @@ void EnterFastForward() {
     procTreeNode->enterFastForward();
     __sync_synchronize(); //Make change globally visible
 
+  
 
-    for (StatsBackend* backend : *(zinfo->statsBackends)) backend->dump(false /*unbuffered, write out*/);
-    for (AccessTraceWriter* t : *(zinfo->traceWriters)) t->dump(false);  // flushes trace writer
-                                  //dump stats at the start of fast-forward
-                                  //which is the end of some phase
-
-
-
-    //Re-instrument; VM/client lock are not needed
+        //Re-instrument; VM/client lock are not needed
     if (zinfo->ffReinstrument) {
         PIN_RemoveInstrumentation();
     }

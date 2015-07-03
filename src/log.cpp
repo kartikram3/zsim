@@ -56,4 +56,3 @@ void InitLog(const char* header, const char* file) {
 
 void __log_lock() {futex_lock(&log_printLock);}
 void __log_unlock() {futex_unlock(&log_printLock);}
-
