@@ -31,6 +31,7 @@
 #include <string>
 #include <sys/time.h>
 #include <vector>
+#include <sys/stat.h>
 #include "cache.h"
 #include "cache_arrays.h"
 #include "config.h"
@@ -798,7 +799,9 @@ static void PostInitStats(bool perProcessDir, Config& config) {
     //zinfo->sim_name_str = sim_name;
     zinfo->sim_name = gm_strdup(sim_name);
     std::string ss(zinfo->sim_name);
-    const char* statsFile = gm_strdup((pathStr + ss + "_zsim.out").c_str());
+    mkdir((pathStr+"results" + "/"+ss+"/").c_str(),0777);
+    info ("Directory path is %s", (pathStr+"results" + "/"+ss+"/").c_str());
+    const char* statsFile = gm_strdup((pathStr +"results" + "/"+ ss + "/" + ss + "_zsim.out").c_str());
 
     if (zinfo->statsPhaseInterval) {
         const char* periodicStatsFilter = config.get<const char*>("sim.periodicStatsFilter", "");

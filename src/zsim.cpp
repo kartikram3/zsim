@@ -297,14 +297,17 @@ VOID FFITrackNFFInterval() {
 
     static uint64_t count_temp;
     string pathStr = zinfo->outputDir;
-    pathStr += "/";
+    pathStr += "/results/";
 
     g_string ss(zinfo->sim_name);
+    
     const char * sname = ss.c_str();
     std::string sstring(sname);
+    pathStr += sstring;
     count_temp = zinfo->processStats->getProcessInstrs(p);
     std::string ff_string = std::to_string(count_temp);
-    const char* statsFile = gm_strdup((sstring + "_"+ff_string+"_zsim_FF.out" ).c_str());
+    info ("path is %s",pathStr.c_str());
+    const char* statsFile = gm_strdup((pathStr + "/" + sstring + "_"+ff_string+"_zsim_FF.out" ).c_str());
 
     StatsBackend* textStats = new TextBackend(statsFile, zinfo->rootStat);
 
