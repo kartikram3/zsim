@@ -1,0 +1,7 @@
+Need to run pinballs with zsim so that outputs are reproducible. However, we cannot run
+gdb so development will be done with pinballs disabled.
+
+So config script needs to have 2 options : 
+
+      a. Run process executable.
+      b. Run pinball.

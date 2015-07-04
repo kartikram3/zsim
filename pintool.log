@@ -1,0 +1,4 @@
+Pin 2.14 kit 67254
+A: message.cpp: PrintMessage: 150: Tried to write PinPlay Assert: Cannot open message file. Does the directory exist?
+ to the message file, but file is invalid or not opened: 0x000000000
+

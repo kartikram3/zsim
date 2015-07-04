@@ -64,7 +64,22 @@ def buildSim(cppFlags, dir, type, pgo=None):
         xedPath = joinpath(PINPATH, "extras/" + xedName + "-intel64/include")
         assert os.path.exists(xedPath)
 
-    env["CPPPATH"] = [xedPath,
+    #pinplay home
+    PINPLAY_HOME = joinpath(PINPATH,"extras/pinplay")
+
+    #pinplay include home
+    PINPLAY_INCLUDE_HOME = joinpath(PINPLAY_HOME,"include")
+    PINPLAY_INSTLIB = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/tools/InstLib"
+
+    #pinplay lib home
+    PINPLAY_LIB_HOME = joinpath(PINPLAY_HOME,"lib/intel64")
+
+    #pinplay ext-lib home
+    EXT_LIB_HOME = joinpath(PINPLAY_HOME,"lib-ext/intel64")
+
+
+
+    env["CPPPATH"] = [ PINPLAY_INSTLIB, PINPLAY_INCLUDE_HOME , xedPath,
             pinInclDir, joinpath(pinInclDir, "gen"),
             joinpath(PINPATH, "extras/components/include")]
 
@@ -77,9 +92,10 @@ def buildSim(cppFlags, dir, type, pgo=None):
     # Be a Warning Nazi? (recommended)
     env["CPPFLAGS"] += " -Werror "
 
-    # Enables lib and harness to use the same info/log code,
+
+      # Enables lib and harness to use the same info/log code,
     # but only lib uses pin locks for thread safety
-    env["PINCPPFLAGS"] = " -DMT_SAFE_LOG "
+    env["PINCPPFLAGS"] = " -DMT_SAFE_LOG " 
 
     # PIN-specific libraries
     env["PINLINKFLAGS"] = " -Wl,--hash-style=sysv -Wl,-Bsymbolic -Wl,--version-script=" + joinpath(pinInclDir, "pintool.ver")
@@ -89,7 +105,7 @@ def buildSim(cppFlags, dir, type, pgo=None):
     # systems, Pin's libelf takes precedence over the system's, but it does not
     # include symbols that we need or it's a different variant (we need
     # libelfg0-dev in Ubuntu systems)
-    env["PINLIBPATH"] = ["/usr/lib", "/usr/lib/x86_64-linux-gnu", joinpath(PINPATH, "extras/" + xedName + "-intel64/lib"),
+    env["PINLIBPATH"] = [  PINPLAY_LIB_HOME, EXT_LIB_HOME,"/usr/lib", "/usr/lib/x86_64-linux-gnu", joinpath(PINPATH, "extras/" + xedName + "-intel64/lib"),
             joinpath(PINPATH, "intel64/lib"), joinpath(PINPATH, "intel64/lib-ext")]
 
     # Libdwarf is provided in static and shared variants, Ubuntu only provides
@@ -104,7 +120,19 @@ def buildSim(cppFlags, dir, type, pgo=None):
     if not os.path.exists(pindwarfPath):
         pindwarfLib = "pindwarf"
 
-    env["PINLIBS"] = ["pin", "xed", pindwarfLib, "elf", "dl", "rt"]
+    pinlibPath = joinpath(PINPLAY_LIB_HOME,"libpinplay.a")
+    pinlib = File(pinlibPath)
+
+    extlibPath = joinpath(EXT_LIB_HOME,"libbz2.a")
+    extlib = File(extlibPath)
+
+    extlibPath_1 = joinpath(EXT_LIB_HOME,"libz.a")
+    extlib_1 = File(extlibPath_1)
+
+    control_lib_path = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/tools/InstLib/obj-intel64/controller.a"
+    control_lib = File(control_lib_path)
+
+    env["PINLIBS"] = ["pinplay","bz2","z",control_lib,"pin","pinapp","pinjitprofiling","pinvm","sapin","xed", pindwarfLib, "elf", "dl", "rt"]
 
     # Non-pintool libraries
     env["LIBPATH"] = []

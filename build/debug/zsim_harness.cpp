@@ -245,12 +245,14 @@ void LaunchProcess(uint32_t procIdx) {
 
         //Copy args to a const char* [] for exec
         int nargs = args.size()+1;
+        
         const char* aptrs[nargs];
 
         trace(Harness, "Calling arguments:");
         for (unsigned int i = 0; i < args.size(); i++) {
             trace(Harness, " arg%d = %s", i, args[i].c_str());
             aptrs[i] = args[i].c_str();
+            info("Pin command line arg no %d for procIdx %d : %s",i, procIdx,aptrs[i]);
         }
         aptrs[nargs-1] = nullptr;
 
@@ -296,6 +298,17 @@ void LaunchProcess(uint32_t procIdx) {
             if ((newPers & ADDR_NO_RANDOMIZE) == 0) panic("personality() call was not honored! old 0x%x new 0x%x", pers, newPers);
         }
 
+
+/*        aptrs[0] = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin" ; 
+        aptrs[1] = "-xyzzy";
+        aptrs[2] = "-reserve_memory"; 
+        aptrs[3] =  */
+
+        info("Strins is %s",aptrs[0]); 
+        //const char * aptrs_1[2];
+        //aptrs_1[0]="/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin  -xyzzy  -reserve_memory  /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.address   -t /home/kartik/zsim_kartik/build/opt/libzsim.so -replay -xyzzy  -replay:basename /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0 -replay:playout 0  -log:mt 0   -phaselen 300000 -statfile /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.brpred.txt -- /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/bin/intel64/nullapp";
+        //aptrs_1[1]=nullptr;
+        //info ("%s",aptrs_1[0]);
         if (execvp(aptrs[0], (char* const*)aptrs) == -1) {
             perror("Could not exec, killing child");
             panic("Could not exec %s", aptrs[0]);

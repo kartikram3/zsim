@@ -1,0 +1,6 @@
+Enabled messages [UnixVersion()] 43  info: Informational messages (enabled by default)
+Pinball basename: log
+VSYSCALL_REDIRECTOR : setting scratch register.
+	_vsyscall_area[VSYSCALL_REDIRETED_AREA_SIZE]0x7ffff6d99d60--0x7ffff6d9ad60
+VSYSCALL_REDIRECTOR : setting scratch register.
+	_vsyscall_area[VSYSCALL_REDIRETED_AREA_SIZE]0x7ffff6d99d60--0x7ffff6d9ad60

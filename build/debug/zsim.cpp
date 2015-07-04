@@ -60,9 +60,21 @@
 #include "trace_driver.h"
 #include "virt/virt.h"
 
+#include "pinplay.H" //added pinplay extension to zsim
+                       //add this later to check if it works
+
 //#include <signal.h> //can't include this, conflicts with PIN's
 
 /* Command-line switches (used to pass info from harness that cannot be passed through the config file, most config is file-based) */
+
+PINPLAY_ENGINE pinplay_engine;
+
+KNOB<BOOL> KnobPinPlayLogger(KNOB_MODE_WRITEONCE,
+                      "pintool", "log", "0",
+                      "Activate the pinplay logger");
+KNOB<BOOL> KnobPinPlayReplayer(KNOB_MODE_WRITEONCE,
+                      "pintool", "replay", "0",
+                      "Activate the pinplay replayer");
 
 KNOB<INT32> KnobProcIdx(KNOB_MODE_WRITEONCE, "pintool",
         "procIdx", "0", "zsim process idx (internal)");
@@ -291,6 +303,28 @@ VOID FFITrackNFFInterval() {
     auto ffiGet = [p, startInstrs]() { return zinfo->processStats->getProcessInstrs(p) - startInstrs; };
     auto ffiFire = [p, _ffiFFStartInstrs, _ffiPrevFFStartInstrs]() {
         info("FFI: Entering fast-forward for process %d", p);
+
+    static uint64_t count_temp;
+    string pathStr = zinfo->outputDir;
+    pathStr += "/results/";
+
+    g_string ss(zinfo->sim_name);
+    
+    const char * sname = ss.c_str();
+    std::string sstring(sname);
+    pathStr += sstring;
+    count_temp = zinfo->processStats->getProcessInstrs(p);
+    std::string ff_string = std::to_string(count_temp);
+    info ("path is %s",pathStr.c_str());
+    const char* statsFile = gm_strdup((pathStr + "/" + sstring + "_"+ff_string+"_zsim_FF.out" ).c_str());
+
+    StatsBackend* textStats = new TextBackend(statsFile, zinfo->rootStat);
+
+    textStats->dump(false); //dump the text stats
+
+   
+
+
         /* Note this is sufficient due to the lack of reinstruments on FF, and this way we do not need to touch global state */
         futex_lock(&zinfo->ffLock);
         assert(!zinfo->procArray[p]->isInFastForward());
@@ -380,7 +414,9 @@ void EnterFastForward() {
     procTreeNode->enterFastForward();
     __sync_synchronize(); //Make change globally visible
 
-    //Re-instrument; VM/client lock are not needed
+  
+
+        //Re-instrument; VM/client lock are not needed
     if (zinfo->ffReinstrument) {
         PIN_RemoveInstrumentation();
     }
@@ -396,6 +432,7 @@ void ExitFastForward() {
     VirtCaptureClocks(true /*exiting ffwd*/);
 
     procTreeNode->exitFastForward();
+
     __sync_synchronize(); //make change globally visible
 
     //Re-instrument; VM/client lock are not needed
@@ -1430,8 +1467,15 @@ static EXCEPT_HANDLING_RESULT InternalExceptionHandler(THREADID tid, EXCEPTION_I
 /* ===================================================================== */
 
 int main(int argc, char *argv[]) {
+    for(int i=0; i<argc; i++){
+            info ("arg %d is %s",i,argv[i]);
+    }
+
     PIN_InitSymbols();
     if (PIN_Init(argc, argv)) return Usage();
+
+     pinplay_engine.Activate(argc, argv,
+      KnobPinPlayLogger, KnobPinPlayReplayer);
 
     //Register an internal exception handler (ASAP, to catch segfaults in init)
     PIN_AddInternalExceptionHandler(InternalExceptionHandler, nullptr);

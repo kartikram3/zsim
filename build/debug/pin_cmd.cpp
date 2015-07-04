@@ -49,12 +49,48 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
         zsimPath = QUOTED(ZSIM_PATH);
     }
 
+    pinPath = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin";
     args.push_back(pinPath);
+
+    /*args.push_back("-xyzzy");
+    args.push_back("-reserve_memory");
+    args.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.address");
+*/
+    /*args.push_back("-replay");
+    //args.push_back("-xyzzy");
+    args.push_back("-replay:basename");
+    args.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0");
+    args.push_back("-replay:playout");
+    args.push_back("0");
+    args.push_back("-log:mt");
+    args.push_back("0");
+    args.push_back("-phaselen");
+    args.push_back("300000");
+    args.push_back("-statfile");
+    args.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.brpred.txt");
+    */
+ 
+    args.push_back("-xyzzy");
+    args.push_back("-reserve_memory");
+    args.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.address");
+
 
     //Global pin options
     args.push_back("-follow_execv"); //instrument child processes
     args.push_back("-tool_exit_timeout"); //don't wait much of internal threads
     args.push_back("1");
+
+    //Load tool
+    args.push_back("-t");
+    args.push_back(zsimPath);
+    args.push_back("-replay");
+    args.push_back("-xyzzy");
+    args.push_back("-replay:basename");
+    args.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0");
+    args.push_back("-replay:playout");
+    args.push_back("0");
+    args.push_back("-log:mt");
+    args.push_back("0");
 
     //Additional options (e.g., -smc_strict for Java), parsed from config
     const char* pinOptions = conf->get<const char*>("sim.pinOptions", "");
@@ -64,10 +100,6 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
         args.push_back(g_string(p.we_wordv[i]));
     }
     wordfree(&p);
-
-    //Load tool
-    args.push_back("-t");
-    args.push_back(zsimPath);
 
     //Tool options
     if (configFile) {
@@ -120,7 +152,27 @@ g_vector<g_string> PinCmd::getPinCmdArgs(uint32_t procIdx) {
     procIdx_ss << procIdx;
     res.push_back("-procIdx");
     res.push_back(procIdx_ss.str().c_str());
+
+
+/*  res.push_back("-xyzzy");
+    res.push_back("-reserve_memory");
+    res.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.address");
+    res.push_back("-replay");
+    res.push_back("-xyzzy");
+    res.push_back("-replay:basename");
+    res.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0");
+    res.push_back("-replay:playout");
+    res.push_back("0");
+    res.push_back("-log:mt");
+    res.push_back("0");
+    res.push_back("-phaselen");
+    res.push_back("300000");
+    res.push_back("-statfile");
+    res.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.brpred.txt");*/
+
     res.push_back("--");
+
+
     return res;
 }
 
@@ -145,12 +197,14 @@ g_vector<g_string> PinCmd::getFullCmdArgs(uint32_t procIdx, const char** inputFi
     }
 
     //Parse command -- use glibc's wordexp to parse things like quotes, handle argument expansion, etc correctly
-    wordexp_t p;
+    /*wordexp_t p;
     wordexp(cmd.c_str(), &p, 0);
     for (uint32_t i = 0; i < p.we_wordc; i++) {
         res.push_back(g_string(p.we_wordv[i]));
     }
-    wordfree(&p);
+    wordfree(&p); */
+
+    res.push_back( "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/bin/intel64/nullapp" ); 
 
     //Input redirect
     *inputFile = (procInfo[procIdx].input == "")? nullptr : procInfo[procIdx].input.c_str();

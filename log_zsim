@@ -1,0 +1,62 @@
+[H] Starting zsim, built Sat Jul 4 15:42:42 CDT 2015 (rev master:73:1e952ef:38fc 300+ 93- d01181bb)
+[H] Creating global segment, 1024 MBs
+[H] Global segment shmid = 110395414
+[H] Deadlock detection ON
+[H] Pin command line arg no 0 for procIdx 0 : /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin
+[H] Pin command line arg no 1 for procIdx 0 : -xyzzy
+[H] Pin command line arg no 2 for procIdx 0 : -reserve_memory
+[H] Pin command line arg no 3 for procIdx 0 : /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.address
+[H] Pin command line arg no 4 for procIdx 0 : -replay
+[H] Pin command line arg no 5 for procIdx 0 : -follow_execv
+[H] Pin command line arg no 6 for procIdx 0 : -tool_exit_timeout
+[H] Pin command line arg no 7 for procIdx 0 : 1
+[H] Pin command line arg no 8 for procIdx 0 : -t
+[H] Pin command line arg no 9 for procIdx 0 : /home/kartik/zsim_kartik/build/opt/libzsim.so
+[H] Pin command line arg no 10 for procIdx 0 : -config
+[H] Pin command line arg no 11 for procIdx 0 : /home/kartik/zsim_kartik/simple.cfg
+[H] Pin command line arg no 12 for procIdx 0 : -outputDir
+[H] Pin command line arg no 13 for procIdx 0 : /home/kartik/zsim_kartik
+[H] Pin command line arg no 14 for procIdx 0 : -shmid
+[H] Pin command line arg no 15 for procIdx 0 : 110395414
+[H] Pin command line arg no 16 for procIdx 0 : -procIdx
+[H] Pin command line arg no 17 for procIdx 0 : 0
+[H] Pin command line arg no 18 for procIdx 0 : --
+[H] Pin command line arg no 19 for procIdx 0 : ./simple_prog
+[H] Strins is /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin
+[H] Pin command line arg no 0 for procIdx 1 : /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin
+[H] Pin command line arg no 1 for procIdx 1 : -xyzzy
+[H] Pin command line arg no 2 for procIdx 1 : -reserve_memory
+[H] Pin command line arg no 3 for procIdx 1 : /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.address
+[H] Pin command line arg no 4 for procIdx 1 : -replay
+[H] Pin command line arg no 5 for procIdx 1 : -follow_execv
+[H] Pin command line arg no 6 for procIdx 1 : -tool_exit_timeout
+[H] Pin command line arg no 7 for procIdx 1 : 1
+[H] Pin command line arg no 8 for procIdx 1 : -t
+[H] Pin command line arg no 9 for procIdx 1 : /home/kartik/zsim_kartik/build/opt/libzsim.so
+[H] Pin command line arg no 10 for procIdx 1 : -config
+[H] Pin command line arg no 11 for procIdx 1 : /home/kartik/zsim_kartik/simple.cfg
+[H] Pin command line arg no 12 for procIdx 1 : -outputDir
+[H] Pin command line arg no 13 for procIdx 1 : /home/kartik/zsim_kartik
+[H] Pin command line arg no 14 for procIdx 1 : -shmid
+[H] Pin command line arg no 15 for procIdx 1 : 110395414
+[H] Pin command line arg no 16 for procIdx 1 : -procIdx
+[H] Pin command line arg no 17 for procIdx 1 : 1
+[H] Pin command line arg no 18 for procIdx 1 : --
+[H] Pin command line arg no 19 for procIdx 1 : cat
+[H] Pin command line arg no 20 for procIdx 1 : tests/simple.cfg
+[H] Strins is /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin
+E: E: unknown option "-replay"
+unknown option "-replay"
+Pin 2.14
+Copyright (c) 2003-2014, Intel Corporation. All rights reserved.
+VERSION: 67254 BUILDER: BUILDER DATE: Aug 11 2014
+Usage: pin [OPTION] [-t <tool> [<toolargs>]] -- <command line>
+Use -help for a description of options
+Pin 2.14
+Copyright (c) 2003-2014, Intel Corporation. All rights reserved.
+VERSION: 67254 BUILDER: BUILDER DATE: Aug 11 2014
+Usage: pin [OPTION] [-t <tool> [<toolargs>]] -- <command line>
+Use -help for a description of options
+[H] Child 3155 done
+[H] Child 3156 done
+[H] All children done, exiting

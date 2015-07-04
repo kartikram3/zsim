@@ -1,0 +1,90 @@
+[H] Starting zsim, built Fri Jul 3 00:59:25 CDT 2015 (rev master:70:e205a52:30fc 103+ 76- f458f4b0)
+[H] Creating global segment, 1024 MBs
+[H] Global segment shmid = 106430485
+[H] Deadlock detection ON
+[S 0] Started instance
+[S 1] Started instance
+[S 0] Started RR scheduler, quantum=50 phases
+[S 0] Initialized system
+[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim.h5
+[S 0] HDF5 backend: Created table, 22624 bytes/record, 47 records/write
+[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim-ev.h5
+[S 0] HDF5 backend: Created table, 22624 bytes/record, 6 records/write
+[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim-cmp.h5
+[S 0] HDF5 backend: Created table, 2464 bytes/record, 1 records/write
+[S 0] Initialization complete
+[H] Attached to global heap
+[S 0] Started process, PID 15317
+[S 0] procMask: 0x0
+[S 0] [0] Adjusting clocks, domain 0, de-ffwd 0
+[S 0] FFI mode initialized, 2 ffiPoints
+[S 1] Started process, PID 15318
+[S 1] procMask: 0x400000000000000
+[S 0] vDSO info initialized
+[S 1] vDSO info initialized
+[S 0] Thread 0 starting
+[S 1] Thread 0 starting
+[S 1] FF control Thread TID 15326
+[S 0] Started scheduler watchdog thread
+[S 0] Started contention simulation thread 0
+[S 0] FF control Thread TID 15325
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+// As simple as it gets: 1-core system with 2 short processes
+
+sys = {
+    cores = {
+        simpleCore = {
+            type = "Simple";
+            dcache = "l1d";
+            icache = "l1i";
+        };
+    };
+
+    lineSize = 64;
+
+    caches = {
+        l1d = {
+            size = 65536;
+        };
+        l1i = {
+            size = 32768;
+        };
+        l2 = {
+            caches = 1;
+            size = 2097152;
+            children = "l1i|l1d";  // interleave
+        };
+    };
+};
+
+sim = {
+    phaseLength = 10000;
+    // attachDebugger = True;
+    schedQuantum = 50;  // switch threads frequently
+    procStatsFilter = "l1.*|l2.*"
+};
+
+process0 = {
+    command = "ls -alh --color tests/";
+};
+
+
+process1 = {
+    command = "cat tests/simple.cfg";
+};
+
+[S 0] FFI: Entering fast-forward for process 0
+[S 0] Thread 0 entering fast-forward
+[S 0] ffiPoint reached, 10005655 instrs, limit 10000000
+[S 0] Last ffiPoint reached, 20000003 instrs, limit 20000000
+[S 0] Delaying termination until all other processes finish
+[H] Child 15318 done
+[S 0] All other processes done, terminating
+[S 0] Dumping termination stats
+[H] Child 15317 done
+[H] All children done, exiting
