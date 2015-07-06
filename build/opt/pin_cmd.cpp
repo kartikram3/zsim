@@ -72,7 +72,9 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
  
     args.push_back("-xyzzy");
     args.push_back("-reserve_memory");
-    args.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.address");
+//    args.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.address");
+
+    args.push_back("/home/kartik/Prefetch_Simulator/PINBALL_GHENT_1/INTcpu2006-pinpoints-w100M-d30M-m10/cpu2006-astar_1-ref-1.pp/cpu2006-astar_1-ref-1_t0r6_warmup100001500_prolog0_region30000016_epilog0_006_0-19071.0.address");
 
 
     //Global pin options
@@ -86,7 +88,8 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
     args.push_back("-replay");
     args.push_back("-xyzzy");
     args.push_back("-replay:basename");
-    args.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0");
+    //args.push_back("/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0");
+    args.push_back("/home/kartik/Prefetch_Simulator/PINBALL_GHENT_1/INTcpu2006-pinpoints-w100M-d30M-m10/cpu2006-astar_1-ref-1.pp/cpu2006-astar_1-ref-1_t0r6_warmup100001500_prolog0_region30000016_epilog0_006_0-19071.0");
     args.push_back("-replay:playout");
     args.push_back("0");
     args.push_back("-log:mt");
