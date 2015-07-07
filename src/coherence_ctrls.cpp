@@ -260,6 +260,7 @@ uint64_t MESITopCC::processEviction(Address wbLineAddr, uint32_t lineId, bool* r
 
 uint64_t MESITopCC::processAccess(Address lineAddr, uint32_t lineId, AccessType type, uint32_t childId, bool haveExclusive,
                                   MESIState* childState, bool* inducedWriteback, uint64_t cycle, uint32_t srcId, uint32_t flags) {
+
     Entry* e = &array[lineId];
     uint64_t respCycle = cycle;
     switch (type) {
@@ -340,4 +341,3 @@ uint64_t MESITopCC::processInval(Address lineAddr, uint32_t lineId, InvType type
         return sendInvalidates(lineAddr, lineId, type, reqWriteback, cycle, srcId);
     }
 }
-

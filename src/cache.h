@@ -70,6 +70,8 @@ class Cache : public BaseCache {
             startInvalidate();
             return finishInvalidate(req);
         }
+    
+        enum cache_type { INCLUSIVE, NON_INCLUSIVE, EXCLUSIVE, FLEXCLUSIVE, LINE_BASED_CLUSION };
 
     protected:
         void initCacheStats(AggregateStat* cacheStat);
