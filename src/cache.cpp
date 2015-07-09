@@ -89,6 +89,9 @@ uint64_t Cache::access(MemReq& req) {
         EventRecorder* evRec = zinfo->eventRecorders[req.srcId];
                                               //src is the source core
         TimingRecord wbAcc;
+                        //if writeback happened, then
+                       //maybe a timing record was creted at that
+                        //time
         wbAcc.clear();
         if (unlikely(evRec && evRec->hasRecord())) {
             wbAcc = evRec->popRecord();
@@ -99,12 +102,14 @@ uint64_t Cache::access(MemReq& req) {
         // Access may have generated another timing record. If *both* access
         // and wb have records, stitch them together
         if (unlikely(wbAcc.isValid())) {
+
             if (!evRec->hasRecord()) {
                 // Downstream should not care about endEvent for PUTs
                 wbAcc.endEvent = nullptr;
                 evRec->pushRecord(wbAcc);
             } else {
                 // Connect both events
+                info("weird wbAcc happened");
                 TimingRecord acc = evRec->popRecord();
                 assert(wbAcc.reqCycle >= req.cycle);
                 assert(acc.reqCycle >= req.cycle);

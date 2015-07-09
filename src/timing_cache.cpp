@@ -28,6 +28,12 @@
 #include "timing_event.h"
 #include "zsim.h"
 
+//the way this works is that the timing record for this
+//access is built up and then the record function in 
+//ooo_core class pops it out and simulates it during the
+//contention simulation
+//--KARTIK
+
 // Events
 class HitEvent : public TimingEvent {
     private:
@@ -112,6 +118,12 @@ void TimingCache::initStats(AggregateStat* parentStat) {
 
 // TODO(dsm): This is copied verbatim from Cache. We should split Cache into different methods, then call those.
 uint64_t TimingCache::access(MemReq& req) {
+
+    //check if it is a non-inclusive, exclusive or line-based
+    //inclusion cache. 
+    //depending upon the answer, there will be difference in the
+    //access path
+
     EventRecorder* evRec = zinfo->eventRecorders[req.srcId];
     assert_msg(evRec, "TimingCache is not connected to TimingCore");
 
