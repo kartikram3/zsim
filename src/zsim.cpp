@@ -1045,6 +1045,10 @@ BOOL FollowChild(CHILD_PROCESS childProcess, VOID * userData) {
     // You can always run process0 = { command = "ls"; startPaused = True; startFastForwarded = True; }; to avoid this
     if (procIdx == 0) panic("process0 cannot exec(), it spawns globally needed internal threads (scheduler and contention); run a dummy process0 instead!");
 
+//Description from linux.die.net
+
+//--The exec() family of functions replaces the current process image with a new process image
+
     //Set up Pin command
     //NOTE: perProcessDir may be active, we don't care much... run in the same dir as parent process
     //NOTE: we recycle our own procIdx on an exec, but fork() changed it so we need to update Pin's command line
@@ -1391,8 +1395,8 @@ VOID FFThread(VOID* arg) {
             syncEv->wait();
             //At this point the thread thet triggered the end of phase is blocked inside of EndOfPhaseActions
             futex_lock(&zinfo->ffLock);
-            if (!procTreeNode->isInFastForward()) {
                 info("End of phase %ld, entering FF", zinfo->numPhases);
+            if (!procTreeNode->isInFastForward()) {
                 EnterFastForward();
             } else {
                 info("FF control thread called on end of phase, but someone else (program?) already entered ffwd");

@@ -59,7 +59,13 @@ void Cache::initCacheStats(AggregateStat* cacheStat) {
 }
 
 uint64_t Cache::access(MemReq& req) {
+    //we need a new access function that
+    //accesses data in a non-inclusive/exclusive/line-wise
+    //inclusive way also
+    
+
     uint64_t respCycle = req.cycle;
+              //request and response cycle
     bool skipAccess = cc->startAccess(req); //may need to skip access due to races (NOTE: may change req.type!)
     if (likely(!skipAccess)) {
         bool updateReplacement = (req.type == GETS) || (req.type == GETX);
@@ -114,6 +120,7 @@ uint64_t Cache::access(MemReq& req) {
                 acc.reqCycle = req.cycle;
                 acc.startEvent = startEv;
                 // endEvent / endCycle stay the same; wbAcc's endEvent not connected
+
                 evRec->pushRecord(acc);
             }
         }
