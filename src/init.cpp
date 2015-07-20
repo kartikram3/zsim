@@ -169,6 +169,18 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         rp = new NRUReplPolicy(numLines, candidates);
     } else if (replType == "Rand") {
         rp = new RandReplPolicy(candidates);
+    } else if (replType == "TAP"){
+
+        panic("Replacement policy TAP not defined !");
+
+    } else if (replType == "DRRIP"){
+
+        panic ("Replacement policy DRRIP  not defined");
+
+    } else if (replType == "RRIP"){
+
+        panic ("Replacement policy RRIP not defined");
+
     } else if (replType == "WayPart" || replType == "Vantage" || replType == "IdealLRUPart") {
         if (replType == "WayPart" && arrayType != "SetAssoc") panic("WayPart replacement requires SetAssoc array");
 
