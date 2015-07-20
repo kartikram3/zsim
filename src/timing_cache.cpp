@@ -373,4 +373,3 @@ void TimingCache::simulateReplAccess(ReplAccessEvent* ev, uint64_t cycle) {
         ev->requeue(cycle+1);
     }
 }
-

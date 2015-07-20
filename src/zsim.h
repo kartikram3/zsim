@@ -50,6 +50,8 @@ class AccessTraceWriter;
 class TraceDriver;
 template <typename T> class g_vector;
 
+//int x_10;
+
 struct ClockDomainInfo {
     uint64_t realtimeOffsetNs;
     uint64_t monotonicOffsetNs;
@@ -188,6 +190,7 @@ struct GlobSimInfo {
 
 
 //Process-wide global variables, defined in zsim.cpp
+extern int z;
 extern Core* cores[MAX_THREADS]; //tid->core array
 extern uint32_t procIdx;
 extern uint32_t lineBits; //process-local for performance, but logically global

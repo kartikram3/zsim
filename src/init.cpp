@@ -92,13 +92,16 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         return new TraceDriverProxyCache(name);
     }
 
+
     uint32_t lineSize = zinfo->lineSize;
+    info ("the linesize is %d \n", lineSize);
     assert(lineSize > 0); //avoid config deps
     if (bankSize % lineSize != 0) panic("%s: Bank size must be a multiple of line size", name.c_str());
 
     uint32_t numLines = bankSize/lineSize;
 
     //Array
+
     uint32_t numHashes = 1;
     uint32_t ways = config.get<uint32_t>(prefix + "array.ways", 4);
     string arrayType = config.get<const char*>(prefix + "array.type", "SetAssoc");
@@ -121,6 +124,7 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
     uint32_t numSets = numLines/ways;
     uint32_t setBits = 31 - __builtin_clz(numSets);
     if ((1u << setBits) != numSets) panic("%s: Number of sets must be a power of two (you specified %d sets)", name.c_str(), numSets);
+    info ("the linesize is %d \n", lineSize);
 
     //Hash function
     HashFamily* hf = nullptr;
@@ -416,7 +420,6 @@ CacheGroup* BuildCacheGroup(Config& config, const string& name, bool isTerminal)
             cg[i][j] = BuildCacheBank(config, prefix, bankName, bankSize, isTerminal, domain);
         }
     }
-
     return cgp;
 }
 

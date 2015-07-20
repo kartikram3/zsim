@@ -117,6 +117,7 @@ void OOOCore::initStats(AggregateStat* parentStat) {
 }
 
 uint64_t OOOCore::getInstrs() const {return instrs;}
+
 uint64_t OOOCore::getPhaseCycles() const {return curCycle % zinfo->phaseLength;}
 
 void OOOCore::contextSwitch(int32_t gid) {

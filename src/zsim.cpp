@@ -106,6 +106,7 @@ INT32 Usage() {
 /* Global Variables */
 
 GlobSimInfo* zinfo;
+int z=0;
 
 /* Per-process variables */
 
@@ -178,6 +179,7 @@ VOID FFThread(VOID* arg);
 InstrFuncPtrs fPtrs[MAX_THREADS] ATTR_LINE_ALIGNED; //minimize false sharing
 
 VOID PIN_FAST_ANALYSIS_CALL IndirectLoadSingle(THREADID tid, ADDRINT addr) {
+    //info ("Yeah called it %d",z++);
     fPtrs[tid].loadPtr(tid, addr);
 }
 

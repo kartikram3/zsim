@@ -109,7 +109,7 @@ uint64_t Cache::access(MemReq& req) {
                 evRec->pushRecord(wbAcc);
             } else {
                 // Connect both events
-                info("weird wbAcc happened");
+                //info("weird wbAcc happened");
                 TimingRecord acc = evRec->popRecord();
                 assert(wbAcc.reqCycle >= req.cycle);
                 assert(acc.reqCycle >= req.cycle);
