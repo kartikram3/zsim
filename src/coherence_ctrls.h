@@ -244,7 +244,7 @@ class MESITopCC : public GlobAlloc {
         uint64_t sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 };
 
-static inline bool CheckForMESIRace(AccessType& type, MESIState* state, MESIState initialState) {
+static inline bool CheckForMESIRace(AccessType& type, MESIState* state, MESIState initialState){
     //NOTE: THIS IS THE ONLY CODE THAT SHOULD DEAL WITH RACES. tcc, bcc et al should be written as if they were race-free.
     bool skipAccess = false;
     if (*state != initialState) {

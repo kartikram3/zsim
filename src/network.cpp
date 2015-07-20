@@ -72,6 +72,7 @@ uint32_t Network::getRTT(const char* src, const char* dst) {
     */
 
     if (delayMap.find(key) != delayMap.end()) {
+        info ("the network RTT initialized to %d",2*delayMap[key]);
         return 2*delayMap[key];
     } else {
         warn("%s and %s have no entry in network description file, returning 0 latency", src, dst);

@@ -273,6 +273,7 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         cc = new MESICC(numLines, nonInclusiveHack, name);
     }
     rp->setCC(cc);
+
     if (!isTerminal) {
         if (type == "Simple") {
             cache = new Cache(numLines, cc, array, rp, accLat, invLat, name);
@@ -285,7 +286,40 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             g_string traceFile = config.get<const char*>(prefix + "traceFile","");
             if (traceFile.empty()) traceFile = g_string(zinfo->outputDir) + "/" + name + ".trace";
             cache = new TracingCache(numLines, cc, array, rp, accLat, invLat, traceFile, name);
-        } else {
+        } else if (type == "non_inclusive"){
+                          
+            panic("Invalid cache type %s", type.c_str());
+
+        } else if (type == "exclusive" ) { 
+
+            panic("Invalid cache type %s", type.c_str());
+
+        } else if (type == "flexclusive" ){
+            
+            panic("Invalid cache type %s", type.c_str());
+
+        } else if (type == "per_line_clusion"){
+
+            panic("Invalid cache type %s", type.c_str());
+
+        } else if (type == "timing_non_inclusive"){
+                          
+            panic("Invalid cache type %s", type.c_str());
+
+        } else if (type == "timing_exclusive" ) { 
+
+            panic("Invalid cache type %s", type.c_str());
+
+        } else if (type == "timing_flexclusive" ){
+            
+            panic("Invalid cache type %s", type.c_str());
+
+        } else if (type == "timing_per_line_clusion"){
+
+            panic("Invalid cache type %s", type.c_str());
+
+
+        }else {
             panic("Invalid cache type %s", type.c_str());
         }
     } else {
@@ -453,12 +487,14 @@ static void InitSystem(Config& config) {
 
         string children = config.get<const char*>(prefix + group + ".children", "");
         childMap[group] = parseChildren(children);
+
         for (auto v : childMap[group]) for (auto child : v) {
             if (parentMap.count(child)) {
                 panic("Cache group %s can have only one parent (%s and %s found)", child.c_str(), parentMap[child].c_str(), grp);
             }
             parentMap[child] = group;
         }
+
     }
 
     // Check that children are valid (another cache)
