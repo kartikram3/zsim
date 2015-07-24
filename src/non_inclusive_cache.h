@@ -1,24 +1,22 @@
 /* non inclusive cache class */
+
 #ifndef  NON_INCLUSIVE_CACHE_
 #define NON_INCLUSIVE CACHE_
 
-#include "cache_arrays.h"
-#include "coherence_ctrls.h"
-#include "g_std/g_string.h"
-#include "g_std/g_vector.h"
-#include "memory_hierarchy.h"
-#include "repl_policies.h"
-#include "stats.h"
+#include "breakdown_stats.h"
+#include "cache.h"
 
-class non_inclusive_cache{
+class non_inclusive_cache: public Cache{
     protected :
-        //CC* cc;
-        int x=10;
-         
 
+        int x=10;
 
     public :
-        non_inclusive_cache();
+
+        non_inclusive_cache(uint32_t _numLines, CC* _cc, CacheArray* _array, ReplPolicy* _rp, uint32_t _accLat, uint32_t _invLat, uint32_t mshrs,  uint32_t tagLat, uint32_t ways, uint32_t cands, uint32_t _domain, const g_string& _name);
+
+
+        uint64_t access(MemReq& req);
 
     private :
         

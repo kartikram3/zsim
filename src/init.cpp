@@ -68,6 +68,7 @@
 #include "stats_filter.h"
 #include "str.h"
 #include "timing_cache.h"
+#include "non_inclusive_cache.h"
 #include "timing_core.h"
 #include "timing_event.h"
 #include "trace_driver.h"
@@ -299,8 +300,11 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             if (traceFile.empty()) traceFile = g_string(zinfo->outputDir) + "/" + name + ".trace";
             cache = new TracingCache(numLines, cc, array, rp, accLat, invLat, traceFile, name);
         } else if (type == "non_inclusive"){
-                          
-            panic("Invalid cache type %s", type.c_str());
+            uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
+            uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
+            uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+                        
+            cache = new non_inclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
 
         } else if (type == "exclusive" ) { 
 

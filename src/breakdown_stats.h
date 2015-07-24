@@ -23,6 +23,9 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef BREAKDOWN_STATS
+#define BREAKDOWN_STATS
+
 #include "bithacks.h"
 #include "stats.h"
 #include "zsim.h"
@@ -67,3 +70,4 @@ class CycleBreakdownStat : public VectorCounter {
         }
 };
 
+#endif
