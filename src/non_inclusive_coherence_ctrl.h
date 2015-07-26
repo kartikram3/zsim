@@ -1,84 +1,47 @@
-/** $lic$
- * Copyright (C) 2012-2015 by Massachusetts Institute of Technology
- * Copyright (C) 2010-2013 by The Board of Trustees of Stanford University
- *
- * This file is part of zsim.
- *
- * zsim is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation, version 2.
- *
- * If you use this software in your research, we request that you reference
- * the zsim paper ("ZSim: Fast and Accurate Microarchitectural Simulation of
- * Thousand-Core Systems", Sanchez and Kozyrakis, ISCA-40, June 2013) as the
- * source of the simulator in any publications that use this software, and that
- * you send us a citation of your work.
- *
- * zsim is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see <http://www.gnu.org/licenses/>.
- */
+//Non inclusive cache code written by Kartik
 
-#ifndef COHERENCE_CTRLS_H_
-#define COHERENCE_CTRLS_H_
+#ifndef NON_INCLUSIVE_COHERENCE_CTRLS_H_
+#define NON_INCLUSIVE_COHERENCE_CTRLS_H_
 
-#include <bitset>
-#include "constants.h"
-#include "g_std/g_string.h"
-#include "g_std/g_vector.h"
-#include "locks.h"
-#include "memory_hierarchy.h"
-#include "pad.h"
-#include "stats.h"
-
-//TODO: Now that we have a pure CC interface, the MESI controllers should go on different files.
-
-/* Generic, integrated controller interface */
-class CC : public GlobAlloc {
-    public:
-        //Initialization
-        virtual void setParents(uint32_t childId, const g_vector<MemObject*>& parents, Network* network) = 0;
-        virtual void setChildren(const g_vector<BaseCache*>& children, Network* network) = 0;
-        virtual void initStats(AggregateStat* cacheStat) = 0;
-
-        //Access methods; see Cache for call sequence
-        virtual bool startAccess(MemReq& req) = 0; //initial locking, address races; returns true if access should be skipped; may change req!
-        virtual bool shouldAllocate(const MemReq& req) = 0; //called when we don't find req's lineAddr in the array
-        virtual uint64_t processEviction(const MemReq& triggerReq, Address wbLineAddr, int32_t lineId, uint64_t startCycle) = 0; //called iff shouldAllocate returns true
-        virtual uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle, uint64_t* getDoneCycle = nullptr) = 0;
-        virtual void endAccess(const MemReq& req) = 0;
-
-        //Inv methods
-        virtual void startInv() = 0;
-        virtual uint64_t processInv(const InvReq& req, int32_t lineId, uint64_t startCycle) = 0;
-
-        //Repl policy interface
-        virtual uint32_t numSharers(uint32_t lineId) = 0;
-        virtual bool isValid(uint32_t lineId) = 0;
-};
+#include "coherence_ctrls.h"
 
 
-/* A MESI coherence controller is decoupled in two:
- *  - The BOTTOM controller, which deals with keeping coherence state with respect to the upper level and issues
- *    requests (accesses) to upper levels.
- *  - The TOP controller, which keeps state of lines w.r.t. lower levels of the hierarchy (e.g. sharer lists),
- *    and issues requests (invalidates) to lower levels.
- * The naming scheme is PROTOCOL-CENTRIC, i.e. if you draw a multi-level hierarchy, between each pair of levels
- * there is a top CC at the top and a bottom CC at the bottom. Unfortunately, if you look at the caches, the
- * bottom CC is at the top is at the bottom. So the cache class may seem a bit weird at times, but the controller
- * classes make more sense.
- */
-
+class CC; //forward declaration of CC
+          //in coherence_ctrls.h
 class Cache;
 class Network;
 
-/* NOTE: To avoid virtual function overheads, there is no BottomCC interface, since we only have a MESI controller for now */
 
-class MESIBottomCC : public GlobAlloc {
+static inline bool non_inclusive_CheckForMESIRace(AccessType& type, MESIState* state, MESIState initialState){
+    //NOTE: THIS IS THE ONLY CODE THAT SHOULD DEAL WITH RACES. tcc, bcc et al should be written as if they were race-free.
+    bool skipAccess = false;
+    if (*state != initialState) {
+        //info("[%s] Race on line 0x%lx, %s by childId %d, was state %s, now %s", name.c_str(), lineAddr, accessTypeNames[type], childId, mesiStateNames[initialState], mesiStateNames[*state]);
+        //An intervening invalidate happened! Two types of races:
+        if (type == PUTS || type == PUTX) { //either it is a PUT...
+            //We want to get rid of this line
+            if (*state == I) {
+                //If it was already invalidated (INV), just skip access altogether, we're already done
+                skipAccess = true;
+            } else {
+                //We were downgraded (INVX), still need to do the PUT
+                assert(*state == S);
+                //If we wanted to do a PUTX, just change it to a PUTS b/c now the line is not exclusive anymore
+                if (type == PUTX) type = PUTS;
+            }
+        } else if (type == GETX) { //...or it is a GETX
+            //In this case, the line MUST have been in S and have been INValidated
+            assert(initialState == S);
+            assert(*state == I);
+            //Do nothing. This is still a valid GETX, only it is not an upgrade miss anymore
+        } else { //no GETSs can race with INVs, if we are doing a GETS it's because the line was invalid to begin with!
+            panic("Invalid true race happened (?)");
+        }
+    }
+    return skipAccess;
+}
+
+class non_inclusive_MESIBottomCC : public GlobAlloc {
     private:
         MESIState* array;
         g_vector<MemObject*> parents;
@@ -94,14 +57,13 @@ class MESIBottomCC : public GlobAlloc {
         // TODO: Measuring writebacks is messy, do if needed
         Counter profGETNextLevelLat, profGETNetLat;
 
-        bool nonInclusiveHack;
 
         PAD();
         lock_t ccLock;
         PAD();
 
     public:
-        MESIBottomCC(uint32_t _numLines, uint32_t _selfId, bool _nonInclusiveHack) : numLines(_numLines), selfId(_selfId), nonInclusiveHack(_nonInclusiveHack) {
+        non_inclusive_MESIBottomCC(uint32_t _numLines, uint32_t _selfId ) : numLines(_numLines), selfId(_selfId)  {
             array = gm_calloc<MESIState>(numLines);
             for (uint32_t i = 0; i < numLines; i++) {
                 array[i] = I;
@@ -174,8 +136,9 @@ class MESIBottomCC : public GlobAlloc {
 };
 
 
-//Implements the "top" part: Keeps directory information, handles downgrades and invalidates
-class MESITopCC : public GlobAlloc {
+
+
+class non_inclusive_MESITopCC : public GlobAlloc {
     private:
         struct Entry {
             uint32_t numSharers;
@@ -202,14 +165,13 @@ class MESITopCC : public GlobAlloc {
         g_vector<uint32_t> childrenRTTs;
         uint32_t numLines;
 
-        bool nonInclusiveHack;
 
         PAD();
         lock_t ccLock;
         PAD();
 
     public:
-        MESITopCC(uint32_t _numLines, bool _nonInclusiveHack) : numLines(_numLines), nonInclusiveHack(_nonInclusiveHack) {
+        non_inclusive_MESITopCC(uint32_t _numLines ) : numLines(_numLines) {
             array = gm_calloc<Entry>(numLines);
             for (uint32_t i = 0; i < numLines; i++) {
                 array[i].clear();
@@ -244,60 +206,34 @@ class MESITopCC : public GlobAlloc {
         uint64_t sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 };
 
-static inline bool CheckForMESIRace(AccessType& type, MESIState* state, MESIState initialState){
-    //NOTE: THIS IS THE ONLY CODE THAT SHOULD DEAL WITH RACES. tcc, bcc et al should be written as if they were race-free.
-    bool skipAccess = false;
-    if (*state != initialState) {
-        //info("[%s] Race on line 0x%lx, %s by childId %d, was state %s, now %s", name.c_str(), lineAddr, accessTypeNames[type], childId, mesiStateNames[initialState], mesiStateNames[*state]);
-        //An intervening invalidate happened! Two types of races:
-        if (type == PUTS || type == PUTX) { //either it is a PUT...
-            //We want to get rid of this line
-            if (*state == I) {
 
-                //If it was already invalidated (INV), just skip access altogether, we're already done
-                skipAccess = true;
 
-            } else {
-                //We were downgraded (INVX), still need to do the PUT
-                assert(*state == S);
-                //If we wanted to do a PUTX, just change it to a PUTS b/c now the line is not exclusive anymore
-                if (type == PUTX) type = PUTS;
-            }
-        } else if (type == GETX) { //...or it is a GETX
-            //In this case, the line MUST have been in S and have been INValidated
-            assert(initialState == S);
-            assert(*state == I);
-            //Do nothing. This is still a valid GETX, only it is not an upgrade miss anymore
-        } else { //no GETSs can race with INVs, if we are doing a GETS it's because the line was invalid to begin with!
-            panic("Invalid true race happened (?)");
-        }
-    }
-    return skipAccess;
-}
 
-// Non-terminal CC; accepts GETS/X and PUTS/X accesses
-class MESICC : public CC {
+
+
+//non-inclusive version of the coherence
+//controller (non-terminal)
+class non_inclusive_MESICC : public CC{
+
     private:
 
-        MESITopCC* tcc;
-        MESIBottomCC* bcc;
+        non_inclusive_MESITopCC* tcc;
+        non_inclusive_MESIBottomCC* bcc;
         uint32_t numLines;
-        bool nonInclusiveHack;
         g_string name;
 
-
     public:
-        //Initialization
-        MESICC(uint32_t _numLines, bool _nonInclusiveHack, g_string& _name) : tcc(nullptr), bcc(nullptr),
-            numLines(_numLines), nonInclusiveHack(_nonInclusiveHack), name(_name) {}
+
+         non_inclusive_MESICC(uint32_t _numLines, g_string& _name) : tcc(nullptr), bcc(nullptr),
+            numLines(_numLines), name(_name) {}
 
         void setParents(uint32_t childId, const g_vector<MemObject*>& parents, Network* network) {
-            bcc = new MESIBottomCC(numLines, childId, nonInclusiveHack);
+            bcc = new non_inclusive_MESIBottomCC(numLines, childId);
             bcc->init(parents, network, name.c_str());
         }
 
         void setChildren(const g_vector<BaseCache*>& children, Network* network) {
-            tcc = new MESITopCC(numLines, nonInclusiveHack);
+            tcc = new non_inclusive_MESITopCC(numLines);
             tcc->init(children, network, name.c_str());
         }
 
@@ -324,7 +260,7 @@ class MESICC : public CC {
             /* The situation is now stable, true race-wise. No one can touch the child state, because we hold
              * both parent's locks. So, we first handle races, which may cause us to skip the access.
              */
-            bool skipAccess = CheckForMESIRace(req.type /*may change*/, req.state, req.initialState);
+            bool skipAccess = non_inclusive_CheckForMESIRace(req.type /*may change*/, req.state, req.initialState);
             return skipAccess;
         }
 
@@ -333,10 +269,6 @@ class MESICC : public CC {
                 return true;
             } else {
                 assert((req.type == PUTS) || (req.type == PUTX));
-                if (!nonInclusiveHack) {
-                    panic("[%s] We lost inclusion on this line! 0x%lx, type %s, childId %d, childState %s", name.c_str(),
-                            req.lineAddr, AccessTypeName(req.type), req.childId, MESIStateName(*req.state));
-                }
                 return false;
             }
         }
@@ -356,7 +288,6 @@ class MESICC : public CC {
             //but if we do proper NI/EX mid-level caches backed by directories, this may start becoming more common (and it is perfectly acceptable to
             //upgrade without any interaction with the parent... the child had the permissions!)
             if (lineId == -1 || (((req.type == PUTS) || (req.type == PUTX)) && !bcc->isValid(lineId))) { //can only be a non-inclusive wback
-                assert(nonInclusiveHack);
                 assert((req.type == PUTS) || (req.type == PUTX));
                 respCycle = bcc->processNonInclusiveWriteback(req.lineAddr, req.type, startCycle, req.state, req.srcId, req.flags);
             } else {
@@ -409,21 +340,24 @@ class MESICC : public CC {
         //Repl policy interface
         uint32_t numSharers(uint32_t lineId) {return tcc->numSharers(lineId);}
         bool isValid(uint32_t lineId) {return bcc->isValid(lineId);}
+
 };
 
-// Terminal CC, i.e., without children --- accepts GETS/X, but not PUTS/X
-class MESITerminalCC : public CC {
+
+class non_inclusive_MESITerminalCC : public CC {
+
     private:
-        MESIBottomCC* bcc;
+        non_inclusive_MESIBottomCC* bcc;
         uint32_t numLines;
         g_string name;
 
+
     public:
-        //Initialization
-        MESITerminalCC(uint32_t _numLines, const g_string& _name) : bcc(nullptr), numLines(_numLines), name(_name) {}
+        
+        non_inclusive_MESITerminalCC(uint32_t _numLines, const g_string& _name) : bcc(nullptr), numLines(_numLines), name(_name) {}
 
         void setParents(uint32_t childId, const g_vector<MemObject*>& parents, Network* network) {
-            bcc = new MESIBottomCC(numLines, childId, false /*inclusive*/);
+            bcc = new non_inclusive_MESIBottomCC(numLines, childId );
             bcc->init(parents, network, name.c_str());
         }
 
@@ -452,7 +386,7 @@ class MESITerminalCC : public CC {
             /* The situation is now stable, true race-wise. No one can touch the child state, because we hold
              * both parent's locks. So, we first handle races, which may cause us to skip the access.
              */
-            bool skipAccess = CheckForMESIRace(req.type /*may change*/, req.state, req.initialState);
+            bool skipAccess = non_inclusive_CheckForMESIRace(req.type /*may change*/, req.state, req.initialState);
             return skipAccess;
         }
 
@@ -497,6 +431,8 @@ class MESITerminalCC : public CC {
         //Repl policy interface
         uint32_t numSharers(uint32_t lineId) {return 0;} //no sharers
         bool isValid(uint32_t lineId) {return bcc->isValid(lineId);}
+
+
 };
 
-#endif  // COHERENCE_CTRLS_H_
+#endif

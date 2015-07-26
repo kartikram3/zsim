@@ -69,6 +69,7 @@
 #include "str.h"
 #include "timing_cache.h"
 #include "non_inclusive_cache.h"
+#include "non_inclusive_coherence_ctrl.h"
 #include "timing_core.h"
 #include "timing_event.h"
 #include "trace_driver.h"
@@ -280,34 +281,50 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
     // Finally, build the cache
     Cache* cache;
     CC* cc;
-    if (isTerminal) {
+
+/*    if (isTerminal) {
         cc = new MESITerminalCC(numLines, name);
     } else {
         cc = new MESICC(numLines, nonInclusiveHack, name);
     }
-    rp->setCC(cc);
+    rp->setCC(cc); */
 
     if (!isTerminal) {
         if (type == "Simple") {
+            cc = new MESICC(numLines, nonInclusiveHack, name);
+            rp->setCC(cc); 
             cache = new Cache(numLines, cc, array, rp, accLat, invLat, name);
         } else if (type == "Timing") {
             uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
             uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
             uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+
+            cc = new MESICC(numLines, nonInclusiveHack, name);
+            rp->setCC(cc); 
+
             cache = new TimingCache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
         } else if (type == "Tracing") {
+
             g_string traceFile = config.get<const char*>(prefix + "traceFile","");
             if (traceFile.empty()) traceFile = g_string(zinfo->outputDir) + "/" + name + ".trace";
+
+            cc = new MESICC(numLines, nonInclusiveHack, name);
+            rp->setCC(cc); 
+
             cache = new TracingCache(numLines, cc, array, rp, accLat, invLat, traceFile, name);
         } else if (type == "non_inclusive"){
+
             uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
             uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
             uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
-                        
+
+            cc = new non_inclusive_MESICC(numLines, name); //change to non inclusive MESI-CC
+            rp->setCC(cc); 
+
             cache = new non_inclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
 
         } else if (type == "exclusive" ) { 
-
+          
             panic("Invalid cache type %s", type.c_str());
 
         } else if (type == "flexclusive" ){
@@ -338,10 +355,13 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         }else {
             panic("Invalid cache type %s", type.c_str());
         }
+
     } else {
         //Filter cache optimization
         if (type != "Simple") panic("Terminal cache %s can only have type == Simple", name.c_str());
         if (arrayType != "SetAssoc" || hashType != "None" || replType != "LRU") panic("Invalid FilterCache config %s", name.c_str());
+        cc = new MESITerminalCC(numLines, name);
+        rp->setCC(cc);
         cache = new FilterCache(numSets, numLines, cc, array, rp, accLat, invLat, name);
     }
 

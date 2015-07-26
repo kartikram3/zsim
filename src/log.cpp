@@ -39,6 +39,7 @@ static lock_t log_printLock;
 
 
 void InitLog(const char* header, const char* file) {
+
     logHeader = strdup(header);
     futex_init(&log_printLock);
 

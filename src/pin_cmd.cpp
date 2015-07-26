@@ -49,7 +49,7 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
         zsimPath = QUOTED(ZSIM_PATH);
     }
 
-    pinPath = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin";
+    //pinPath = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin";
     args.push_back(pinPath);
 
     /*args.push_back("-xyzzy");

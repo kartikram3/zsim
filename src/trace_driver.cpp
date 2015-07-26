@@ -179,4 +179,3 @@ void TraceDriver::executeAccess(AccessRecord acc) {
         atw->write(wAcc);
     }
 }
-

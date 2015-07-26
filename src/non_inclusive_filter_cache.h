@@ -41,7 +41,7 @@
  * it is fine to do this without grabbing a lock.
  */
 
-class FilterCache : public Cache {
+class non_inclusive_FilterCache : public Cache {
     private:
         struct FilterEntry {
             volatile Address rdAddr;
@@ -62,7 +62,7 @@ class FilterCache : public Cache {
         uint64_t fGETSHit, fGETXHit;
 
     public:
-        FilterCache(uint32_t _numSets, uint32_t _numLines, CC* _cc, CacheArray* _array,
+        non_inclusive_FilterCache(uint32_t _numSets, uint32_t _numLines, CC* _cc, CacheArray* _array,
                 ReplPolicy* _rp, uint32_t _accLat, uint32_t _invLat, g_string& _name)
             : Cache(_numLines, _cc, _array, _rp, _accLat, _invLat, _name)
         {
