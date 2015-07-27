@@ -43,7 +43,7 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
     oDir = g_string( outputDir);
     if(configFile)
     cfg = g_string( configFile); 
-    //nullapp_path = conf->get<const char *>("sim.nullapp_path", "");
+    nullapp_path = conf->get<const char *>("sim.nullapp_path", "");
 
     info("output dir is %s", outputDir);
 
@@ -143,7 +143,7 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
     }*/
     if (conf->get<bool>("sim.logToFile", false)) {
       //args.push_back("-logToFile");
-      //logToFile=true;
+      logToFile=true;
     }
 
     info("H1");
@@ -161,8 +161,11 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
         const char* loader = conf->get<const char*>(p_ss.str() +  ".loader", "");
         const char* env = conf->get<const char*>(p_ss.str() +  ".env", "");
         use_pinplay = conf->get<bool>(p_ss.str() + ".use_pinplay", true);
+        const char* pinplay_arg_1 = conf->get<const char *>(p_ss.str() + ".pinplay_arg_1");
+        const char* pinplay_arg_2 = conf->get<const char *>(p_ss.str() + ".pinplay_arg_2");
 
-        ProcCmdInfo pi = {g_string(cmd), g_string(input), g_string(loader), g_string(env), use_pinplay};
+        ProcCmdInfo pi = {g_string(cmd), g_string(input), g_string(loader), g_string(env), use_pinplay,
+                            g_string(pinplay_arg_1), g_string(pinplay_arg_2)};
         procInfo.push_back(pi);
     }
 
@@ -186,7 +189,7 @@ g_vector<g_string> PinCmd::getPinCmdArgs(uint32_t procIdx) {
         pinPath = QUOTED(PIN_PATH);
         zsimPath = QUOTED(ZSIM_PATH);
 
-    pinPath = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin";
+    //pinPath = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin";
     args.push_back(pinPath);
 
     }
@@ -194,6 +197,8 @@ g_vector<g_string> PinCmd::getPinCmdArgs(uint32_t procIdx) {
     info("H3");
 
     use_pinplay= procInfo[procIdx].use_pinplay;
+    const char * pinplay_arg_1 = procInfo[procIdx].pinplay_arg_1.c_str();
+    const char * pinplay_arg_2 = procInfo[procIdx].pinplay_arg_2.c_str();
     if(use_pinplay) {info ("using pinplay");}
     else info ("no pinplay");
 
@@ -201,7 +206,7 @@ g_vector<g_string> PinCmd::getPinCmdArgs(uint32_t procIdx) {
         args.push_back("-xyzzy");
         args.push_back("-reserve_memory");
 
-        args.push_back("/home/kartik/Prefetch_Simulator/PINBALL_GHENT_1/INTcpu2006-pinpoints-w100M-d30M-m10/cpu2006-astar_1-ref-1.pp/cpu2006-astar_1-ref-1_t0r6_warmup100001500_prolog0_region30000016_epilog0_006_0-19071.0.address");
+        args.push_back(pinplay_arg_1);
 
 
     //Global pin options
@@ -217,7 +222,7 @@ g_vector<g_string> PinCmd::getPinCmdArgs(uint32_t procIdx) {
         args.push_back("-xyzzy");
         args.push_back("-replay:basename");
 
-        args.push_back("/home/kartik/Prefetch_Simulator/PINBALL_GHENT_1/INTcpu2006-pinpoints-w100M-d30M-m10/cpu2006-astar_1-ref-1.pp/cpu2006-astar_1-ref-1_t0r6_warmup100001500_prolog0_region30000016_epilog0_006_0-19071.0");
+        args.push_back(pinplay_arg_2);
         args.push_back("-replay:playout");
         args.push_back("0");
         args.push_back("-log:mt");
@@ -271,7 +276,7 @@ g_vector<g_string> PinCmd::getPinCmdArgs(uint32_t procIdx) {
    args.push_back(shm.c_str());
    
     info ("H6");
-  bool logToFile = false;
+
    if (logToFile) {
        args.push_back("-logToFile");
    }
@@ -331,8 +336,7 @@ g_vector<g_string> PinCmd::getFullCmdArgs(uint32_t procIdx, const char** inputFi
              "will not work! You can homogeneize the loaders instead by editing the .interp ELF section");
     }
 
-    const char *  
-    nullapp_path = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/bin/intel64/nullapp" ;
+    //nullapp_path = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/bin/intel64/nullapp" ;
     if(use_pinplay)
       res.push_back( nullapp_path ); 
     else{

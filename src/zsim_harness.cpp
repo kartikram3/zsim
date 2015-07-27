@@ -75,6 +75,7 @@ ProcInfo childInfo[MAX_CHILDREN];
 volatile uint32_t debuggerChildIdx = MAX_THREADS;
 
 GlobSimInfo* globzinfo = nullptr; //used very sparingly, only in sig handlers. Should probably promote to a global like in zsim processes.
+//lock_t * fork_lock = nullptr;
 
 bool perProcessDir, aslr;
 
@@ -233,7 +234,7 @@ static void printHeartbeat(GlobSimInfo* zinfo) {
 void LaunchProcess(uint32_t procIdx) {
     info ("launching process %d", procIdx);
     int cpid = fork();
-    //futex_lock(&globzinfo->ffLock);
+    //futex_lock(fork_lock);
     if (cpid) { //parent
         assert(cpid > 0);
         childInfo[procIdx].pid = cpid;
@@ -259,7 +260,7 @@ void LaunchProcess(uint32_t procIdx) {
         aptrs[nargs-1] = nullptr;
 
 
-        //futex_unlock(&globzinfo->ffLock);
+        //futex_unlock(fork_lock);
         //Chdir to process dir if needed
         if (perProcessDir) {
             std::stringstream dir_ss;
@@ -395,6 +396,7 @@ int main(int argc, char *argv[]) {
     if (aslr) info("Not disabling ASLR, multiprocess runs will fail");
 
     //Create children processes
+    //fork_lock = static_cast<lock_t *>(gm_get_glob_ptr());
     pinCmd = new PinCmd(&conf, configFile, outputDir, shmid);
     uint32_t numProcs = pinCmd->getNumCmdProcs();
 

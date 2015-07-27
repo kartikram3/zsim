@@ -1,0 +1,1078 @@
+[H] Starting zsim, built Sun Jul 26 22:21:10 CDT 2015 (rev master:87:dd25606:106fc 66400+ 11093- fdfa4239)
+[H] Creating global segment, 1024 MBs
+[H] Global segment shmid = 120750102
+[H] Deadlock detection ON
+[H] output dir is /home/kartik/zsim_kartik
+[H] H1
+[H] p_ss is process0
+[H] p_ss is process1
+[H] p_ss is process2
+[H] H2
+[H] Hello ful cmd args !
+[H] H3
+[H] no pinplay
+[H] H4
+[H] H5
+[H] H6
+[H] the string is 120750102
+[H] H6
+[H] H4
+[H] Pin command line arg no 0 for procIdx 0 : /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/intel64/bin/pinbin
+[H] Pin command line arg no 1 for procIdx 0 : -follow_execv
+[H] Pin command line arg no 2 for procIdx 0 : -tool_exit_timeout
+[H] Pin command line arg no 3 for procIdx 0 : 1
+[H] Pin command line arg no 4 for procIdx 0 : -t
+[H] Pin command line arg no 5 for procIdx 0 : /home/kartik/zsim_kartik/build/opt/libzsim.so
+[H] Pin command line arg no 6 for procIdx 0 : -config
+[H] Pin command line arg no 7 for procIdx 0 : /home/kartik/zsim_kartik/simple.cfg
+[H] Pin command line arg no 8 for procIdx 0 : -outputDir
+[H] Pin command line arg no 9 for procIdx 0 : /home/kartik/zsim_kartik
+[H] Pin command line arg no 10 for procIdx 0 : -shmid
+[H] Pin command line arg no 11 for procIdx 0 : 120750102
+[H] Pin command line arg no 12 for procIdx 0 : -procIdx
+[H] Pin command line arg no 13 for procIdx 0 : 0
+[H] Pin command line arg no 14 for procIdx 0 : --
+[H] Pin command line arg no 15 for procIdx 0 : ./simple_prog
+[H] Hello ful cmd args !
+[H] H3
+[H] no pinplay
+[H] H4
+[H] H5
+[H] H6
+[H] the string is 120750102
+[H] H6
+[H] H4
+[H] Pin command line arg no 0 for procIdx 1 : /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/intel64/bin/pinbin
+[H] Pin command line arg no 1 for procIdx 1 : -follow_execv
+[H] Pin command line arg no 2 for procIdx 1 : -tool_exit_timeout
+[H] Pin command line arg no 3 for procIdx 1 : 1
+[H] Pin command line arg no 4 for procIdx 1 : -t
+[H] Pin command line arg no 5 for procIdx 1 : /home/kartik/zsim_kartik/build/opt/libzsim.so
+[H] Pin command line arg no 6 for procIdx 1 : -config
+[H] Pin command line arg no 7 for procIdx 1 : /home/kartik/zsim_kartik/simple.cfg
+[H] Pin command line arg no 8 for procIdx 1 : -outputDir
+[H] Pin command line arg no 9 for procIdx 1 : /home/kartik/zsim_kartik
+[H] Pin command line arg no 10 for procIdx 1 : -shmid
+[H] Pin command line arg no 11 for procIdx 1 : 120750102
+[H] Pin command line arg no 12 for procIdx 1 : -procIdx
+[H] Pin command line arg no 13 for procIdx 1 : 1
+[H] Pin command line arg no 14 for procIdx 1 : --
+[H] Pin command line arg no 15 for procIdx 1 : ./simple_prog
+arg 0 is /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/intel64/bin/pinbin
+arg 1 is -follow_execv
+arg 2 is -tool_exit_timeout
+arg 3 is 1
+arg 4 is -t
+arg 5 is /home/kartik/zsim_kartik/build/opt/libzsim.so
+arg 6 is -config
+arg 7 is /home/kartik/zsim_kartik/simple.cfg
+arg 8 is -outputDir
+arg 0 is /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/intel64/bin/pinbin
+arg 9 is /home/kartik/zsim_kartik
+arg 10 is -shmid
+arg 11 is 120750102
+arg 1 is -follow_execv
+arg 12 is -procIdx
+arg 2 is -tool_exit_timeout
+arg 13 is 1
+arg 14 is --
+arg 3 is 1
+arg 15 is ./simple_prog
+arg 4 is -t
+arg 5 is /home/kartik/zsim_kartik/build/opt/libzsim.so
+arg 6 is -config
+arg 7 is /home/kartik/zsim_kartik/simple.cfg
+arg 8 is -outputDir
+arg 9 is /home/kartik/zsim_kartik
+arg 10 is -shmid
+arg 11 is 120750102
+arg 12 is -procIdx
+arg 13 is 0
+arg 14 is --
+arg 15 is ./simple_prog
+[S 0] Started instance
+[S 1] Started instance
+[S 0] started scheduler
+[S 0] Started RR scheduler, quantum=50 phases
+[S 0] done scheduler
+[S 0] creating pin cmd
+[S 0] output dir is /home/kartik/zsim_kartik
+[S 0] H1
+[S 0] p_ss is process0
+[S 0] p_ss is process1
+[S 0] p_ss is process2
+[S 0] H2
+[S 0] the linesize is 64 
+
+[S 0] the linesize is 64 
+
+[S 0] the linesize is 64 
+
+[S 0] the linesize is 64 
+
+[S 0] the linesize is 64 
+
+[S 0] the linesize is 64 
+
+[S 0] Hierarchy: [ l1i-0 l1d-0 ] -> l2-0
+[S 0] Initialized system
+[S 0] Directory path is /home/kartik/zsim_kartik/results/simple_sim/
+[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim.h5
+[S 0] HDF5 backend: Created table, 22624 bytes/record, 47 records/write
+[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim-ev.h5
+[S 0] HDF5 backend: Created table, 22624 bytes/record, 6 records/write
+[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim-cmp.h5
+[S 0] HDF5 backend: Created table, 2464 bytes/record, 1 records/write
+[S 0] Initialization complete
+[H] Attached to global heap
+[S 0] Started process, PID 16510
+[S 0] procMask: 0x0
+[S 0] [0] Adjusting clocks, domain 0, de-ffwd 0
+[S 1] Started process, PID 16511
+[S 1] procMask: 0x400000000000000
+[S 0] vDSO info initialized
+[S 1] vDSO info initialized
+[S 0] Thread 0 starting
+[S 0] Started contention simulation thread 0
+[S 0] FF control Thread TID 16518
+[S 0] Started scheduler watchdog thread
+[S 1] Thread 0 starting
+[S 1] FF control Thread TID 16519
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r
+[S 1] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 1]  State:  65536r
+[S 0] Time slice ended, context-switched 1 threads, runQueue size 0, available 0
+[S 0]  State:   0r

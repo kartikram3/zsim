@@ -1,0 +1,75 @@
+[H] Starting zsim, built Sun Jul 26 19:46:53 CDT 2015 (rev master:87:dd25606:104fc 66449+ 8066- 8648a335)
+[H] Creating global segment, 1024 MBs
+[H] Global segment shmid = 119668758
+[H] Deadlock detection ON
+[H] output dir is /home/kartik/zsim_kartik
+[H] Using pinplay !
+[H] H1
+[H] H2
+[H] H3
+[H] H4
+[H] H5
+[H] H6
+[H] the string is 119668758
+[H] H6
+[H] H4
+[H] Pin command line arg no 0 for procIdx 0 : /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/intel64/bin/pinbin
+[H] Pin command line arg no 1 for procIdx 0 : -xyzzy
+[H] Pin command line arg no 2 for procIdx 0 : -reserve_memory
+[H] Pin command line arg no 3 for procIdx 0 : /home/kartik/Prefetch_Simulator/PINBALL_GHENT_1/INTcpu2006-pinpoints-w100M-d30M-m10/cpu2006-astar_1-ref-1.pp/cpu2006-astar_1-ref-1_t0r6_warmup100001500_prolog0_region30000016_epilog0_006_0-19071.0.address
+[H] Pin command line arg no 4 for procIdx 0 : -follow_execv
+[H] Pin command line arg no 5 for procIdx 0 : -tool_exit_timeout
+[H] Pin command line arg no 6 for procIdx 0 : 1
+[H] Pin command line arg no 7 for procIdx 0 : -t
+[H] Pin command line arg no 8 for procIdx 0 : /home/kartik/zsim_kartik/build/opt/libzsim.so
+[H] Pin command line arg no 9 for procIdx 0 : -replay
+[H] Pin command line arg no 10 for procIdx 0 : -xyzzy
+[H] Pin command line arg no 11 for procIdx 0 : -replay:basename
+[H] Pin command line arg no 12 for procIdx 0 : /home/kartik/Prefetch_Simulator/PINBALL_GHENT_1/INTcpu2006-pinpoints-w100M-d30M-m10/cpu2006-astar_1-ref-1.pp/cpu2006-astar_1-ref-1_t0r6_warmup100001500_prolog0_region30000016_epilog0_006_0-19071.0
+[H] Pin command line arg no 13 for procIdx 0 : -replay:playout
+[H] Pin command line arg no 14 for procIdx 0 : 0
+[H] Pin command line arg no 15 for procIdx 0 : -log:mt
+[H] Pin command line arg no 16 for procIdx 0 : 0
+[H] Pin command line arg no 17 for procIdx 0 : -config
+[H] Pin command line arg no 18 for procIdx 0 : /home/kartik/zsim_kartik/simple.cfg
+[H] Pin command line arg no 19 for procIdx 0 : -outputDir
+[H] Pin command line arg no 20 for procIdx 0 : /home/kartik/zsim_kartik
+[H] Pin command line arg no 21 for procIdx 0 : -shmid
+[H] Pin command line arg no 22 for procIdx 0 : 119668758
+[H] Pin command line arg no 23 for procIdx 0 : -procIdx
+[H] Pin command line arg no 24 for procIdx 0 : 0
+[H] Pin command line arg no 25 for procIdx 0 : --
+[H] Pin command line arg no 26 for procIdx 0 : /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/bin/intel64/nullapp
+arg 0 is /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/intel64/bin/pinbin
+arg 1 is -xyzzy
+arg 2 is -reserve_memory
+arg 3 is /home/kartik/Prefetch_Simulator/PINBALL_GHENT_1/INTcpu2006-pinpoints-w100M-d30M-m10/cpu2006-astar_1-ref-1.pp/cpu2006-astar_1-ref-1_t0r6_warmup100001500_prolog0_region30000016_epilog0_006_0-19071.0.address
+arg 4 is -follow_execv
+arg 5 is -tool_exit_timeout
+arg 6 is 1
+arg 7 is -t
+arg 8 is /home/kartik/zsim_kartik/build/opt/libzsim.so
+arg 9 is -replay
+arg 10 is -xyzzy
+arg 11 is -replay:basename
+arg 12 is /home/kartik/Prefetch_Simulator/PINBALL_GHENT_1/INTcpu2006-pinpoints-w100M-d30M-m10/cpu2006-astar_1-ref-1.pp/cpu2006-astar_1-ref-1_t0r6_warmup100001500_prolog0_region30000016_epilog0_006_0-19071.0
+arg 13 is -replay:playout
+arg 14 is 0
+arg 15 is -log:mt
+arg 16 is 0
+arg 17 is -config
+arg 18 is /home/kartik/zsim_kartik/simple.cfg
+arg 19 is -outputDir
+arg 20 is /home/kartik/zsim_kartik
+arg 21 is -shmid
+arg 22 is 119668758
+arg 23 is -procIdx
+arg 24 is 0
+arg 25 is --
+arg 26 is /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/bin/intel64/nullapp
+[S 0] Started instance
+[S 0] Started RR scheduler, quantum=50 phases
+terminate called after throwing an instance of 'std::logic_error'
+  what():  basic_string::_S_construct null not valid
+[H] Child 13856 done
+[H] All children done, exiting

@@ -1,0 +1,37 @@
+[H] Starting zsim, built Sun Jul 26 21:41:53 CDT 2015 (rev master:87:dd25606:105fc 66453+ 8061- 71bb2c57)
+[H] Creating global segment, 1024 MBs
+[H] Global segment shmid = 120193046
+[H] Deadlock detection ON
+[H] output dir is /home/kartik/zsim_kartik
+[H] H1
+[H] p_ss is process0
+[H] p_ss is process1
+[H] p_ss is process2
+[H] H2
+[H] H3
+[H] using pinplay
+[H] H3
+[H] using pinplay
+[H] H4
+[H] H5
+[H] H4
+[H] H5
+[H] H6
+[H] the string is 120193046
+[H] H6
+[H] H4
+[H] H6
+[H] the string is 120193046
+[H] H6
+[H] H4
+[H] Pin command line arg no 0 for procIdx 1 : 
+[H] Pin command line arg no 1 for procIdx 1 : 
+[H] Pin command line arg no 2 for procIdx 1 : 
+[H] Pin command line arg no 3 for procIdx 1 : 
+[H] Pin command line arg no 4 for procIdx 1 : 
+[H] Pin command line arg no 5 for procIdx 1 : 
+[H] Pin command line arg no 6 for procIdx 1 : 
+[H] Pin command line arg no 7 for procIdx 1 : 
+[H] Pin command line arg no 8 for procIdx 1 : 1
+[H] Pin command line arg no 9 for procIdx 1 : -t
+[H] Pin command line arg no 10 for procIdx 1 : /home/kartik/zsim_kartik/build/opt/libzsim.so

@@ -1,0 +1,379 @@
+Binary file build/opt/null_core.os matches
+build/opt/timing_core.cpp:#include "zsim.h"
+build/opt/fftoggle.cpp:#include "zsim.h"
+build/opt/init.cpp:#include "debug_zsim.h"
+build/opt/init.cpp:#include "zsim.h"
+build/opt/init.cpp:    const char* pStatsFile = gm_strdup((pathStr + "zsim.h5").c_str());
+build/opt/virt/fs.d: build/opt/g_std/g_vector.h build/opt/galloc.h build/opt/zsim.h \
+Binary file build/opt/virt/cpu.os matches
+build/opt/virt/cpu.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h \
+Binary file build/opt/virt/ports.os matches
+build/opt/virt/ports.cpp:#include "zsim.h"
+build/opt/virt/timeout.cpp:#include "zsim.h"
+build/opt/virt/time.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h \
+build/opt/virt/time.d: build/opt/virt/virt.h build/opt/virt/time_conv.h build/opt/zsim.h
+Binary file build/opt/virt/fs.os matches
+build/opt/virt/time.cpp:#include "zsim.h"
+Binary file build/opt/virt/timeout.os matches
+build/opt/virt/timeout.d: build/opt/process_stats.h build/opt/zsim.h build/opt/debug.h \
+build/opt/virt/timeout.d: build/opt/virt/time_conv.h build/opt/zsim.h
+Binary file build/opt/virt/time.os matches
+build/opt/virt/ports.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h \
+build/opt/virt/ports.d: build/opt/g_std/g_unordered_map.h build/opt/locks.h build/opt/zsim.h
+build/opt/ddr_mem.cpp:#include "zsim.h"
+build/opt/trace_driver.cpp:#include "zsim.h"
+build/opt/debug_zsim.cpp:#include "debug_zsim.h"
+build/opt/lookahead.d: build/opt/galloc.h build/opt/galloc.h build/opt/zsim.h \
+build/opt/text_stats.cpp:#include "zsim.h"
+Binary file build/opt/simple_core.os matches
+build/opt/timing_core.d: build/opt/repl_policies.h build/opt/mtrand.h build/opt/zsim.h \
+build/opt/hdf5_stats.d: build/opt/g_std/stl_galloc.h build/opt/galloc.h build/opt/zsim.h \
+build/opt/proc_stats.cpp:#include "zsim.h"
+build/opt/contention_sim.cpp:#include "zsim.h"
+build/opt/hdf5_stats.cpp:#include "zsim.h"
+Binary file build/opt/cache.os matches
+build/opt/init.d: build/opt/debug_zsim.h build/opt/debug.h build/opt/dramsim_mem_ctrl.h \
+build/opt/init.d: build/opt/event_queue.h build/opt/zsim.h build/opt/filter_cache.h \
+build/opt/detailed_mem.d: build/opt/g_std/stl_galloc.h build/opt/zsim.h build/opt/constants.h \
+build/opt/process_tree.cpp:#include "zsim.h"
+Binary file build/opt/fftoggle.o matches
+build/opt/contention_sim.d: build/opt/timing_event.h build/opt/zsim.h build/opt/constants.h \
+Binary file build/opt/proc_stats.os matches
+build/opt/detailed_mem.cpp:#include "zsim.h"
+build/opt/process_stats.d: build/opt/g_std/g_string.h build/opt/zsim.h build/opt/constants.h \
+build/opt/zsim.d:build/opt/zsim.os: build/opt/zsim.cpp build/opt/zsim.h \
+build/opt/zsim.d: build/opt/debug_zsim.h build/opt/event_queue.h build/opt/init.h \
+build/opt/process_stats.cpp:#include "zsim.h"
+build/opt/ooo_core_recorder.cpp:#include "zsim.h"
+Binary file build/opt/ddr_mem.os matches
+build/opt/timing_event.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h
+Binary file build/opt/monitor.os matches
+build/opt/dramsim_mem_ctrl.d: build/opt/timing_event.h build/opt/zsim.h build/opt/constants.h \
+Binary file build/opt/text_stats.os matches
+Binary file build/opt/hdf5_stats.os matches
+Binary file build/opt/init.os matches
+Binary file build/opt/process_stats.os matches
+build/opt/process_tree.h:#include "zsim.h"
+Binary file build/opt/contention_sim.os matches
+Binary file build/opt/timing_event.os matches
+Binary file build/opt/fftoggle matches
+build/opt/mem_ctrls.cpp:#include "zsim.h"
+build/opt/ooo_core.d: build/opt/zsim.h build/opt/debug.h
+build/opt/null_core.cpp:#include "zsim.h"
+build/opt/timing_event.cpp:#include "zsim.h"
+build/opt/ooo_core_recorder.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h
+build/opt/trace_driver.d: build/opt/log.h build/opt/stats.h build/opt/zsim.h build/opt/constants.h \
+build/opt/ooo_core.cpp:#include "zsim.h"
+build/opt/timing_cache.cpp:#include "zsim.h"
+build/opt/tick_event.h:#include "zsim.h"
+build/opt/cpuenum.h:#include "zsim.h"
+build/opt/thread_search:zsim.h:    uint64_t maxMinInstrs; //terminate when all threads have reached this many instructions
+build/opt/thread_search:zsim.h:    // If true, threads start as shadow and have no effect on simulation until they call the register magic op
+build/opt/thread_search:zsim.h:    bool registerThreads;
+build/opt/thread_search:zsim.h:    //If true, all the regular aggregate stats are summed before dumped, e.g. getting one thread record with instrs&cycles for all the threads
+build/opt/thread_search:zsim.h:extern Core* cores[MAX_THREADS]; //tid->core array
+build/opt/thread_search:zsim.h:void SimEnd(); //only call point out of zsim.cpp should be watchdog threads
+build/opt/thread_search:zsim_harness.cpp://At most as many processes as threads, plus one extra process per child if we launch a debugger
+build/opt/thread_search:zsim_harness.cpp:#define MAX_CHILDREN (2*MAX_THREADS)
+build/opt/thread_search:zsim_harness.cpp:volatile uint32_t debuggerChildIdx = MAX_THREADS;
+build/opt/thread_search:zsim_harness.cpp:        if (idx < MAX_THREADS) {
+build/opt/breakdown_stats.h:#include "zsim.h"
+build/opt/zsim_harness.d:build/opt/zsim_harness.o: build/opt/zsim_harness.cpp build/opt/config.h \
+build/opt/zsim_harness.d: build/opt/zsim.h build/opt/locks.h build/opt/pad.h
+build/opt/process_tree.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h \
+Binary file build/opt/zsim.os matches
+build/opt/fftoggle.d: build/opt/locks.h build/opt/log.h build/opt/zsim.h build/opt/constants.h \
+build/opt/core_recorder.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h
+build/opt/cache.d: build/opt/g_std/stl_galloc.h build/opt/timing_event.h build/opt/zsim.h \
+Binary file build/opt/dramsim_mem_ctrl.os matches
+build/opt/filter_cache.h:#include "zsim.h"
+build/opt/event_queue.h:#include "zsim.h"
+build/opt/zsim_harness.cpp:#include "zsim.h"
+Binary file build/opt/process_tree.os matches
+build/opt/scheduler.d: build/opt/process_stats.h build/opt/zsim.h build/opt/debug.h \
+build/opt/ddr_mem.d: build/opt/timing_event.h build/opt/zsim.h build/opt/constants.h \
+build/opt/cache.cpp:#include "zsim.h"
+Binary file build/opt/core_recorder.os matches
+build/opt/debug_zsim.d:build/opt/debug_zsim.os: build/opt/debug_zsim.cpp build/opt/debug_zsim.h \
+build/opt/mem_ctrls.d: build/opt/log.h build/opt/pad.h build/opt/stats.h build/opt/zsim.h \
+Binary file build/opt/lookahead.os matches
+Binary file build/opt/scheduler.os matches
+Binary file build/opt/tracing_cache.os matches
+Binary file build/opt/ooo_core.os matches
+build/opt/timing_cache.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h \
+build/opt/SConscript:harnessSrcs = ["zsim_harness.cpp", "debug_harness.cpp"]
+Binary file build/opt/trace_driver.os matches
+Binary file build/opt/detailed_mem.os matches
+build/opt/core_recorder.cpp:#include "zsim.h"
+build/opt/scheduler.h:#include "zsim.h"
+build/opt/simple_core.d: build/opt/repl_policies.h build/opt/mtrand.h build/opt/zsim.h \
+build/opt/monitor.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h \
+build/opt/tracing_cache.cpp:#include "zsim.h"
+Binary file build/opt/timing_cache.os matches
+build/opt/tracing_cache.d: build/opt/mtrand.h build/opt/zsim.h build/opt/debug.h
+build/opt/proc_stats.d: build/opt/process_tree.h build/opt/g_std/g_string.h build/opt/zsim.h \
+Binary file build/opt/partition_mapper.os matches
+Binary file build/opt/timing_core.os matches
+Binary file build/opt/zsim matches
+Binary file build/opt/zsim_harness.o matches
+build/opt/text_stats.d: build/opt/g_std/stl_galloc.h build/opt/galloc.h build/opt/zsim.h \
+build/opt/simple_core.cpp:#include "zsim.h"
+build/opt/partition_mapper.d: build/opt/zsim.h build/opt/constants.h build/opt/debug.h build/opt/pad.h
+build/opt/zsim.cpp:#include "zsim.h"
+build/opt/zsim.cpp:#include "debug_zsim.h"
+build/opt/null_core.d: build/opt/log.h build/opt/pad.h build/opt/zsim.h build/opt/constants.h \
+Binary file build/opt/ooo_core_recorder.os matches
+Binary file build/opt/mem_ctrls.os matches
+build/opt/partition_mapper.cpp:#include "zsim.h"
+build/opt/weave_md1_mem.h:#include "zsim.h"
+build/opt/dramsim_mem_ctrl.cpp:#include "zsim.h"
+Binary file build/debug/null_core.os matches
+build/debug/timing_core.cpp:#include "zsim.h"
+build/debug/fftoggle.cpp:#include "zsim.h"
+build/debug/init.cpp:#include "debug_zsim.h"
+build/debug/init.cpp:#include "zsim.h"
+build/debug/init.cpp:    const char* pStatsFile = gm_strdup((pathStr + "zsim.h5").c_str());
+build/debug/virt/fs.d: build/debug/zsim.h build/debug/constants.h build/debug/debug.h \
+Binary file build/debug/virt/cpu.os matches
+build/debug/virt/cpu.d: build/debug/zsim.h build/debug/constants.h build/debug/debug.h \
+Binary file build/debug/virt/ports.os matches
+build/debug/virt/ports.cpp:#include "zsim.h"
+build/debug/virt/timeout.cpp:#include "zsim.h"
+build/debug/virt/time.d: build/debug/zsim.h build/debug/constants.h build/debug/debug.h \
+build/debug/virt/time.d: build/debug/virt/time_conv.h build/debug/zsim.h
+Binary file build/debug/virt/fs.os matches
+build/debug/virt/time.cpp:#include "zsim.h"
+Binary file build/debug/virt/timeout.os matches
+build/debug/virt/timeout.d: build/debug/process_stats.h build/debug/zsim.h build/debug/debug.h \
+build/debug/virt/timeout.d: build/debug/virt/time_conv.h build/debug/zsim.h
+Binary file build/debug/virt/time.os matches
+build/debug/virt/ports.d: build/debug/zsim.h build/debug/constants.h build/debug/debug.h \
+build/debug/virt/ports.d: build/debug/zsim.h
+build/debug/ddr_mem.cpp:#include "zsim.h"
+build/debug/trace_driver.cpp:#include "zsim.h"
+build/debug/debug_zsim.cpp:#include "debug_zsim.h"
+build/debug/lookahead.d: build/debug/galloc.h build/debug/galloc.h build/debug/zsim.h \
+build/debug/text_stats.cpp:#include "zsim.h"
+Binary file build/debug/simple_core.os matches
+build/debug/timing_core.d: build/debug/repl_policies.h build/debug/mtrand.h build/debug/zsim.h \
+build/debug/hdf5_stats.d: build/debug/galloc.h build/debug/zsim.h build/debug/constants.h \
+build/debug/proc_stats.cpp:#include "zsim.h"
+build/debug/contention_sim.cpp:#include "zsim.h"
+build/debug/hdf5_stats.cpp:#include "zsim.h"
+Binary file build/debug/cache.os matches
+build/debug/init.d: build/debug/intrusive_list.h build/debug/debug_zsim.h \
+build/debug/init.d: build/debug/event_queue.h build/debug/zsim.h build/debug/filter_cache.h \
+build/debug/detailed_mem.d: build/debug/mutex.h build/debug/g_std/stl_galloc.h build/debug/zsim.h \
+build/debug/process_tree.cpp:#include "zsim.h"
+Binary file build/debug/fftoggle.o matches
+build/debug/contention_sim.d: build/debug/timing_event.h build/debug/zsim.h build/debug/constants.h \
+Binary file build/debug/proc_stats.os matches
+build/debug/detailed_mem.cpp:#include "zsim.h"
+build/debug/process_stats.d: build/debug/g_std/g_string.h build/debug/zsim.h build/debug/constants.h \
+build/debug/zsim.d:build/debug/zsim.os: build/debug/zsim.cpp build/debug/zsim.h \
+build/debug/zsim.d: build/debug/debug_zsim.h build/debug/event_queue.h build/debug/init.h \
+build/debug/process_stats.cpp:#include "zsim.h"
+build/debug/ooo_core_recorder.cpp:#include "zsim.h"
+Binary file build/debug/ddr_mem.os matches
+build/debug/timing_event.d: build/debug/stats.h build/debug/zsim.h build/debug/constants.h \
+Binary file build/debug/monitor.os matches
+build/debug/dramsim_mem_ctrl.d: build/debug/zsim.h build/debug/constants.h build/debug/debug.h
+Binary file build/debug/init.os matches
+Binary file build/debug/process_stats.os matches
+build/debug/process_tree.h:#include "zsim.h"
+Binary file build/debug/contention_sim.os matches
+Binary file build/debug/timing_event.os matches
+Binary file build/debug/fftoggle matches
+build/debug/mem_ctrls.cpp:#include "zsim.h"
+build/debug/ooo_core.d: build/debug/zsim.h build/debug/debug.h
+build/debug/null_core.cpp:#include "zsim.h"
+build/debug/timing_event.cpp:#include "zsim.h"
+build/debug/ooo_core_recorder.d: build/debug/timing_event.h build/debug/bithacks.h build/debug/zsim.h \
+build/debug/trace_driver.d: build/debug/log.h build/debug/stats.h build/debug/zsim.h \
+build/debug/ooo_core.cpp:#include "zsim.h"
+build/debug/timing_cache.cpp:#include "zsim.h"
+build/debug/tick_event.h:#include "zsim.h"
+build/debug/cpuenum.h:#include "zsim.h"
+build/debug/breakdown_stats.h:#include "zsim.h"
+build/debug/zsim_harness.d:build/debug/zsim_harness.o: build/debug/zsim_harness.cpp \
+build/debug/zsim_harness.d: build/debug/g_std/g_vector.h build/debug/version.h build/debug/zsim.h \
+build/debug/process_tree.d: build/debug/zsim.h build/debug/constants.h build/debug/debug.h \
+Binary file build/debug/zsim.os matches
+build/debug/fftoggle.d: build/debug/locks.h build/debug/log.h build/debug/zsim.h \
+build/debug/core_recorder.d: build/debug/timing_event.h build/debug/bithacks.h build/debug/zsim.h \
+build/debug/cache.d: build/debug/timing_event.h build/debug/zsim.h build/debug/debug.h
+Binary file build/debug/dramsim_mem_ctrl.os matches
+build/debug/filter_cache.h:#include "zsim.h"
+build/debug/event_queue.h:#include "zsim.h"
+build/debug/zsim_harness.cpp:#include "zsim.h"
+Binary file build/debug/process_tree.os matches
+build/debug/scheduler.d: build/debug/process_stats.h build/debug/zsim.h build/debug/debug.h \
+build/debug/ddr_mem.d: build/debug/timing_event.h build/debug/zsim.h build/debug/constants.h \
+build/debug/cache.cpp:#include "zsim.h"
+Binary file build/debug/core_recorder.os matches
+build/debug/debug_zsim.d: build/debug/debug_zsim.h build/debug/debug.h build/debug/log.h
+build/debug/mem_ctrls.d: build/debug/pad.h build/debug/stats.h build/debug/zsim.h \
+Binary file build/debug/lookahead.os matches
+Binary file build/debug/scheduler.os matches
+Binary file build/debug/tracing_cache.os matches
+Binary file build/debug/ooo_core.os matches
+build/debug/timing_cache.d: build/debug/zsim.h build/debug/constants.h build/debug/debug.h \
+build/debug/SConscript:harnessSrcs = ["zsim_harness.cpp", "debug_harness.cpp"]
+Binary file build/debug/trace_driver.os matches
+Binary file build/debug/detailed_mem.os matches
+build/debug/core_recorder.cpp:#include "zsim.h"
+Binary file build/debug/libzsim.so matches
+build/debug/scheduler.h:#include "zsim.h"
+build/debug/simple_core.d: build/debug/repl_policies.h build/debug/mtrand.h build/debug/zsim.h \
+build/debug/monitor.d: build/debug/zsim.h build/debug/constants.h build/debug/debug.h \
+build/debug/tracing_cache.cpp:#include "zsim.h"
+Binary file build/debug/timing_cache.os matches
+build/debug/tracing_cache.d: build/debug/bithacks.h build/debug/mtrand.h build/debug/zsim.h \
+build/debug/proc_stats.d: build/debug/g_std/g_string.h build/debug/zsim.h build/debug/constants.h \
+Binary file build/debug/partition_mapper.os matches
+Binary file build/debug/timing_core.os matches
+Binary file build/debug/zsim matches
+Binary file build/debug/zsim_harness.o matches
+build/debug/text_stats.d: build/debug/galloc.h build/debug/zsim.h build/debug/constants.h \
+build/debug/simple_core.cpp:#include "zsim.h"
+build/debug/partition_mapper.d: build/debug/g_std/g_string.h build/debug/zsim.h build/debug/constants.h \
+build/debug/zsim.cpp:#include "zsim.h"
+build/debug/zsim.cpp:#include "debug_zsim.h"
+build/debug/null_core.d: build/debug/log.h build/debug/pad.h build/debug/zsim.h \
+Binary file build/debug/ooo_core_recorder.os matches
+Binary file build/debug/mem_ctrls.os matches
+build/debug/partition_mapper.cpp:#include "zsim.h"
+build/debug/weave_md1_mem.h:#include "zsim.h"
+build/debug/dramsim_mem_ctrl.cpp:#include "zsim.h"
+build_log:g++ -o build/opt/zsim_harness.o -c -march=core2 -g -O3 -funroll-loops -g -std=c++0x -Wall -Wno-unknown-pragmas -fomit-frame-pointer -fno-stack-protector -MMD -DBIGARRAY_MULTIPLIER=1 -DUSING_XED -DTARGET_IA32E -DHOST_IA32E -fPIC -DTARGET_LINUX -Werror -DPIN_PATH="/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/intel64/bin/pinbin" -DZSIM_PATH="/home/kartik/zsim_kartik/build/opt/libzsim.so" -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/tools/InstLib -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/include -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/xed2-intel64/include -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/include/pin -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/include/pin/gen -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/components/include -I/home/kartik/Prefetch_Simulator/libconfig/include -Ibuild/opt build/opt/zsim_harness.cpp
+build_log:g++ -o build/opt/zsim -Wl,-R/home/kartik/Prefetch_Simulator/libconfig/lib --static build/opt/zsim_harness.o build/opt/debug_harness.o build/opt/config.o build/opt/galloc.o build/opt/log.o build/opt/pin_cmd.o -L/home/kartik/Prefetch_Simulator/libconfig/lib -lconfig++ -lpthread
+html/classzsim-members.html:<p>This is the complete list of members for <a class="el" href="classzsim.html">zsim</a>, including all inherited members.</p>
+html/classzsim-members.html:  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>heartbeat</b>() (defined in <a class="el" href="classzsim.html">zsim</a>)</td><td class="entry"><a class="el" href="classzsim.html">zsim</a></td><td class="entry"><span class="mlabel">static</span></td></tr>
+html/classzsim-members.html:  <tr bgcolor="#f0f0f0"><td class="entry"><b>roi_begin</b>() (defined in <a class="el" href="classzsim.html">zsim</a>)</td><td class="entry"><a class="el" href="classzsim.html">zsim</a></td><td class="entry"><span class="mlabel">static</span></td></tr>
+html/classzsim-members.html:  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>roi_end</b>() (defined in <a class="el" href="classzsim.html">zsim</a>)</td><td class="entry"><a class="el" href="classzsim.html">zsim</a></td><td class="entry"><span class="mlabel">static</span></td></tr>
+html/annotated.html:<tr id="row_183_"><td class="entry"><img src="ftv2node.png" alt="o" width="16" height="22" /><img src="ftv2cl.png" alt="C" width="24" height="22" /><a class="el" href="classzsim.html" target="_self">zsim</a></td><td class="desc"></td></tr>
+html/build_2debug_2zsim_8h_source.html:<title>My Project: build/debug/zsim.h Source File</title>
+html/build_2debug_2zsim_8h_source.html:<div class="title">zsim.h</div>  </div>
+html/build_2debug_2zsim_8h_source.html:<div class="ttc" id="structClockDomainInfo_html"><div class="ttname"><a href="structClockDomainInfo.html">ClockDomainInfo</a></div><div class="ttdef"><b>Definition:</b> zsim.h:53</div></div>
+html/build_2debug_2zsim_8h_source.html:<div class="ttc" id="structGlobSimInfo_html"><div class="ttname"><a href="structGlobSimInfo.html">GlobSimInfo</a></div><div class="ttdef"><b>Definition:</b> zsim.h:75</div></div>
+html/src_2weave__md1__mem_8h_source.html:<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/build_2debug_2debug__zsim_8h_source.html:<title>My Project: build/debug/debug_zsim.h Source File</title>
+html/build_2debug_2debug__zsim_8h_source.html:<div class="title">debug_zsim.h</div>  </div>
+html/structClockDomainInfo.html:<li>build/debug/<a class="el" href="build_2debug_2zsim_8h_source.html">zsim.h</a></li>
+html/src_2process__tree_8h_source.html:<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/zsim__hooks_8h_source.html:<title>My Project: misc/hooks/zsim_hooks.h Source File</title>
+html/zsim__hooks_8h_source.html:<div class="title">zsim_hooks.h</div>  </div>
+html/zsim__hooks_8h_source.html:<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span> zsim_heartbeat() {</div>
+html/src_2event__queue_8h_source.html:<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/src_2cpuenum_8h_source.html:<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/build_2debug_2event__queue_8h_source.html:<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/search/all_15.js:  ['zsim',['zsim',['../classzsim.html',1,'']]],
+html/search/classes_15.js:  ['zsim',['zsim',['../classzsim.html',1,'']]],
+html/build_2debug_2breakdown__stats_8h_source.html:<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/structProcInfo.html:<li>build/debug/zsim_harness.cpp</li>
+html/dir_6d8bd0e7882ea6bc335c4e1ac30f9c9f.html:<tr class="memitem:zsim__hooks_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><b>zsim_hooks.h</b> <a href="zsim__hooks_8h_source.html">[code]</a></td></tr>
+html/build_2debug_2scheduler_8h_source.html:<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/dir_68267d1309a1af8e8297ef4c3efbcdba.html:<tr class="memitem:src_2debug__zsim_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><b>debug_zsim.h</b> <a href="src_2debug__zsim_8h_source.html">[code]</a></td></tr>
+html/dir_68267d1309a1af8e8297ef4c3efbcdba.html:<tr class="memitem:src_2zsim_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><b>zsim.h</b> <a href="src_2zsim_8h_source.html">[code]</a></td></tr>
+html/dir_68267d1309a1af8e8297ef4c3efbcdba.html:<tr class="memitem:src_2zsim__harness_8cpp"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><b>zsim_harness.cpp</b></td></tr>
+html/build_2debug_2cpuenum_8h_source.html:<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/structGlobSimInfo.html:<li>build/debug/<a class="el" href="build_2debug_2zsim_8h_source.html">zsim.h</a></li>
+html/src_2tick__event_8h_source.html:<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/src_2breakdown__stats_8h_source.html:<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/dir_11438dfaef374996fbdac15175d35d6d.html:<tr class="memitem:build_2debug_2debug__zsim_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><b>debug_zsim.h</b> <a href="build_2debug_2debug__zsim_8h_source.html">[code]</a></td></tr>
+html/dir_11438dfaef374996fbdac15175d35d6d.html:<tr class="memitem:build_2debug_2zsim_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><b>zsim.h</b> <a href="build_2debug_2zsim_8h_source.html">[code]</a></td></tr>
+html/dir_11438dfaef374996fbdac15175d35d6d.html:<tr class="memitem:build_2debug_2zsim__harness_8cpp"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><b>zsim_harness.cpp</b></td></tr>
+html/hierarchy.html:<tr id="row_93_"><td class="entry"><img src="ftv2node.png" alt="o" width="16" height="22" /><img src="ftv2cl.png" alt="C" width="24" height="22" /><a class="el" href="classzsim.html" target="_self">zsim</a></td><td class="desc"></td></tr>
+html/src_2filter__cache_8h_source.html:<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/build_2debug_2weave__md1__mem_8h_source.html:<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/build_2debug_2filter__cache_8h_source.html:<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/src_2zsim_8h_source.html:<title>My Project: src/zsim.h Source File</title>
+html/src_2zsim_8h_source.html:<div class="title">zsim.h</div>  </div>
+html/src_2zsim_8h_source.html:<div class="ttc" id="structClockDomainInfo_html"><div class="ttname"><a href="structClockDomainInfo.html">ClockDomainInfo</a></div><div class="ttdef"><b>Definition:</b> zsim.h:53</div></div>
+html/src_2zsim_8h_source.html:<div class="ttc" id="structGlobSimInfo_html"><div class="ttname"><a href="structGlobSimInfo.html">GlobSimInfo</a></div><div class="ttdef"><b>Definition:</b> zsim.h:75</div></div>
+html/src_2debug__zsim_8h_source.html:<title>My Project: src/debug_zsim.h Source File</title>
+html/src_2debug__zsim_8h_source.html:<div class="title">debug_zsim.h</div>  </div>
+html/src_2scheduler_8h_source.html:<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/build_2debug_2tick__event_8h_source.html:<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+html/md_README.html:<p>zsim was originally written by Daniel Sanchez at Stanford University, and per Stanford University policy, the copyright of this original code remains with Stanford (specifically, the Board of Trustees of Leland Stanford Junior University). Since then, zsim has been substantially modified and enhanced at MIT by Daniel Sanchez, Nathan Beckmann, and Harshad Kasture. zsim also incorporates contributions on main memory performance models from Krishna Malladi, Makoto Takami, and Kenta Yasufuku.</p>
+html/md_README.html:<p><b>Host Configuration:</b> The system configuration may need some tweaks to support zsim. First, it needs to allow for large shared memory segments. Second, for Pin to work, it must allow a process to attach to any other from the user, not just to a child. Use sysctl to ensure that <code>kernel.shmmax=1073741824</code> (or larger) and <code>kernel.yama.ptrace_scope=0</code>. zsim has mainly been used in Ubuntu 11.10, 12.04, 12.10, 13.04, and 13.10, but it should work in other Linux distributions. Using it in OSs other than Linux (e.g,, OS X, Windows) will be non-trivial, since the user-level virtualization subsystem has deep ties into the Linux syscall interface.</p>
+html/files.html:<tr id="row_0_0_19_" class="even" style="display:none;"><td class="entry"><img src="ftv2vertline.png" alt="|" width="16" height="22" /><img src="ftv2blank.png" alt="&#160;" width="16" height="22" /><img src="ftv2node.png" alt="o" width="16" height="22" /><a href="build_2debug_2debug__zsim_8h_source.html"><img src="ftv2doc.png" alt="*" width="24" height="22" /></a><b>debug_zsim.h</b></td><td class="desc"></td></tr>
+html/files.html:<tr id="row_0_0_70_" class="even" style="display:none;"><td class="entry"><img src="ftv2vertline.png" alt="|" width="16" height="22" /><img src="ftv2blank.png" alt="&#160;" width="16" height="22" /><img src="ftv2lastnode.png" alt="\" width="16" height="22" /><a href="build_2debug_2zsim_8h_source.html"><img src="ftv2doc.png" alt="*" width="24" height="22" /></a><b>zsim.h</b></td><td class="desc"></td></tr>
+html/files.html:<tr id="row_1_0_0_" class="even" style="display:none;"><td class="entry"><img src="ftv2vertline.png" alt="|" width="16" height="22" /><img src="ftv2blank.png" alt="&#160;" width="16" height="22" /><img src="ftv2lastnode.png" alt="\" width="16" height="22" /><a href="zsim__hooks_8h_source.html"><img src="ftv2doc.png" alt="*" width="24" height="22" /></a><b>zsim_hooks.h</b></td><td class="desc"></td></tr>
+html/files.html:<tr id="row_2_19_" class="even"><td class="entry"><img src="ftv2blank.png" alt="&#160;" width="16" height="22" /><img src="ftv2node.png" alt="o" width="16" height="22" /><a href="src_2debug__zsim_8h_source.html"><img src="ftv2doc.png" alt="*" width="24" height="22" /></a><b>debug_zsim.h</b></td><td class="desc"></td></tr>
+html/files.html:<tr id="row_2_69_" class="even"><td class="entry"><img src="ftv2blank.png" alt="&#160;" width="16" height="22" /><img src="ftv2lastnode.png" alt="\" width="16" height="22" /><a href="src_2zsim_8h_source.html"><img src="ftv2doc.png" alt="*" width="24" height="22" /></a><b>zsim.h</b></td><td class="desc"></td></tr>
+html/build_2debug_2process__tree_8h_source.html:<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &quot;zsim.h&quot;</span></div>
+latex/md_README.tex:zsim was originally written by Daniel Sanchez at Stanford University, and per Stanford University policy, the copyright of this original code remains with Stanford (specifically, the Board of Trustees of Leland Stanford Junior University). Since then, zsim has been substantially modified and enhanced at M\-I\-T by Daniel Sanchez, Nathan Beckmann, and Harshad Kasture. zsim also incorporates contributions on main memory performance models from Krishna Malladi, Makoto Takami, and Kenta Yasufuku.
+latex/md_README.tex:{\bfseries Host Configuration\-:} The system configuration may need some tweaks to support zsim. First, it needs to allow for large shared memory segments. Second, for Pin to work, it must allow a process to attach to any other from the user, not just to a child. Use sysctl to ensure that {\ttfamily kernel.\-shmmax=1073741824} (or larger) and {\ttfamily kernel.\-yama.\-ptrace\-\_\-scope=0}. zsim has mainly been used in Ubuntu 11.\-10, 12.\-04, 12.\-10, 13.\-04, and 13.\-10, but it should work in other Linux distributions. Using it in O\-Ss other than Linux (e.\-g,, O\-S X, Windows) will be non-\/trivial, since the user-\/level virtualization subsystem has deep ties into the Linux syscall interface.
+log:g++ -o build/opt/zsim_harness.o -c -march=core2 -g -O3 -funroll-loops -g -std=c++0x -Wall -Wno-unknown-pragmas -fomit-frame-pointer -fno-stack-protector -MMD -DBIGARRAY_MULTIPLIER=1 -DUSING_XED -DTARGET_IA32E -DHOST_IA32E -fPIC -DTARGET_LINUX -Werror -DPIN_PATH="/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/intel64/bin/pinbin" -DZSIM_PATH="/home/kartik/zsim_kartik/build/opt/libzsim.so" -I/include -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/xed2-intel64/include -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/include/pin -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/include/pin/gen -I/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/components/include -I/home/kartik/Prefetch_Simulator/libconfig/include -Ibuild/opt build/opt/zsim_harness.cpp
+log:g++ -o build/opt/zsim -Wl,-R/home/kartik/Prefetch_Simulator/libconfig/lib --static build/opt/zsim_harness.o build/opt/debug_harness.o build/opt/config.o build/opt/galloc.o build/opt/log.o build/opt/pin_cmd.o -L/home/kartik/Prefetch_Simulator/libconfig/lib -lconfig++ -lpthread
+log_simple:[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim.h5
+log_zsim:[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim.h5
+misc/hooks/README:zsim hooks for different programming languages. Use these to control simulation
+misc/hooks/README:(e.g., fast-forwarding). C and C++ programs just need to include zsim-hooks.h.
+misc/hooks/test.java:        for (int i = 0; i < 42; i++) zsim.heartbeat();
+misc/hooks/test.cpp:#include "zsim_hooks.h"
+misc/hooks/test.cpp:    zsim_heartbeat();
+misc/hooks/fortran_hooks.c:#include "zsim_hooks.h"
+misc/hooks/fortran_hooks.c:void zsim_heartbeat_() {
+misc/hooks/fortran_hooks.c:    zsim_heartbeat();
+misc/hooks/test.c:#include "zsim_hooks.h"
+misc/hooks/test.c:    zsim_heartbeat();
+misc/hooks/zsim_jni.cpp:#include "zsim_hooks.h"
+misc/hooks/zsim_jni.cpp:JNIEXPORT void JNICALL Java_zsim_heartbeat(JNIEnv *env, jclass cls) { zsim_heartbeat(); }
+misc/hooks/zsim_hooks.h:static inline void zsim_heartbeat() {
+misc/hooks/test.f:      call zsim_heartbeat()
+misc/hooks/Makefile:DEPS=Makefile zsim_hooks.h
+out_log:[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim.h5
+README.md:University). Since then, zsim has been substantially modified and enhanced at
+README.md:and `kernel.yama.ptrace_scope=0`. zsim has mainly been used in
+src/timing_core.cpp:#include "zsim.h"
+src/fftoggle.cpp:#include "zsim.h"
+src/init.cpp:#include "debug_zsim.h"
+src/init.cpp:#include "zsim.h"
+src/init.cpp:    const char* pStatsFile = gm_strdup((pathStr + "zsim.h5").c_str());
+src/virt/ports.cpp:#include "zsim.h"
+src/virt/timeout.cpp:#include "zsim.h"
+src/virt/time.cpp:#include "zsim.h"
+src/ddr_mem.cpp:#include "zsim.h"
+src/trace_driver.cpp:#include "zsim.h"
+src/debug_zsim.cpp:#include "debug_zsim.h"
+src/text_stats.cpp:#include "zsim.h"
+src/proc_stats.cpp:#include "zsim.h"
+src/contention_sim.cpp:#include "zsim.h"
+src/hdf5_stats.cpp:#include "zsim.h"
+src/process_tree.cpp:#include "zsim.h"
+src/detailed_mem.cpp:#include "zsim.h"
+src/process_stats.cpp:#include "zsim.h"
+Binary file src/.zsim.cpp.swp matches
+src/ooo_core_recorder.cpp:#include "zsim.h"
+Binary file src/.zsim.h.swp matches
+Binary file src/.ooo_core.cpp.swp matches
+src/process_tree.h:#include "zsim.h"
+src/mem_ctrls.cpp:#include "zsim.h"
+src/null_core.cpp:#include "zsim.h"
+src/timing_event.cpp:#include "zsim.h"
+Binary file src/.cache.cpp.swp matches
+src/ooo_core.cpp:#include "zsim.h"
+src/timing_cache.cpp:#include "zsim.h"
+src/tick_event.h:#include "zsim.h"
+src/cpuenum.h:#include "zsim.h"
+src/breakdown_stats.h:#include "zsim.h"
+src/filter_cache.h:#include "zsim.h"
+src/event_queue.h:#include "zsim.h"
+src/zsim_harness.cpp:#include "zsim.h"
+src/cache.cpp:#include "zsim.h"
+Binary file src/.cache.cpp.swo matches
+src/SConscript:harnessSrcs = ["zsim_harness.cpp", "debug_harness.cpp"]
+src/core_recorder.cpp:#include "zsim.h"
+src/scheduler.h:#include "zsim.h"
+src/tracing_cache.cpp:#include "zsim.h"
+Binary file src/.scheduler.h.swp matches
+src/simple_core.cpp:#include "zsim.h"
+src/zsim.cpp:#include "zsim.h"
+src/zsim.cpp:#include "debug_zsim.h"
+src/partition_mapper.cpp:#include "zsim.h"
+src/weave_md1_mem.h:#include "zsim.h"
+src/dramsim_mem_ctrl.cpp:#include "zsim.h"
+tests/hooks.cfg:// Tests zsim hooks for different programming languages To build tests, run
+zsim_log:[S 0] HDF5 backend: Opening /home/kartik/zsim_kartik/zsim.h5

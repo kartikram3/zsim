@@ -47,15 +47,17 @@ class PinCmd : public GlobAlloc {
             g_string loader;
             g_string env;
             bool use_pinplay;
+            g_string pinplay_arg_1;
+            g_string pinplay_arg_2;
         };
 
         g_vector<ProcCmdInfo> procInfo; //one entry for each process that the harness launches (not for child procs)
-        //const char * nullapp_path;
+        const char * nullapp_path;
         bool use_pinplay;
         g_string shm;
         g_string cfg;
         g_string oDir;
-        //bool logToFile;
+        bool logToFile;
       
 
     public:
