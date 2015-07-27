@@ -231,7 +231,9 @@ static void printHeartbeat(GlobSimInfo* zinfo) {
 
 
 void LaunchProcess(uint32_t procIdx) {
+    info ("launching process %d", procIdx);
     int cpid = fork();
+    //futex_lock(&globzinfo->ffLock);
     if (cpid) { //parent
         assert(cpid > 0);
         childInfo[procIdx].pid = cpid;
@@ -256,6 +258,8 @@ void LaunchProcess(uint32_t procIdx) {
         }
         aptrs[nargs-1] = nullptr;
 
+
+        //futex_unlock(&globzinfo->ffLock);
         //Chdir to process dir if needed
         if (perProcessDir) {
             std::stringstream dir_ss;
@@ -299,16 +303,6 @@ void LaunchProcess(uint32_t procIdx) {
         }
 
 
-/*        aptrs[0] = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin" ; 
-        aptrs[1] = "-xyzzy";
-        aptrs[2] = "-reserve_memory"; 
-        aptrs[3] =  */
-
-        info("Strins is %s",aptrs[0]); 
-        //const char * aptrs_1[2];
-        //aptrs_1[0]="/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/pin  -xyzzy  -reserve_memory  /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.address   -t /home/kartik/zsim_kartik/build/opt/libzsim.so -replay -xyzzy  -replay:basename /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0 -replay:playout 0  -log:mt 0   -phaselen 300000 -statfile /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/PinPoints/scripts/specrand.test_30290.pp/specrand.test_30290_t0r3_warmup301500_prolog0_region100003_epilog0_003_0-72245.0.brpred.txt -- /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/bin/intel64/nullapp";
-        //aptrs_1[1]=nullptr;
-        //info ("%s",aptrs_1[0]);
         if (execvp(aptrs[0], (char* const*)aptrs) == -1) {
             perror("Could not exec, killing child");
             panic("Could not exec %s", aptrs[0]);
@@ -369,7 +363,7 @@ int main(int argc, char *argv[]) {
     }
     if (removedLogfiles) info("Removed %d old logfiles", removedLogfiles);
 
-    uint32_t gmSize = conf.get<uint32_t>("sim.gmMBytes", (1<<10) /*default 1024MB*/);
+    uint32_t gmSize = conf.get<uint32_t>("sim.gmMBytes", (1<<11) /*default 1024MB*/);
     info("Creating global segment, %d MBs", gmSize);
     int shmid = gm_init(((size_t)gmSize) << 20 /*MB to Bytes*/);
     info("Global segment shmid = %d", shmid);
@@ -406,6 +400,7 @@ int main(int argc, char *argv[]) {
 
     for (uint32_t procIdx = 0; procIdx < numProcs; procIdx++) {
         LaunchProcess(procIdx);
+        usleep(1000000);
     }
 
     if (numProcs == 0) panic("No process config found. Config file needs at least a process0 entry");

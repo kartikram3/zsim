@@ -1037,10 +1037,13 @@ VOID ContextChange(THREADID tid, CONTEXT_CHANGE_REASON reason, const CONTEXT* fr
 #define QUOTED_(x) #x
 #define QUOTED(x) QUOTED_(x)
 
+
 // Pre-exec
 BOOL FollowChild(CHILD_PROCESS childProcess, VOID * userData) {
     //Finish all threads in this process w.r.t. the global scheduler
 
+
+    info ("au hello");
     uint32_t activeCount = CountActiveThreads();
     if (activeCount > 1) warn("exec() of a multithreaded process! (%d live threads)", activeCount);
 

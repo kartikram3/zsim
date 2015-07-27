@@ -1026,7 +1026,9 @@ void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
         assert(parallelism > 0); //jeez...
 
         uint32_t schedQuantum = config.get<uint32_t>("sim.schedQuantum", 10000); //phases
+        info("started scheduler");
         zinfo->sched = new Scheduler(EndOfPhaseActions, parallelism, zinfo->numCores, schedQuantum);
+        info("done scheduler");
     } else {
         zinfo->sched = nullptr;
     }
@@ -1055,6 +1057,8 @@ void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
     //NOTE: Due to partitioning, must be done before initializing memory hierarchy
     CreateProcessTree(config);
     zinfo->procArray[0]->notifyStart(); //called here so that we can detect end-before-start races
+
+    info ("creating pin cmd");
 
     zinfo->pinCmd = new PinCmd(&config, nullptr /*don't pass config file to children --- can go either way, it's optional*/, outputDir, shmid);
 

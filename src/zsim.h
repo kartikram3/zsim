@@ -186,6 +186,7 @@ struct GlobSimInfo {
 
     //sim_name_info
     const char * sim_name;  
+    lock_t pin_cmd_lock;
 };
 
 

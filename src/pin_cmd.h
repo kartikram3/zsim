@@ -1,4 +1,5 @@
 /** $lic$
+   info ("outputs dir is %s", outputDir);
  * Copyright (C) 2012-2015 by Massachusetts Institute of Technology
  * Copyright (C) 2010-2013 by The Board of Trustees of Stanford University
  *
@@ -38,15 +39,24 @@ class Config;
 class PinCmd : public GlobAlloc {
     private:
         g_vector<g_string> args;
+        g_vector<g_string> pinoptions;
 
         struct ProcCmdInfo {
             g_string cmd;
             g_string input;
             g_string loader;
             g_string env;
+            bool use_pinplay;
         };
 
         g_vector<ProcCmdInfo> procInfo; //one entry for each process that the harness launches (not for child procs)
+        //const char * nullapp_path;
+        bool use_pinplay;
+        g_string shm;
+        g_string cfg;
+        g_string oDir;
+        //bool logToFile;
+      
 
     public:
         PinCmd(Config* conf, const char* configFile, const char* outputDir, uint64_t shmid);
