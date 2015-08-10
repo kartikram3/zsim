@@ -1,0 +1,137 @@
+#include<libconfig.h>
+#include <iostream>
+#include <string>
+#include <stdlib.h>
+#include <fstream>
+#include <time.h>
+#include <cstdlib>
+
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+
+int main(int argc, char **argv){
+
+  std::string arch_file_name = argv[1]; //name of the architecture config file
+  std::string  arch_settings_name = argv[2]; //name of setting file
+
+  const char * sim_name;
+  const char * clusion_l2;
+  const char * clusion_l3;
+  const char * result_path;
+  const char * zsim_path = "/home/kartik/zsim_kartik";
+  const char * arch_file_path = (std::string(zsim_path) + std::string(argv[3])).c_str();
+  std::string afp(arch_file_path);
+
+
+  std::cout << "arch file path is " << arch_file_path << std::endl;
+
+  config_t cfg_arch;
+  config_setting_t * arch_file_setting;
+  config_init(&cfg_arch);
+
+  config_t cfg_setting;
+  config_setting_t * arch_setting;
+  config_init(&cfg_setting);
+
+  if (config_read_file(&cfg_arch, (afp + "/" + arch_file_name).c_str()) == CONFIG_TRUE &&
+      config_read_file(&cfg_setting, (afp + "/" + arch_settings_name).c_str()) == CONFIG_TRUE){
+
+
+          struct stat st = {0};
+   
+          //------ create the cfg folder --------//
+          if (stat((afp + "/cfg").c_str(), &st) == -1) {
+            mkdir((afp + "/cfg").c_str(), 0700); //makes the result path
+          }
+
+          time_t timev;
+          time (&timev);
+ 
+          std::string cpy_arch_file(afp+"/cfg/"+std::to_string(timev)+".cfg");
+
+
+          //----- make copy of architecture file ---//
+          std::ifstream  src((afp + "/" + arch_file_name).c_str(), std::ios::binary);
+          std::ofstream  dst(cpy_arch_file.c_str(),   std::ios::binary);
+
+          dst << src.rdbuf();
+          
+          std::cout << "Output file is " << cpy_arch_file.c_str() << std::endl;
+            
+          //------open the new architecture fiel  -------//
+          config_t cfg_cpy_arch;
+          config_setting_t * arch_cpy_setting;
+          config_init(&cfg_cpy_arch);
+          if(config_read_file(&cfg_cpy_arch, cpy_arch_file.c_str()) != CONFIG_TRUE){
+                std::cout <<"WE have a problem !" <<std::endl;
+          }
+
+          std::cout <<"Here"<<std::endl;
+
+          int tmp;
+          //-------change fields in copied arch file -----------//
+  
+          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sys.caches.l1d_beefy.size");
+          config_lookup_int(&cfg_setting, "sys.caches.l1d_beefy.size", &tmp);
+          std::cout << "Int value is " << tmp << std::endl;
+          config_setting_set_int ( arch_cpy_setting , tmp);
+      
+
+          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sys.caches.l1i_beefy.size");
+          config_lookup_int(&cfg_setting, "sys.caches.l1i_beefy.size", &tmp);
+          config_setting_set_int ( arch_cpy_setting , tmp);
+ 
+
+          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sys.caches.l2_beefy.size");
+          config_lookup_int(&cfg_setting, "sys.caches.l2_beefy.size", &tmp);
+          config_setting_set_int ( arch_cpy_setting , tmp);
+ 
+
+
+          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sys.caches.l2_beefy.type");
+          config_lookup_string(&cfg_setting, "sys.caches.l2_beefy.type", &clusion_l2);
+          config_setting_set_string ( arch_cpy_setting , clusion_l2);
+
+
+
+          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sys.caches.l3.size");
+          config_lookup_int(&cfg_setting, "sys.caches.l3.size", &tmp);
+          config_setting_set_int ( arch_cpy_setting , tmp);
+
+
+
+          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sys.caches.l3.type");
+          config_lookup_string(&cfg_setting, "sys.caches.l3.type", &clusion_l3);
+          config_setting_set_string ( arch_cpy_setting , clusion_l3);
+
+
+          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sim.result_path");
+          config_setting_set_string ( arch_cpy_setting , argv[3] );
+
+
+          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sim.sim_name");
+          config_setting_set_string ( arch_cpy_setting ,std::to_string(timev).c_str() );
+
+          config_write_file(&cfg_cpy_arch, cpy_arch_file.c_str()) ;
+
+          //------creating the path to the architecture file-----//
+          std::string result_path = afp + "/results";
+
+
+          //------ create the result folder --------//
+          if (stat(result_path.c_str(), &st) == -1) {
+            mkdir(result_path.c_str(), 0700); //makes the result path
+          }
+  }else{
+
+          std::cout << "arch files are " << std::endl;
+          std::cout << (afp + "/" + arch_file_name)
+                    << std::endl
+                    << (afp + "/" + arch_settings_name);
+
+  }
+
+}

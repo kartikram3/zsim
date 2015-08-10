@@ -1,0 +1,8 @@
+We have a set of scripts and subscripts.
+The output of zsim's simulation should be in a 'results' subfolder
+inside the particular folder the config file is located in.
+
+This means we also need to add some path information in zsim's source code.
+Right now the path corresponds to the default path. This path needs to be fed in
+as an argument in the config file. It can be automatically obtained by the python 
+script that runs the program.

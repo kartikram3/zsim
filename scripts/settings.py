@@ -1,0 +1,5 @@
+path_pinball = "/home/kartik/Prefetch_Simulator/cpu2006_pinballs"
+path_config = "/home/kartik/zsim_kartik/clusion_config/2-core-mix" + "/cfg"
+arch_name = "het.cfg"
+settings_name = "settings_list" 
+path_arch = "/clusion_config/2-core-mix" 
