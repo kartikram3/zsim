@@ -70,6 +70,8 @@
 #include "timing_cache.h"
 #include "non_inclusive_cache.h"
 #include "non_inclusive_coherence_ctrl.h"
+#include "exclusive_cache.h"
+#include "exclusive_coherence_ctrls.h"
 #include "timing_core.h"
 #include "timing_event.h"
 #include "trace_driver.h"
@@ -324,7 +326,16 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             cache = new non_inclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
 
         } else if (type == "exclusive" ) { 
-          
+
+            uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
+            uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
+            uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+
+            cc = new exclusive_MESICC(numLines, name); //change to non inclusive MESI-CC
+            rp->setCC(cc); 
+
+            cache = new exclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
+
             panic("Invalid cache type %s", type.c_str());
 
         } else if (type == "flexclusive" ){
@@ -494,6 +505,10 @@ CacheGroup* BuildCacheGroup(Config& config, const string& name, bool isTerminal)
 }
 
 static void InitSystem(Config& config) {
+    
+    const char * result_path = config.get<const char *>("sim.result_path","");
+    info("result path is %s ", result_path);
+
     unordered_map<string, string> parentMap; //child -> parent
     unordered_map<string, vector<vector<string>>> childMap; //parent -> children (a parent may have multiple children)
 

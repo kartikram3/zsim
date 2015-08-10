@@ -101,7 +101,6 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
         args.push_back("-t");
         args.push_back(zsimPath);
       */
-    
 
     //Additional options (e.g., -smc_strict for Java), parsed from config
         const char* pinOptions = conf->get<const char*>("sim.pinOptions", "");
@@ -174,9 +173,8 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
 
 g_vector<g_string> PinCmd::getPinCmdArgs(uint32_t procIdx) {
 
-
     args.clear();
-    g_string pinPath,zsimPath; 
+    g_string pinPath,zsimPath;
     const char * zsimEnvPath;
     zsimEnvPath = getenv("ZSIM_PATH");
     if (zsimEnvPath) {
@@ -315,7 +313,8 @@ g_vector<g_string> PinCmd::getPinCmdArgs(uint32_t procIdx) {
 }
 
 g_vector<g_string> PinCmd::getFullCmdArgs(uint32_t procIdx, const char** inputFile) {
-    info ("Hello ful cmd args !");
+
+    info ("Hello full cmd args !");
     assert(procIdx < procInfo.size()); //must be one of the topmost processes
     info ("the size of args is %d",(int)args.size());
     g_vector<g_string> res = getPinCmdArgs(procIdx);
@@ -338,7 +337,7 @@ g_vector<g_string> PinCmd::getFullCmdArgs(uint32_t procIdx, const char** inputFi
 
     //nullapp_path = "/home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/extras/pinplay/bin/intel64/nullapp" ;
     if(use_pinplay)
-      res.push_back( nullapp_path ); 
+      res.push_back( nullapp_path );
     else{
         //Parse command -- use glibc's wordexp to parse things like quotes, handle argument expansion, etc correctly
        wordexp_t p;
@@ -346,10 +345,10 @@ g_vector<g_string> PinCmd::getFullCmdArgs(uint32_t procIdx, const char** inputFi
        for (uint32_t i = 0; i < p.we_wordc; i++) {
            res.push_back(g_string(p.we_wordv[i]));
        }
-       wordfree(&p); 
+       wordfree(&p);
     }
 
-   
+
     //Input redirect
     *inputFile = (procInfo[procIdx].input == "")? nullptr : procInfo[procIdx].input.c_str();
     return res;

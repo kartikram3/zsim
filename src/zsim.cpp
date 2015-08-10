@@ -90,7 +90,7 @@ KNOB<bool> KnobLogToFile(KNOB_MODE_WRITEONCE, "pintool",
         "logToFile", "false", "true if all messages should be logged to a logfile instead of stdout/err");
 
 KNOB<string> KnobOutputDir(KNOB_MODE_WRITEONCE, "pintool",
-        "outputDir", "./", "absolute path to write output files into");
+        "outputDir", "./ouuty", "absolute path to write output files into");
 
 
 
@@ -1514,6 +1514,7 @@ int main(int argc, char *argv[]) {
     bool masterProcess = false;
     if (procIdx == 0 && !gm_isready()) {  // process 0 can exec() without fork()ing first, so we must check gm_isready() to ensure we don't initialize twice
         masterProcess = true;
+        info ("The output knob value is %s", KnobOutputDir.Value().c_str() );
         SimInit(KnobConfigFile.Value().c_str(), KnobOutputDir.Value().c_str(), KnobShmid.Value());
     } else {
         while (!gm_isready()) usleep(1000);  // wait till proc idx 0 initializes everything

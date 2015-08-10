@@ -86,6 +86,8 @@ uint64_t Cache::access(MemReq& req) {
         }
         // Enforce single-record invariant: Writeback access may have a timing
         // record. If so, read it.
+
+        #if 0
         EventRecorder* evRec = zinfo->eventRecorders[req.srcId];
                                               //src is the source core
         TimingRecord wbAcc;
@@ -129,6 +131,7 @@ uint64_t Cache::access(MemReq& req) {
                 evRec->pushRecord(acc);
             }
         }
+        #endif
     }
 
     cc->endAccess(req);

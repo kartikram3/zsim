@@ -79,4 +79,3 @@ uint32_t Network::getRTT(const char* src, const char* dst) {
         return 0;
     }
 }
-

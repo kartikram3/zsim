@@ -328,12 +328,24 @@ int main(int argc, char *argv[]) {
         info("Usage: %s config_file", argv[0]);
         exit(1);
     }
-
+    
     //Canonicalize paths --- because we change dirs, we deal in absolute paths
     const char* configFile = realpath(argv[1], nullptr);
-    const char* outputDir = getcwd(nullptr, 0); //already absolute
 
     Config conf(configFile);
+
+
+    const char * result_path = conf.get<const char *>("sim.result_path","");
+    info("result path is %s ", result_path);
+    std::string rpath(result_path);
+    std::string cdir("/home/kartik/zsim_kartik");
+    std::string concat_path = cdir + rpath;
+    
+    
+
+    //Canonicalize paths --- because we change dirs, we deal in absolute paths
+    const char* outputDir = concat_path.c_str(); 
+
 
     if (atexit(exitHandler)) panic("Could not register exit handler");
 
@@ -364,7 +376,7 @@ int main(int argc, char *argv[]) {
     }
     if (removedLogfiles) info("Removed %d old logfiles", removedLogfiles);
 
-    uint32_t gmSize = conf.get<uint32_t>("sim.gmMBytes", (1<<11) /*default 1024MB*/);
+    uint32_t gmSize = conf.get<uint32_t>("sim.gmMBytes", (1<<9) /*default 1024MB*/);
     info("Creating global segment, %d MBs", gmSize);
     int shmid = gm_init(((size_t)gmSize) << 20 /*MB to Bytes*/);
     info("Global segment shmid = %d", shmid);
@@ -402,7 +414,7 @@ int main(int argc, char *argv[]) {
 
     for (uint32_t procIdx = 0; procIdx < numProcs; procIdx++) {
         LaunchProcess(procIdx);
-        usleep(1000000);
+        usleep(10000);
     }
 
     if (numProcs == 0) panic("No process config found. Config file needs at least a process0 entry");

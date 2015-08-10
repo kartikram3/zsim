@@ -51,7 +51,6 @@ bool ContentionSim::CompareDomains::operator()(DomainData* d1, DomainData* d2) c
     return (v1 > v2);
 }
 
-
 void ContentionSim::SimThreadTrampoline(void* arg) {
     ContentionSim* csim = static_cast<ContentionSim*>(arg);
     uint32_t thid = __sync_fetch_and_add(&csim->threadTicket, 1);
@@ -124,6 +123,7 @@ void ContentionSim::initStats(AggregateStat* parentStat) {
         ss << "domain-" << i;
         AggregateStat* domStat = new AggregateStat();
         domStat->init(gm_strdup(ss.str().c_str()), "Domain stats");
+
 #if PROFILE_CROSSINGS
         new (&domains[i].profIncomingCrossings) VectorCounter();
         new (&domains[i].profIncomingCrossingSims) VectorCounter();
@@ -135,6 +135,8 @@ void ContentionSim::initStats(AggregateStat* parentStat) {
         domStat->append(&domains[i].profIncomingCrossingSims);
         domStat->append(&domains[i].profIncomingCrossingHist);
 #endif
+
+
         new (&domains[i].profTime) ClockStat();
         domains[i].profTime.init("time", "Weave simulation time");
         domStat->append(&domains[i].profTime);
@@ -199,6 +201,7 @@ void ContentionSim::enqueue(TimingEvent* ev, uint64_t cycle) {
 }
 
 void ContentionSim::enqueueSynced(TimingEvent* ev, uint64_t cycle) {
+
     assert(!inCSim);
     assert(ev && ev->domain != -1);
     assert(ev->domain < (int32_t)numDomains);
@@ -209,11 +212,13 @@ void ContentionSim::enqueueSynced(TimingEvent* ev, uint64_t cycle) {
     assert_msg(cycle >= lastLimit, "Enqueued (synced) event before last limit! cycle %ld min %ld", cycle, lastLimit);
     //Hacky, but helpful to chase events scheduled too far ahead due to bugs (e.g., cycle -1). We should probably formalize this a bit more
     assert_msg(cycle < lastLimit+10*zinfo->phaseLength+10000, "Queued  (synced) event too far into the future, cycle %ld lastLimit %ld", cycle, lastLimit);
+
     ev->privCycle = cycle;
     assert(ev->numParents == 0);
     domains[ev->domain].pq.enqueue(ev, cycle);
 
     futex_unlock(&domains[domain].pqLock);
+
 }
 
 void ContentionSim::enqueueCrossing(CrossingEvent* ev, uint64_t cycle, uint32_t srcId, uint32_t srcDomain, uint32_t dstDomain, EventRecorder* evRec) {

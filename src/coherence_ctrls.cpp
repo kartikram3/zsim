@@ -266,7 +266,7 @@ uint64_t MESITopCC::processAccess(Address lineAddr, uint32_t lineId, AccessType 
     switch (type) {
         case PUTX:
             assert(e->isExclusive());
-            if (flags & MemReq::PUTX_KEEPEXCL) {
+            if (flags & MemReq::PUTX_KEEPEXCL){
                 assert(e->sharers[childId]);
                 assert(*childState == M);
                 *childState = E; //they don't hold dirty data anymore
