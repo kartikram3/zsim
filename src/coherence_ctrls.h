@@ -37,6 +37,7 @@
 
 //TODO: Now that we have a pure CC interface, the MESI controllers should go on different files.
 
+
 /* Generic, integrated controller interface */
 class CC : public GlobAlloc {
     public:
@@ -55,10 +56,18 @@ class CC : public GlobAlloc {
         //Inv methods
         virtual void startInv() = 0;
         virtual uint64_t processInv(const InvReq& req, int32_t lineId, uint64_t startCycle) = 0;
+        virtual void dummy() = 0;
+
+        //Snoop methods
+        //virtual void startSnoop() = 0 ;
+        //virtual void processSnoop(const SnoopReq& req) = 0 ;
 
         //Repl policy interface
         virtual uint32_t numSharers(uint32_t lineId) = 0;
         virtual bool isValid(uint32_t lineId) = 0;
+
+
+
 };
 
 
@@ -306,6 +315,8 @@ class MESICC : public CC {
             bcc->initStats(cacheStat);
         }
 
+
+
         //Access methods
         bool startAccess(MemReq& req) {
             assert((req.type == GETS) || (req.type == GETX) || (req.type == PUTS) || (req.type == PUTX));
@@ -398,7 +409,24 @@ class MESICC : public CC {
         void startInv() {
             bcc->lock(); //note we don't grab tcc; tcc serializes multiple up accesses, down accesses don't see it
         }
+        
+        void dummy() {
 
+        }
+
+        //Snoop methods
+//        void startSnoop(){
+//
+//            bcc->lock();
+//        }
+//
+//        void processSnoop(const SnoopReq& req){
+//
+//            //Do a snoop request to the parent
+//            
+//        
+//        }
+//
         uint64_t processInv(const InvReq& req, int32_t lineId, uint64_t startCycle) {
             uint64_t respCycle = tcc->processInval(req.lineAddr, lineId, req.type, req.writeback, startCycle, req.srcId); //send invalidates or downgrades to children
             bcc->processInval(req.lineAddr, lineId, req.type, req.writeback); //adjust our own state
@@ -436,6 +464,7 @@ class MESITerminalCC : public CC {
             bcc->initStats(cacheStat);
         }
 
+
         //Access methods
         bool startAccess(MemReq& req) {
             assert((req.type == GETS) || (req.type == GETX)); //no puts!
@@ -444,6 +473,7 @@ class MESITerminalCC : public CC {
              * down (which is why we require the lock), but not when going up, opening the
              * child to invalidation races here to avoid deadlocks.
              */
+
             if (req.childLock) {
                 futex_unlock(req.childLock);
             }
@@ -455,6 +485,7 @@ class MESITerminalCC : public CC {
              */
             bool skipAccess = CheckForMESIRace(req.type /*may change*/, req.state, req.initialState);
             return skipAccess;
+
         }
 
         bool shouldAllocate(const MemReq& req) {
@@ -489,6 +520,20 @@ class MESITerminalCC : public CC {
             bcc->lock();
         }
 
+        void dummy() {
+
+        }
+        
+        //Snoop methods 
+//        void startSnoop(){
+//            bcc->lock();
+//        }
+//
+//        void processSnoop(const SnoopReq& req){
+//              //do nothing as it is a terminal cache
+//              //no where to snoop 
+//        }
+//
         uint64_t processInv(const InvReq& req, int32_t lineId, uint64_t startCycle) {
             bcc->processInval(req.lineAddr, lineId, req.type, req.writeback); //adjust our own state
             bcc->unlock();

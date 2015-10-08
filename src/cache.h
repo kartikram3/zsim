@@ -41,6 +41,7 @@ class Network;
  * too, but to avoid virtual function call overheads we work with MESI
  * controllers, since for now we only have MESI controllers
  */
+
 class Cache : public BaseCache {
     protected:
         CC* cc;
@@ -54,6 +55,9 @@ class Cache : public BaseCache {
         uint32_t invLat; //latency of an invalidation
 
         g_string name;
+ 
+        bool llc=false; //sets the cache as llc
+         
 
     public:
         Cache(uint32_t _numLines, CC* _cc, CacheArray* _array, ReplPolicy* _rp, uint32_t _accLat, uint32_t _invLat, const g_string& _name);
@@ -64,12 +68,16 @@ class Cache : public BaseCache {
         void initStats(AggregateStat* parentStat);
 
         virtual uint64_t access(MemReq& req);
+        virtual void setasLLC();
+        void setLLCflag();
 
         //NOTE: reqWriteback is pulled up to true, but not pulled down to false.
         virtual uint64_t invalidate(const InvReq& req) {
             startInvalidate();
             return finishInvalidate(req);
         }
+
+        //virtual uint64_t snoop(SnoopReq &req, uint64_t respCycle);
     
         enum cache_type { INCLUSIVE, NON_INCLUSIVE, EXCLUSIVE, FLEXCLUSIVE, LINE_BASED_CLUSION };
 
@@ -78,6 +86,9 @@ class Cache : public BaseCache {
 
         void startInvalidate(); // grabs cc's downLock
         uint64_t finishInvalidate(const InvReq& req); // performs inv and releases downLock
+
+        virtual uint64_t snoop(){  return 0; } ;
+
 };
 
 #endif  // CACHE_H_

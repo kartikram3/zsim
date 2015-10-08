@@ -202,6 +202,7 @@ static inline bool futex_trylock_nospin_timeout(volatile uint32_t* lock, uint64_
 }
 
 static inline void futex_unlock(volatile uint32_t* lock) {
+
     if (__sync_fetch_and_add(lock, -1) != 1) {
         *lock = 0;
         /* This may result in additional wakeups, but avoids completely starving processes that are
@@ -210,6 +211,7 @@ static inline void futex_unlock(volatile uint32_t* lock) {
          */
         syscall(SYS_futex, lock, FUTEX_WAKE, 1 /*wake next*/, nullptr, nullptr, 0);
     }
+
 }
 
 // Returns true if this futex has *detectable waiters*, i.e., waiters in the kernel

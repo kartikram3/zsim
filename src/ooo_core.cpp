@@ -36,6 +36,7 @@
  * but sometimes much slower (as it relies on range poisoning in the IW, potentially O(n^2)), and in practice
  * makes a negligible difference (ROB backpressures).
  */
+
 //#define LSU_IW_BACKPRESSURE
 
 #define DEBUG_MSG(args...)
@@ -63,6 +64,7 @@ OOOCore::OOOCore(FilterCache* _l1i, FilterCache* _l1d, g_string& _name) : Core(_
     for (uint32_t i = 0; i < MAX_REGISTERS; i++) {
         regScoreboard[i] = 0;
     }
+
     prevBbl = nullptr;
 
     lastStoreCommitCycle = 0;
@@ -77,6 +79,7 @@ OOOCore::OOOCore(FilterCache* _l1i, FilterCache* _l1d, g_string& _name) : Core(_
 }
 
 void OOOCore::initStats(AggregateStat* parentStat) {
+
     AggregateStat* coreStat = new AggregateStat();
     coreStat->init(name.c_str(), "Core stats");
 
@@ -114,6 +117,7 @@ void OOOCore::initStats(AggregateStat* parentStat) {
 #endif
 
     parentStat->append(coreStat);
+
 }
 
 uint64_t OOOCore::getInstrs() const {return instrs;}
@@ -157,6 +161,7 @@ void OOOCore::branch(Address pc, bool taken, Address takenNpc, Address notTakenN
 }
 
 inline void OOOCore::bbl(Address bblAddr, BblInfo* bblInfo) {
+
     if (!prevBbl) {
         // This is the 1st BBL since scheduled, nothing to simulate
         prevBbl = bblInfo;
@@ -304,7 +309,7 @@ inline void OOOCore::bbl(Address bblAddr, BblInfo* bblInfo) {
 
                     // Wait for all previous store addresses to be resolved (not just ours :))
                     dispatchCycle = MAX(lastStoreAddrCommitCycle+1, dispatchCycle);
-                    
+
                     Address addr = storeAddrs[storeIdx++];
                     uint64_t reqSatisfiedCycle = l1d->store(addr, dispatchCycle) + L1D_LAT;
                     cRec.record(curCycle, dispatchCycle, reqSatisfiedCycle);
@@ -399,7 +404,7 @@ inline void OOOCore::bbl(Address bblAddr, BblInfo* bblInfo) {
          * (28 uops), IW (36 uops), and 16B instr length predecoder buffer. At
          * ~3.5 bytes/instr, 1.2 uops/instr, this is about 5 64-byte lines.
          */
-         
+
         // info("Mispredicted branch, %ld %ld %ld | %ld %ld", decodeCycle, curCycle, lastCommitCycle,
         //         lastCommitCycle-decodeCycle, lastCommitCycle-curCycle);
         Address wrongPathAddr = branchTaken? branchNotTakenNpc : branchTakenNpc;
@@ -417,6 +422,7 @@ inline void OOOCore::bbl(Address bblAddr, BblInfo* bblInfo) {
 
         fetchCycle = lastCommitCycle;
     }
+
     branchPc = 0;  // clear for next BBL
 
     // Simulate current bbl ifetch
@@ -471,6 +477,7 @@ void OOOCore::cSimEnd() {
 }
 
 void OOOCore::advance(uint64_t targetCycle) {
+
     assert(targetCycle > curCycle);
     decodeCycle += targetCycle - curCycle;
     insWindow.longAdvance(curCycle, targetCycle);

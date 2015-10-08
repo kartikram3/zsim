@@ -43,6 +43,7 @@
 
 class FilterCache : public Cache {
     private:
+
         struct FilterEntry {
             volatile Address rdAddr;
             volatile Address wrAddr;

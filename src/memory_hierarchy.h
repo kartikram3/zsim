@@ -114,6 +114,14 @@ struct InvReq {
     uint32_t srcId;
 };
 
+struct SnoopReq {
+
+    Address lineAddr;
+    uint64_t cycle;
+    uint32_t srcId;
+
+};
+
 /** INTERFACES **/
 
 class AggregateStat;
@@ -134,6 +142,8 @@ class BaseCache : public MemObject {
         virtual void setParents(uint32_t _childId, const g_vector<MemObject*>& parents, Network* network) = 0;
         virtual void setChildren(const g_vector<BaseCache*>& children, Network* network) = 0;
         virtual uint64_t invalidate(const InvReq& req) = 0;
+        virtual void setasLLC() = 0;
+        virtual uint64_t snoop() = 0;
 };
 
 #endif  // MEMORY_HIERARCHY_H_

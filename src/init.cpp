@@ -331,12 +331,11 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
             uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
 
-            cc = new exclusive_MESICC(numLines, name); //change to non inclusive MESI-CC
+            cc = new exclusive_MESICC(numLines, name); //change to non exclusive MESI-CC
             rp->setCC(cc); 
 
             cache = new exclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
 
-            panic("Invalid cache type %s", type.c_str());
 
         } else if (type == "flexclusive" ){
             
@@ -457,7 +456,7 @@ MemObject* BuildMemoryController(Config& config, uint32_t lineSize, uint32_t fre
 
 typedef vector<vector<BaseCache*>> CacheGroup;
 
-CacheGroup* BuildCacheGroup(Config& config, const string& name, bool isTerminal) {
+CacheGroup* BuildCacheGroup(Config& config, const string& name, bool isTerminal, bool isLLC) {
     CacheGroup* cgp = new CacheGroup;
     CacheGroup& cg = *cgp;
 
@@ -501,6 +500,17 @@ CacheGroup* BuildCacheGroup(Config& config, const string& name, bool isTerminal)
             cg[i][j] = BuildCacheBank(config, prefix, bankName, bankSize, isTerminal, domain);
         }
     }
+
+    if (isLLC){  //set the LLC flag if it is an LLC cache
+        for(uint32_t i=0; i<caches; i++){
+            for(uint32_t j=0; j<banks; j++){
+
+                cg[i][j]->setasLLC();              
+
+            }
+        }
+    }
+
     return cgp;
 }
 
@@ -569,13 +579,18 @@ static void InitSystem(Config& config) {
     unordered_map<string, CacheGroup*> cMap;
     list<string> fringe;  // FIFO
     fringe.push_back(llc);
+    bool isLLC = true;
     while (!fringe.empty()) {
         string group = fringe.front();
         fringe.pop_front();
         if (cMap.count(group)) panic("The cache 'tree' has a loop at %s", group.c_str());
-        cMap[group] = BuildCacheGroup(config, group, isTerminal(group));
+        cMap[group] = BuildCacheGroup(config, group, isTerminal(group),isLLC);
         for (auto& childVec : childMap[group]) fringe.insert(fringe.end(), childVec.begin(), childVec.end());
+        isLLC = false;
     }
+
+
+
 
     //Check single LLC
     if (cMap[llc]->size() != 1) panic("Last-level cache %s must have caches = 1, but %ld were specified", llc.c_str(), cMap[llc]->size());
@@ -584,6 +599,7 @@ static void InitSystem(Config& config) {
      * it follows that we have a fully connected tree finishing at the LLC.
      */
 
+    
     //Build the memory controllers
     uint32_t memControllers = config.get<uint32_t>("sys.mem.controllers", 1);
     assert(memControllers > 0);

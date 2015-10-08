@@ -57,7 +57,6 @@ class exclusive_MESIBottomCC : public GlobAlloc {
         // TODO: Measuring writebacks is messy, do if needed
         Counter profGETNextLevelLat, profGETNetLat;
 
-
         PAD();
         lock_t ccLock;
         PAD();
@@ -135,9 +134,6 @@ class exclusive_MESIBottomCC : public GlobAlloc {
         uint32_t getParentId(Address lineAddr);
 };
 
-
-
-
 class exclusive_MESITopCC : public GlobAlloc {
     private:
         struct Entry {
@@ -189,6 +185,9 @@ class exclusive_MESITopCC : public GlobAlloc {
 
         uint64_t processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 
+        uint64_t snoopInnerLevels(Address snoopAddr, uint64_t respCycle, bool * lineExists);
+
+
         inline void lock() {
             futex_lock(&ccLock);
         }
@@ -202,16 +201,12 @@ class exclusive_MESITopCC : public GlobAlloc {
             return array[lineId].numSharers;
         }
 
+
     private:
         uint64_t sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 };
 
-
-
-
-
-
-//non-inclusive version of the coherence
+//exclusive version of the coherence
 //controller (non-terminal)
 class exclusive_MESICC : public CC{
 
@@ -221,11 +216,14 @@ class exclusive_MESICC : public CC{
         exclusive_MESIBottomCC* bcc;
         uint32_t numLines;
         g_string name;
+        bool llc; //says whether this is an llc or not
+
 
     public:
 
          exclusive_MESICC(uint32_t _numLines, g_string& _name) : tcc(nullptr), bcc(nullptr),
             numLines(_numLines), name(_name) {}
+
 
         void setParents(uint32_t childId, const g_vector<MemObject*>& parents, Network* network) {
             bcc = new exclusive_MESIBottomCC(numLines, childId);
@@ -247,7 +245,7 @@ class exclusive_MESICC : public CC{
             assert((req.type == GETS) || (req.type == GETX) || (req.type == PUTS) || (req.type == PUTX));
 
             /* Child should be locked when called. We do hand-over-hand locking when going
-             * down (which is why we require the lock), but not when going up, opening the
+             * down (which is why we reexclusive_MESITopCC::quire the lock), but not when going up, opening the
              * child to invalidation races here to avoid deadlocks.
              */
             if (req.childLock) {
@@ -265,17 +263,17 @@ class exclusive_MESICC : public CC{
         }
 
         bool shouldAllocate(const MemReq& req) {
-            if ((req.type == GETS) || (req.type == GETX)) {
-                return true;
-            } else {
-                assert((req.type == PUTS) || (req.type == PUTX));
-                return false;
-            }
+           
+              return false; 
+              //don't allocate for non terminal
+              //as cache is exclusive
+              //}
         }
+
 
         uint64_t processEviction(const MemReq& triggerReq, Address wbLineAddr, int32_t lineId, uint64_t startCycle) {
             bool lowerLevelWriteback = false;
-            uint64_t evCycle = tcc->processEviction(wbLineAddr, lineId, &lowerLevelWriteback, startCycle, triggerReq.srcId); //1. if needed, send invalidates/downgrades to lower level
+            uint64_t evCycle = tcc->processEviction(wbLineAddr, lineId, &lowerLevelWriteback, startCycle, triggerReq.srcId); //1. We don't send invalidates or downgrades, just clear our line
             evCycle = bcc->processEviction(wbLineAddr, lineId, lowerLevelWriteback, evCycle, triggerReq.srcId); //2. if needed, write back line to upper level
             return evCycle;
         }
@@ -287,9 +285,31 @@ class exclusive_MESICC : public CC{
             //invalidations. The alternative with this would be to capture these blocks, since we have space anyway. This is so rare is doesn't matter,
             //but if we do proper NI/EX mid-level caches backed by directories, this may start becoming more common (and it is perfectly acceptable to
             //upgrade without any interaction with the parent... the child had the permissions!)
-            if (lineId == -1 || (((req.type == PUTS) || (req.type == PUTX)) && !bcc->isValid(lineId))) { //can only be a non-inclusive wback
-                assert((req.type == PUTS) || (req.type == PUTX));
-                respCycle = bcc->processNonInclusiveWriteback(req.lineAddr, req.type, startCycle, req.state, req.srcId, req.flags);
+
+//            bool lineExists ;
+//            lineExists = true;
+//            if(llc){ //if it is a last level cache
+//                     //we want to functorize this
+//
+//                tcc->snoopInnerLevels(req.lineAddr,respCycle,&lineExists);  
+//                 
+//                     //if we find something in the inner levels
+//                     //then we should know whether it is shared or exclusive
+//                     //if it is shared, then we can get the data directly
+//                     //if exclusive, we should send invalidates
+//                     //which results in writebacks
+//                     //and we get the writeback data directly too
+//
+//                      
+//
+//            }
+//
+            if (lineId == -1) {
+                assert((req.type == GETS) || (req.type == GETX));
+                respCycle = bcc->processAccess(req.lineAddr, lineId, req.type, startCycle, req.srcId, req.flags);
+                    bool lowerLevelWriteback = false;
+                    respCycle = tcc->processAccess(req.lineAddr, lineId, req.type, req.childId, true, req.state,
+                            &lowerLevelWriteback, respCycle, req.srcId, req.flags); //sets the state as E
             } else {
                 //Prefetches are side requests and get handled a bit differently
                 bool isPrefetch = req.flags & MemReq::PREFETCH;
@@ -303,12 +323,8 @@ class exclusive_MESICC : public CC{
                     //At this point, the line is in a good state w.r.t. upper levels
                     bool lowerLevelWriteback = false;
                     //change directory info, invalidate other children if needed, tell requester about its state
-                    respCycle = tcc->processAccess(req.lineAddr, lineId, req.type, req.childId, bcc->isExclusive(lineId), req.state,
+                    respCycle = tcc->processAccess(req.lineAddr, lineId, req.type, req.childId, true, req.state,
                             &lowerLevelWriteback, respCycle, req.srcId, flags);
-                    if (lowerLevelWriteback) {
-                        //Essentially, if tcc induced a writeback, bcc may need to do an E->M transition to reflect that the cache now has dirty data
-                        bcc->processWritebackOnAccess(req.lineAddr, lineId, req.type);
-                    }
                 }
             }
             return respCycle;
@@ -328,6 +344,20 @@ class exclusive_MESICC : public CC{
         void startInv() {
             bcc->lock(); //note we don't grab tcc; tcc serializes multiple up accesses, down accesses don't see it
         }
+
+        void dummy(){
+        
+        }
+
+        //Snoop methods
+//        void startSnoop() {
+//            bcc->lock(); //similar to invalidates, we only grab the bcc
+//        }
+//
+//        void processSnoop(SnoopReq& req){
+//            bool temp = true;
+//            tcc->snoopInnerLevels( req.lineAddr, req.cycle, &temp );
+//        }
 
         uint64_t processInv(const InvReq& req, int32_t lineId, uint64_t startCycle) {
             uint64_t respCycle = tcc->processInval(req.lineAddr, lineId, req.type, req.writeback, startCycle, req.srcId); //send invalidates or downgrades to children
@@ -422,6 +452,19 @@ class exclusive_MESITerminalCC : public CC {
             bcc->lock();
         }
 
+        void dummy(){
+
+        }
+
+        //Snoop methods
+//        void startSnoop() {
+//            bcc->lock(); //similar to invalidates, we only grab the bcc
+//        }
+//
+//        void processSnoop(SnoopReq& req){
+//            //do nothing as this is a terminal cache
+//        }
+//
         uint64_t processInv(const InvReq& req, int32_t lineId, uint64_t startCycle) {
             bcc->processInval(req.lineAddr, lineId, req.type, req.writeback); //adjust our own state
             bcc->unlock();
@@ -431,7 +474,6 @@ class exclusive_MESITerminalCC : public CC {
         //Repl policy interface
         uint32_t numSharers(uint32_t lineId) {return 0;} //no sharers
         bool isValid(uint32_t lineId) {return bcc->isValid(lineId);}
-
 
 };
 

@@ -45,6 +45,17 @@ void Cache::setChildren(const g_vector<BaseCache*>& children, Network* network) 
     cc->setChildren(children, network);
 }
 
+void Cache::setasLLC(){
+
+   llc=true;  //dummy, we should never invoke this
+}
+
+void Cache::setLLCflag(){
+
+   llc=true; //sets the llc flag for this cache
+
+}
+
 void Cache::initStats(AggregateStat* parentStat) {
     AggregateStat* cacheStat = new AggregateStat();
     cacheStat->init(name.c_str(), "Cache stats");
@@ -62,7 +73,7 @@ uint64_t Cache::access(MemReq& req) {
     //we need a new access function that
     //accesses data in a non-inclusive/exclusive/line-wise
     //inclusive way also
-    
+
 
     uint64_t respCycle = req.cycle;
               //request and response cycle
@@ -84,6 +95,8 @@ uint64_t Cache::access(MemReq& req) {
 
             array->postinsert(req.lineAddr, &req, lineId); //do the actual insertion. NOTE: Now we must split insert into a 2-phase thing because cc unlocks us.
         }
+
+        respCycle = cc->processAccess(req, lineId, respCycle);
         // Enforce single-record invariant: Writeback access may have a timing
         // record. If so, read it.
 
@@ -155,3 +168,22 @@ uint64_t Cache::finishInvalidate(const InvReq& req) {
 
     return respCycle;
 }
+
+//uint64_t Cache::snoop(SnoopReq &req, uint64_t respCycle){
+//      cc->startSnoop();
+//
+//      int32_t lineId = array->lookup(req.lineAddr, nullptr, false);
+//      respCycle += accLat;
+//
+//      if(lineId == -1) { 
+//            cc->processSnoop(req);
+//
+//      }          //means the snoop did not find the line
+//                 //so continue the snoop
+//      else {   
+//
+//
+//      }          //means snoop found the line 
+//               
+//      return 0;
+//}

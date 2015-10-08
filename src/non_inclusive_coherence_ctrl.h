@@ -136,8 +136,6 @@ class non_inclusive_MESIBottomCC : public GlobAlloc {
 };
 
 
-
-
 class non_inclusive_MESITopCC : public GlobAlloc {
     private:
         struct Entry {
@@ -206,11 +204,6 @@ class non_inclusive_MESITopCC : public GlobAlloc {
         uint64_t sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 };
 
-
-
-
-
-
 //non-inclusive version of the coherence
 //controller (non-terminal)
 class non_inclusive_MESICC : public CC{
@@ -241,6 +234,7 @@ class non_inclusive_MESICC : public CC{
             //no tcc stats
             bcc->initStats(cacheStat);
         }
+
 
         //Access methods
         bool startAccess(MemReq& req) {
@@ -329,6 +323,19 @@ class non_inclusive_MESICC : public CC{
             bcc->lock(); //note we don't grab tcc; tcc serializes multiple up accesses, down accesses don't see it
         }
 
+        void dummy() {
+
+        }
+
+//        void startSnoop(){
+//
+//
+//        }
+//
+//        void processSnoop( SnoopReq& req ){
+//
+//        }
+//
         uint64_t processInv(const InvReq& req, int32_t lineId, uint64_t startCycle) {
             uint64_t respCycle = tcc->processInval(req.lineAddr, lineId, req.type, req.writeback, startCycle, req.srcId); //send invalidates or downgrades to children
             bcc->processInval(req.lineAddr, lineId, req.type, req.writeback); //adjust our own state
@@ -368,6 +375,7 @@ class non_inclusive_MESITerminalCC : public CC {
         void initStats(AggregateStat* cacheStat) {
             bcc->initStats(cacheStat);
         }
+    
 
         //Access methods
         bool startAccess(MemReq& req) {
@@ -422,6 +430,18 @@ class non_inclusive_MESITerminalCC : public CC {
             bcc->lock();
         }
 
+        void dummy() {
+
+        }
+
+//        void startSnoop(){
+//
+//        }
+//
+//        void processSnoop( SnoopReq & req  ){
+//
+//        }
+//
         uint64_t processInv(const InvReq& req, int32_t lineId, uint64_t startCycle) {
             bcc->processInval(req.lineAddr, lineId, req.type, req.writeback); //adjust our own state
             bcc->unlock();

@@ -22,7 +22,6 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 #ifndef CONTENTION_SIM_H_
 #define CONTENTION_SIM_H_
 
@@ -166,4 +165,4 @@ class ContentionSim : public GlobAlloc {
         static void SimThreadTrampoline(void* arg);
 };
 
-#endif  // CONTENTION_SIM_H_
+#endif  // CONTENTION_SIM_H

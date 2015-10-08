@@ -111,6 +111,9 @@ class StreamPrefetcher : public BaseCache {
 
         uint64_t access(MemReq& req);
         uint64_t invalidate(const InvReq& req);
+        void setasLLC(){} //we don't need to do anything 
+                          //as prefetcher will never be LLC
+        virtual uint64_t snoop() { return 0;  };
 };
 
 #endif  // PREFETCHER_H_

@@ -136,7 +136,6 @@ void ContentionSim::initStats(AggregateStat* parentStat) {
         domStat->append(&domains[i].profIncomingCrossingHist);
 #endif
 
-
         new (&domains[i].profTime) ClockStat();
         domains[i].profTime.init("time", "Weave simulation time");
         domStat->append(&domains[i].profTime);
@@ -243,7 +242,7 @@ void ContentionSim::enqueueCrossing(CrossingEvent* ev, uint64_t cycle, uint32_t 
     } else {
         CrossingEventInfo* last = &lastCrossing[(srcId*numDomains + srcDomain)*numDomains + dstDomain];
         uint64_t srcDomCycle = domains[srcDomain].curCycle;
-        if (last->cycle > srcDomCycle && last->cycle <= cycle) { //NOTE: With the OOO model, last->cycle > cycle is now possible, since requests are issued in instruction order -> ooo
+        if (last->cycle > srcDomCycle && last->cycle <= cycle) {//NOTE: With the OOO model, last->cycle > cycle is now possible, since requests are issued in instruction order -> ooo
             //Chain to previous req
             assert_msg(last->cycle <= cycle, "last->cycle (%ld) > cycle (%ld)", last->cycle, cycle);
             last->ev->addChild(ev, evRec);
@@ -289,6 +288,7 @@ void ContentionSim::simThreadLoop(uint32_t thid) {
             threadsDone = 0;
             futex_unlock(&waitLock); //unblock caller
         }
+
     }
     info("Finished contention simulation thread %d", thid);
 }
@@ -376,14 +376,16 @@ void ContentionSim::simulatePhaseThread(uint32_t thid) {
                     numFinished++;
                     domain->curCycle = limit;
                 } else {
+
                     //info("YYY %d %ld %ld %d", numFinished, domPq.size(), domain->curCycle, domain->prio);
                     uint64_t cycle;
                     TimingEvent* te = pq.dequeue(cycle);
 
                     //**** debug the priority queue ****//
                     //info("Event has min start cycle %d\n",(int)te->getMinStartCycle()); //print out the stuff in the pq
-                     //**** end of prio queue debug ****//
+                    //**** end of prio queue debug ****//
                     //uint64_t nextCycle = pq.size()? pq.firstCycle() : cycle;
+
                     if (cycle != domain->curCycle) domain->curCycle = cycle;
                     te->run(cycle);
                     domain->curCycle = pq.size()? pq.firstCycle() : limit;
@@ -408,6 +410,7 @@ void ContentionSim::simulatePhaseThread(uint32_t thid) {
             //**** debug the priority queue ****//
             //info("Event has min start cycle %d\n",(int)te->getMinStartCycle()); //print out the stuff in the pq
             //**** end of prio queue debug ****//
+
                     if (cycle != domain->curCycle) domain->curCycle = cycle;
                     te->state = EV_RUNNING;
                     te->simulate(cycle);

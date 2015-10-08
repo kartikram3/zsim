@@ -99,6 +99,9 @@ class TraceDriverProxyCache : public BaseCache {
         uint64_t invalidate(const InvReq& req) {
             return drv->invalidate(id, req.lineAddr, req.type, req.writeback, req.cycle, req.srcId);
         }
+        void setasLLC(){} //do nothing if this is LLC
+
+        virtual uint64_t  snoop(){ return 0;} ;
 };
 
 #endif /*__TRACE_DRIVER_H__*/

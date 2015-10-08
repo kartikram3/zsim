@@ -172,4 +172,3 @@ void CrossingEvent::simulate(uint64_t simCycle) {
     //info("Crossing %d->%d done %ld", srcDomain, domain, dCycle);
     done(dCycle);
 }
-

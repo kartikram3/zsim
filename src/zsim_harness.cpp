@@ -340,8 +340,6 @@ int main(int argc, char *argv[]) {
     std::string rpath(result_path);
     std::string cdir("/home/kartik/zsim_kartik");
     std::string concat_path = cdir + rpath;
-    
-    
 
     //Canonicalize paths --- because we change dirs, we deal in absolute paths
     const char* outputDir = concat_path.c_str(); 
