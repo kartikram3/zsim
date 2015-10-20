@@ -19,6 +19,9 @@ uint64_t flexclusive_cache :: access(MemReq& req){
 
   //need to implement set dueling to decide between
   //inclusive and exclusive
+
+
+  //need to implement set dueling as shown by qureshi's paper
    
 
   return req.cycle;

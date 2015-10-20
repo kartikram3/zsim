@@ -63,8 +63,8 @@ PinCmd::PinCmd(Config* conf, const char* configFile, const char* outputDir, uint
     args.push_back(pinPath);
 
     }*/
-    
-    /*if(use_pinplay){ 
+
+    /*if(use_pinplay){
         args.push_back("-xyzzy");
         args.push_back("-reserve_memory");
 

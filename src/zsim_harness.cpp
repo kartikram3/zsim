@@ -334,11 +334,17 @@ int main(int argc, char *argv[]) {
 
     Config conf(configFile);
 
+    //get path to zsim
+    //http://www.cplusplus.com/reference/cstdlib/getenv/
+    char *pPath;
+    pPath = getenv("ZSIM_HOME");
+    if (pPath != NULL){  info ("The zsim path detected as %s", pPath);}
+    else panic ("No zsim path detected !");
 
     const char * result_path = conf.get<const char *>("sim.result_path","");
     info("result path is %s ", result_path);
     std::string rpath(result_path);
-    std::string cdir("/home/kartik/zsim_kartik");
+    std::string cdir(pPath);
     std::string concat_path = cdir + rpath;
 
     //Canonicalize paths --- because we change dirs, we deal in absolute paths
@@ -374,7 +380,7 @@ int main(int argc, char *argv[]) {
     }
     if (removedLogfiles) info("Removed %d old logfiles", removedLogfiles);
 
-    uint32_t gmSize = conf.get<uint32_t>("sim.gmMBytes", (1<<9) /*default 1024MB*/);
+    uint32_t gmSize = conf.get<uint32_t>("sim.gmMBytes", (1<<10) /*default 1024MB*/);
     info("Creating global segment, %d MBs", gmSize);
     int shmid = gm_init(((size_t)gmSize) << 20 /*MB to Bytes*/);
     info("Global segment shmid = %d", shmid);

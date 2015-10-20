@@ -184,6 +184,6 @@ uint64_t Cache::finishInvalidate(const InvReq& req) {
 //
 //
 //      }          //means snoop found the line 
-//               
+//
 //      return 0;
 //}

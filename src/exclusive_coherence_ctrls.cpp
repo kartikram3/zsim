@@ -76,7 +76,7 @@ uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId
         case PUTS: //Clean writeback, nothing to do (except profiling)
             assert(*state == I);
             *state = E; //receive the data in exclusive state
-                        //for multithreaded application, may need to 
+                        //for multithreaded application, may need to
                         //receive data in shared state also
             profPUTS.inc();
             break;
@@ -116,7 +116,7 @@ uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId
                 profGETNextLevelLat.inc(nextLevelLat);
                 profGETNetLat.inc(netLat);
                 respCycle += nextLevelLat + netLat;
-            } 
+            }
             *state=I; //inv because cache is exclusive
             break;
 
@@ -161,14 +161,13 @@ void exclusive_MESIBottomCC::processInval(Address lineAddr, uint32_t lineId, Inv
     //NOTE: BottomCC never calls up on an invalidate, so it adds no extra latency
 }
 
-
 uint64_t exclusive_MESIBottomCC::processNonInclusiveWriteback(Address lineAddr, AccessType type, uint64_t cycle, MESIState* state, uint32_t srcId, uint32_t flags) {
 
     //info("Non-inclusive wback, forwarding");
     //MemReq req = {lineAddr, type, selfId, state, cycle, &ccLock, *state, srcId, flags | MemReq::NONINCLWB};
     //uint64_t respCycle = parents[getParentId(lineAddr)]->access(req);
-
     //do nothing ...  this function should never be called for an exclusive cache
+
     return 0;
 }
 
@@ -253,7 +252,8 @@ uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, A
                              //any child of the child cache
                              //then we should not be cycling the data
                              //So we need the duplicate bit to enable this
-                             //decision
+                             //decision but oh well
+                             //that is for the flexclusive cache
             break;
 
         case GETS:
@@ -274,7 +274,9 @@ uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, A
 uint64_t exclusive_MESITopCC::snoopInnerLevels(Address snoopAddr, uint64_t respCycle, bool * lineExists){
 
     uint32_t numChildren = children.size();
+
     //uint32_t sentInvs = 0;
+
     for (uint32_t c = 0; c < numChildren; c++) {
         SnoopReq req = {snoopAddr, req.cycle, req.srcId };
         respCycle = children[c]->snoop(); //eager snooping of all children
@@ -285,6 +287,6 @@ uint64_t exclusive_MESITopCC::snoopInnerLevels(Address snoopAddr, uint64_t respC
     return 0;
 }
 
-uint64_t exclusive_MESITopCC::processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId) {
+uint64_t exclusive_MESITopCC::processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId){
     return cycle;
 }

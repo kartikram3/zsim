@@ -22,7 +22,6 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include "contention_sim.h"
 #include <algorithm>
 #include <queue>
@@ -58,6 +57,7 @@ void ContentionSim::SimThreadTrampoline(void* arg) {
 }
 
 ContentionSim::ContentionSim(uint32_t _numDomains, uint32_t _numSimThreads) {
+
     numDomains = _numDomains;
     numSimThreads = _numSimThreads;
     threadsDone = 0;
@@ -209,7 +209,9 @@ void ContentionSim::enqueueSynced(TimingEvent* ev, uint64_t cycle) {
     futex_lock(&domains[domain].pqLock);
 
     assert_msg(cycle >= lastLimit, "Enqueued (synced) event before last limit! cycle %ld min %ld", cycle, lastLimit);
+
     //Hacky, but helpful to chase events scheduled too far ahead due to bugs (e.g., cycle -1). We should probably formalize this a bit more
+
     assert_msg(cycle < lastLimit+10*zinfo->phaseLength+10000, "Queued  (synced) event too far into the future, cycle %ld lastLimit %ld", cycle, lastLimit);
 
     ev->privCycle = cycle;
@@ -225,10 +227,10 @@ void ContentionSim::enqueueCrossing(CrossingEvent* ev, uint64_t cycle, uint32_t 
     bool isFirst = cs.empty();
     bool isResp = false;
     CrossingEvent* req = nullptr;
+
     if (!isFirst) {
         CrossingEvent* b = cs.back();
         if (b->srcDomain == (uint32_t)ev->domain && (uint32_t)b->domain == ev->srcDomain) {
-            //info("XXX response identified %d->%d", ev->srcDomain, ev->domain);
             isResp = true;
             req = b;
         }
@@ -294,6 +296,7 @@ void ContentionSim::simThreadLoop(uint32_t thid) {
 }
 
 void ContentionSim::simulatePhaseThread(uint32_t thid) {
+
     uint32_t thDomains = simThreads[thid].supDomain - simThreads[thid].firstDomain;
     uint32_t numFinished = 0;
 
@@ -305,9 +308,6 @@ void ContentionSim::simulatePhaseThread(uint32_t thid) {
             uint64_t domCycle = domain.curCycle;
             uint64_t cycle;
             TimingEvent* te = pq.dequeue(cycle);
-            //**** debug the priority queue ****//
-            //info("Event has min start cycle %d\n",(int)te->getMinStartCycle()); //print out the stuff in the pq
-            //**** end of prio queue debug ****//
             assert(cycle >= domCycle);
             if (cycle != domCycle) {
                 domCycle = cycle;
@@ -352,10 +352,7 @@ void ContentionSim::simulatePhaseThread(uint32_t thid) {
         }
         simThreads[thid].logVec.clear();
 #endif
-
     } else {
-        //info("XXX %d / %d %d %d", thid, thDomains, simThreads[thid].supDomain, simThreads[thid].firstDomain);
-
         std::priority_queue<DomainData*, std::vector<DomainData*>, CompareDomains> domPq;
         for (uint32_t i = simThreads[thid].firstDomain; i < simThreads[thid].supDomain; i++) {
             domPq.push(&domains[i]);
@@ -407,9 +404,9 @@ void ContentionSim::simulatePhaseThread(uint32_t thid) {
                     uint64_t cycle;
                     TimingEvent* te = pq.dequeue(cycle);
 
-            //**** debug the priority queue ****//
-            //info("Event has min start cycle %d\n",(int)te->getMinStartCycle()); //print out the stuff in the pq
-            //**** end of prio queue debug ****//
+            #if 0
+            info("Event has min start cycle %d\n",(int)te->getMinStartCycle()); //print out the stuff in the pq
+            #endif
 
                     if (cycle != domain->curCycle) domain->curCycle = cycle;
                     te->state = EV_RUNNING;

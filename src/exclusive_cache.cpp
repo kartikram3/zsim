@@ -12,11 +12,13 @@ exclusive_cache :: exclusive_cache(uint32_t _numLines, CC* _cc, CacheArray* _arr
 //also need to test multiple levels of non_inclusive
 //timing cache
 
+
+
 }
 
 void exclusive_cache :: setasLLC(){ //invoked at cache creation only
 
-  Cache::setLLCflag();     //access parent cache llc set function
+  Cache::setLLCflag();   //access parent cache llc set function
 
 }
 
@@ -48,6 +50,9 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
             if (req.type == GETS || req.type == GETX){
                  // do nothing here, we need to access the next level in our search
                  // or do the snoop if it is an LLC
+
+                  
+
             }
             else{
                   //in case of PUTX or PUTS
@@ -55,11 +60,10 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
                   Address wbLineAddr;
                   lineId = array->preinsert(req.lineAddr, &req, &wbLineAddr); //find the lineId to replace
 
-                  cc->processEviction(req, wbLineAddr, lineId, respCycle) ; //Never sends invalidates because exclusive cache
+                  cc->processEviction(req, wbLineAddr, lineId, respCycle); //Never sends invalidates because exclusive cache
                   array->postinsert(req.lineAddr, &req, lineId);
             }
        }
-
        respCycle = cc->processAccess(req, lineId, respCycle);
 
   }

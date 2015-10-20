@@ -9,15 +9,14 @@ non_inclusive_cache :: non_inclusive_cache(uint32_t _numLines, CC* _cc, CacheArr
 //do the non-inclusive cache access here
 //also need to test multiple levels of non_inclusive
 //timing cache
-    
+
 
 
 }
 
 //uint64_t non_inclusive_cache :: access( MemReq & req ){
 
-    
-  //return req.cycle;
+//return req.cycle;
 
 //}
 

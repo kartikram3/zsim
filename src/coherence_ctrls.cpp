@@ -52,7 +52,6 @@ void MESIBottomCC::init(const g_vector<MemObject*>& _parents, Network* network, 
     }
 }
 
-
 uint64_t MESIBottomCC::processEviction(Address wbLineAddr, uint32_t lineId, bool lowerLevelWriteback, uint64_t cycle, uint32_t srcId) {
     MESIState* state = &array[lineId];
     if (lowerLevelWriteback) {
@@ -184,7 +183,6 @@ void MESIBottomCC::processInval(Address lineAddr, uint32_t lineId, InvType type,
     }
     //NOTE: BottomCC never calls up on an invalidate, so it adds no extra latency
 }
-
 
 uint64_t MESIBottomCC::processNonInclusiveWriteback(Address lineAddr, AccessType type, uint64_t cycle, MESIState* state, uint32_t srcId, uint32_t flags) {
     if (!nonInclusiveHack) panic("Non-inclusive %s on line 0x%lx, this cache should be inclusive", AccessTypeName(type), lineAddr);
@@ -328,7 +326,6 @@ uint64_t MESITopCC::processAccess(Address lineAddr, uint32_t lineId, AccessType 
 
         default: panic("!?");
     }
-
     return respCycle;
 }
 
