@@ -21,7 +21,6 @@ int main(int argc, char **argv){
   const char * clusion_l2;
   const char * clusion_l3;
   const char * result_path;
-  const char * process0;
   const char * zsim_path = std::getenv("ZSIM_HOME");
   const char * arch_file_path = (std::string(zsim_path) + std::string(argv[3])).c_str();
   std::string afp(arch_file_path);
@@ -116,9 +115,9 @@ int main(int argc, char **argv){
           arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sim.sim_name");
           config_setting_set_string ( arch_cpy_setting ,std::to_string(timev).c_str() );
 
-          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "process0.command");
-          config_lookup_string(&cfg_setting, "process0.command", &process0);
-          config_setting_set_string (arch_cpy_setting , process0 );
+          arch_cpy_setting = config_lookup(&cfg_cpy_arch, "sim.sim_name");
+          config_lookup_string(&cfg_setting, "sys.caches.l3.type", &clusion_l3);
+          config_setting_set_string ( arch_cpy_setting ,std::to_string(timev).c_str() );
 	
 
           config_write_file(&cfg_cpy_arch, cpy_arch_file.c_str()) ;
