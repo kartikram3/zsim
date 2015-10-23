@@ -49,6 +49,8 @@ class CacheArray : public GlobAlloc {
         virtual void postinsert(const Address lineAddr, const MemReq* req, uint32_t lineId) = 0;
 
         virtual void initStats(AggregateStat* parent) {}
+
+        virtual int32_t lookup_norpupdate(const Address lineAddr){return 0;};
 };
 
 class ReplPolicy;
@@ -69,6 +71,8 @@ class SetAssocArray : public CacheArray {
         SetAssocArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);
 
         int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement);
+        int32_t lookup_norpupdate(const Address lineAddr);
+
         uint32_t preinsert(const Address lineAddr, const MemReq* req, Address* wbLineAddr);
         void postinsert(const Address lineAddr, const MemReq* req, uint32_t candidate);
 };

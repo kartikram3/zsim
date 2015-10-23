@@ -88,6 +88,14 @@ class Cache : public BaseCache {
         uint64_t finishInvalidate(const InvReq& req); // performs inv and releases downLock
 
         virtual uint64_t snoop(){  return 0; } ;
+        virtual uint64_t lookup(const Address lineAddr){ 
+            int32_t lineId = array->lookup_norpupdate(lineAddr);
+            if (lineId != -1) return 1; //means we found an address value
+                                        //but should also lookup coherence state
+                                        //because I lines are not useful anyway
+            else return 0;
+
+         } ; //check the value in the cache
 
 };
 

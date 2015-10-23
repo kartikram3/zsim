@@ -97,6 +97,8 @@ struct MemReq {
         NONINCLWB     = (1<<3), //This is a non-inclusive writeback. Do not assume that the line was in the lower level. Used on NUCA (BankDir).
         PUTX_KEEPEXCL = (1<<4), //Non-relinquishing PUTX. On a PUTX, maintain the requestor's E state instead of removing the sharer (i.e., this is a pure writeback)
         PREFETCH      = (1<<5), //Prefetch GETS access. Only set at level where prefetch is issued; handled early in MESICC
+        INNER_COPY = (1<<6) //means we found copy in inner private cache
+                            //this flag is used by exclusive LLC
     };
     uint32_t flags;
 
@@ -114,11 +116,11 @@ struct InvReq {
     uint32_t srcId;
 };
 
-struct SnoopReq {
+struct LookupReq {
 
-    Address lineAddr;
-    uint64_t cycle;
-    uint32_t srcId;
+    Address lineAddr; //the line address you are looking up
+    uint64_t cycle; //the cycle where you began the lookup
+    uint32_t srcId; 
 
 };
 
@@ -144,6 +146,7 @@ class BaseCache : public MemObject {
         virtual uint64_t invalidate(const InvReq& req) = 0;
         virtual void setasLLC() = 0;
         virtual uint64_t snoop() = 0;
+        virtual uint64_t lookup(const Address lineAddr) = 0;
 };
 
 #endif  // MEMORY_HIERARCHY_H_

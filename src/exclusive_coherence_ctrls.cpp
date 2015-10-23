@@ -57,14 +57,16 @@ uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId
 
     if ((int) lineId == -1){
         assert( type == GETS || type == GETX );
-        MESIState dummyState = I; // does this affect race conditions ?
-        MemReq req = {lineAddr, type, selfId, &dummyState, cycle, &ccLock, dummyState , srcId, flags};
-        uint32_t parentId = getParentId(lineAddr);
-        uint32_t nextLevelLat = parents[parentId]->access(req) - cycle;
-        uint32_t netLat = parentRTTs[parentId];
-        profGETNextLevelLat.inc(nextLevelLat);
-        profGETNetLat.inc(netLat);
-        respCycle += nextLevelLat + netLat;
+        if (!(flags & MemReq::INNER_COPY)){ //i.e. if line was found in inner levels in case of excl llc
+           MESIState dummyState = I; // does this affect race conditions ?
+           MemReq req = {lineAddr, type, selfId, &dummyState, cycle, &ccLock, dummyState , srcId, flags};
+           uint32_t parentId = getParentId(lineAddr);
+           uint32_t nextLevelLat = parents[parentId]->access(req) - cycle;
+           uint32_t netLat = parentRTTs[parentId];
+           profGETNextLevelLat.inc(nextLevelLat);
+           profGETNetLat.inc(netLat);
+           respCycle += nextLevelLat + netLat;
+        }
 
         assert_msg(respCycle >= cycle, "XXX %ld %ld", respCycle, cycle);
         return respCycle;
@@ -186,39 +188,21 @@ void exclusive_MESITopCC::init(const g_vector<BaseCache*>& _children, Network* n
     }
 }
 
-uint64_t exclusive_MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId) {
-    //Send down downgrades/invalidates
-    Entry* e = &array[lineId];
-
-    //Don't propagate downgrades if sharers are not exclusive.
-    if (type == INVX && !e->isExclusive()) {
-        return cycle;
-    }
+uint64_t exclusive_MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId, 
+                                               uint32_t childId) {
 
     uint64_t maxCycle = cycle; //keep maximum cycle only, we assume all invals are sent in parallel
-    if (!e->isEmpty()) {
         uint32_t numChildren = children.size();
+        //info ("numchildren is %d", numChildren);
         uint32_t sentInvs = 0;
         for (uint32_t c = 0; c < numChildren; c++) {
-            if (e->sharers[c]) {
+                if (c==childId){ c++; continue;}
                 InvReq req = {lineAddr, type, reqWriteback, cycle, srcId};
                 uint64_t respCycle = children[c]->invalidate(req);
                 respCycle += childrenRTTs[c];
                 maxCycle = MAX(respCycle, maxCycle);
-                if (type == INV) e->sharers[c] = false;
                 sentInvs++;
-            }
         }
-        assert(sentInvs == e->numSharers);
-        if (type == INV) {
-            e->numSharers = 0;
-        } else {
-            //TODO: This is kludgy -- once the sharers format is more sophisticated, handle downgrades with a different codepath
-            assert(e->exclusive);
-            assert(e->numSharers == 1); //why 1 sharer
-            e->exclusive = false;
-        }
-    }
     return maxCycle;
 }
 
@@ -235,13 +219,24 @@ uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, A
     uint64_t respCycle = cycle;
 
     if ((int) lineId == -1){
-        assert( type == GETS || type == GETX );
-        if (type == GETS)
-        *childState = E; //as line is gonna come in E state, as levels below excl are excl
-                         //if shared cache, we don't know which core owns the copy though
-        else *childState = M;
-        return respCycle;
-
+        if (!(flags & MemReq::INNER_COPY)){ //i.e. if line was not found in inner levels in case of excl llc
+          assert( type == GETS || type == GETX );
+          if (type == GETS)
+          *childState = E; //as line is gonna come in E state, as levels below excl are excl
+                           //if shared cache, we don't know which core owns the copy though
+          else *childState = M;
+          return respCycle;
+        }else{
+          if (type == GETS){
+            respCycle = sendInvalidates(lineAddr, lineId, INVX, inducedWriteback, cycle, srcId, childId); //sets inner level copies to S state
+            *childState = S;
+          }
+          else{
+            respCycle = sendInvalidates(lineAddr, lineId, INV, inducedWriteback, cycle, srcId, childId); //sets inner level copies to I state
+            *childState = M;
+          }
+          return respCycle;
+        }
     }
 
     //Entry* e = &array[lineId]; //not needed for exclusive cache
@@ -273,17 +268,18 @@ uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, A
 
 uint64_t exclusive_MESITopCC::snoopInnerLevels(Address snoopAddr, uint64_t respCycle, bool * lineExists){
 
-    uint32_t numChildren = children.size();
+//    uint32_t numChildren = children.size();
+//
+//    //uint32_t sentInvs = 0;
+//
+//    for (uint32_t c = 0; c < numChildren; c++) {
+//        SnoopReq req = {snoopAddr, req.cycle, req.srcId };
+//        respCycle = children[c]->snoop(); //eager snooping of all children
+//                                          //ideally we should not snoop banks
+//                                          //which we already snooped
+//                                          //FIX in the next iteration
+//    }
 
-    //uint32_t sentInvs = 0;
-
-    for (uint32_t c = 0; c < numChildren; c++) {
-        SnoopReq req = {snoopAddr, req.cycle, req.srcId };
-        respCycle = children[c]->snoop(); //eager snooping of all children
-                                          //ideally we should not snoop banks
-                                          //which we already snooped
-                                          //FIX in the next iteration
-    }
     return 0;
 }
 

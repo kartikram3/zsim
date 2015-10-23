@@ -11,8 +11,7 @@ exclusive_cache :: exclusive_cache(uint32_t _numLines, CC* _cc, CacheArray* _arr
 //do the exclusive cache access here
 //also need to test multiple levels of non_inclusive
 //timing cache
-
-
+   
 
 }
 
@@ -42,17 +41,19 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
         respCycle += accLat;
 
         if (lineId == -1) { //if we did not find the line in the cache
-                            //if load or store, we need to snoop private levels
+                            //if load or store, we need to check private levels
                             //to find the line if llc otherwise nothing here
                             //if writeback, we need to put the data into the
                             //cache array
 
             if (req.type == GETS || req.type == GETX){
                  // do nothing here, we need to access the next level in our search
-                 // or do the snoop if it is an LLC
-
-                  
-
+                 // or do the check if it is an LLC
+                 //this code works even if there is only 1 level of cache
+              if(llc){
+                if(cc->search_inner_banks(req.lineAddr, req.childId))
+                          req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
+              }
             }
             else{
                   //in case of PUTX or PUTS
@@ -64,6 +65,7 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
                   array->postinsert(req.lineAddr, &req, lineId);
             }
        }
+
        respCycle = cc->processAccess(req, lineId, respCycle);
 
   }
@@ -76,6 +78,18 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
 
 }
 
+uint64_t exclusive_cache :: lookup(const Address lineAddr){
+
+      int32_t lineId = array->lookup_norpupdate(lineAddr);
+      if (lineId != -1) return 1; //means we found an address value
+                                  //but we should also lookup the coherence state
+                                  //if I, then the line was not useful
+                                  //add this to future versions
+                                  //for more accurate results
+      else return 0;
+
+}
+
 uint64_t exclusive_cache :: pushEvictedData(){ // for PUTS and PUTX
                                                // we can interpret writebacks as pushing evicted data
                                                // this saves us coding time
@@ -85,13 +99,13 @@ uint64_t exclusive_cache :: pushEvictedData(){ // for PUTS and PUTX
     //push evicted data to the level below
     //i.e. to the parent
 
-   //different from writebacks, because there is no bypassing
-   //also, this updates the replacement information, unlike writebacks
+    //different from writebacks, because there is no bypassing
+    //also, this updates the replacement information, unlike writebacks
 
     //we need to define the function for main memory also
 
     //uint64_t respCycle = req.cycle;
-            //request and response cycle
+    //request and response cycle
 
     //bool updateReplacement = true ; //this access should update the replacement information
 

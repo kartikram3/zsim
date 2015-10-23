@@ -102,6 +102,7 @@ class TraceDriverProxyCache : public BaseCache {
         void setasLLC(){} //do nothing if this is LLC
 
         virtual uint64_t  snoop(){ return 0;} ;
+        virtual uint64_t lookup(const Address lineAddr){ return 0;};
 };
 
 #endif /*__TRACE_DRIVER_H__*/

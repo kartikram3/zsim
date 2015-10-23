@@ -327,6 +327,12 @@ class non_inclusive_MESICC : public CC{
 
         }
 
+        //Search methods
+        
+        uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
+           return 0; 
+        }
+
 //        void startSnoop(){
 //
 //
@@ -432,6 +438,12 @@ class non_inclusive_MESITerminalCC : public CC {
 
         void dummy() {
 
+        }
+
+        //Search methods
+       
+        uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
+           return 0; 
         }
 
 //        void startSnoop(){

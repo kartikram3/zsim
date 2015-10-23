@@ -1,4 +1,3 @@
-
 #include "non_inclusive_coherence_ctrl.h"
 #include "cache.h"
 #include "network.h"
@@ -303,6 +302,6 @@ uint64_t non_inclusive_MESITopCC::processInval(Address lineAddr, uint32_t lineId
         return cycle;
     } else {
         //Just invalidate or downgrade down to children as needed
-        return sendInvalidates(lineAddr, lineId, type, reqWriteback, cycle, srcId);
+        return sendInvalidates( lineAddr, lineId, type, reqWriteback, cycle, srcId );
     }
 }

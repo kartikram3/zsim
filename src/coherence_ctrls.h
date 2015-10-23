@@ -66,6 +66,8 @@ class CC : public GlobAlloc {
         virtual uint32_t numSharers(uint32_t lineId) = 0;
         virtual bool isValid(uint32_t lineId) = 0;
 
+        //search cache bank for value
+        virtual uint64_t search_inner_banks(const Address lineAddr, uint32_t childId) = 0;  //searches the parent banks for a value
 
 
 };
@@ -294,7 +296,6 @@ class MESICC : public CC {
         bool nonInclusiveHack;
         g_string name;
 
-
     public:
         //Initialization
         MESICC(uint32_t _numLines, bool _nonInclusiveHack, g_string& _name) : tcc(nullptr), bcc(nullptr),
@@ -414,6 +415,13 @@ class MESICC : public CC {
 
         }
 
+        //Search methods
+        
+
+        uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
+           return 0; 
+        }
+
         //Snoop methods
 //        void startSnoop(){
 //
@@ -523,6 +531,14 @@ class MESITerminalCC : public CC {
         void dummy() {
 
         }
+
+        //Search methods
+
+        uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
+           return 0; 
+        }
+
+
         
         //Snoop methods 
 //        void startSnoop(){
@@ -534,6 +550,7 @@ class MESITerminalCC : public CC {
 //              //no where to snoop 
 //        }
 //
+
         uint64_t processInv(const InvReq& req, int32_t lineId, uint64_t startCycle) {
             bcc->processInval(req.lineAddr, lineId, req.type, req.writeback); //adjust our own state
             bcc->unlock();

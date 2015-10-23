@@ -87,4 +87,3 @@ class Core : public GlobAlloc {
 };
 
 #endif  // CORE_H_
-

@@ -20,6 +20,8 @@ class exclusive_cache: public Cache{
 
         void setasLLC();
 
+        uint64_t lookup(const Address lineAddr);
+
 };
 
 #endif

@@ -186,6 +186,17 @@ class exclusive_MESITopCC : public GlobAlloc {
         uint64_t processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 
         uint64_t snoopInnerLevels(Address snoopAddr, uint64_t respCycle, bool * lineExists);
+       
+        uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
+              uint32_t numChildren = children.size();
+              bool result = 0;
+              for (uint32_t c=0; c<numChildren; c++){
+                  if (c == childId){ c++; continue;}
+                  int32_t lineId = children[c]->lookup(lineAddr); //looks up the line address
+                  if (lineId != -1) result = 1;   //means we found the line
+              }
+              return result;
+        }
 
 
         inline void lock() {
@@ -203,7 +214,7 @@ class exclusive_MESITopCC : public GlobAlloc {
 
 
     private:
-        uint64_t sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
+        uint64_t sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId, uint32_t childId);
 };
 
 //exclusive version of the coherence
@@ -217,6 +228,7 @@ class exclusive_MESICC : public CC{
         uint32_t numLines;
         g_string name;
         bool llc; //says whether this is an llc or not
+         
 
 
     public:
@@ -300,7 +312,6 @@ class exclusive_MESICC : public CC{
 //                     //which results in writebacks
 //                     //and we get the writeback data directly too
 //
-//                      
 //
 //            }
 //
@@ -308,7 +319,9 @@ class exclusive_MESICC : public CC{
                 assert((req.type == GETS) || (req.type == GETX));
                 respCycle = bcc->processAccess(req.lineAddr, lineId, req.type, startCycle, req.srcId, req.flags);
                     bool lowerLevelWriteback = false;
-                    respCycle = tcc->processAccess(req.lineAddr, lineId, req.type, req.childId, true, req.state,
+                    bool haveExclusive = true;
+                    if (req.flags & MemReq::INNER_COPY) haveExclusive = false;
+                    respCycle = tcc->processAccess(req.lineAddr, lineId, req.type, req.childId, haveExclusive, req.state,
                             &lowerLevelWriteback, respCycle, req.srcId, req.flags); //sets the state as E
             } else {
                 //Prefetches are side requests and get handled a bit differently
@@ -348,6 +361,14 @@ class exclusive_MESICC : public CC{
         void dummy(){
         
         }
+
+
+        //Search methods
+        
+        uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
+            return tcc->search_inner_banks(lineAddr, childId);
+        }
+
 
         //Snoop methods
 //        void startSnoop() {
@@ -455,6 +476,13 @@ class exclusive_MESITerminalCC : public CC {
         void dummy(){
 
         }
+
+        //Search methods
+       
+        uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
+           return 0;
+        }
+
 
         //Snoop methods
 //        void startSnoop() {
