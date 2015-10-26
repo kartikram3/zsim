@@ -221,7 +221,7 @@ uint64_t MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId, InvType t
 
     uint64_t maxCycle = cycle; //keep maximum cycle only, we assume all invals are sent in parallel
     if (!e->isEmpty()) {
-        uint32_t numChildren = children.size();
+        uint32_t numChildren =  children.size();
         uint32_t sentInvs = 0;
         for (uint32_t c = 0; c < numChildren; c++) {
             if (e->sharers[c]) {

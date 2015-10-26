@@ -159,8 +159,9 @@ void Cache::startInvalidate() {
 }
 
 uint64_t Cache::finishInvalidate(const InvReq& req) {
-    int32_t lineId = array->lookup(req.lineAddr, nullptr, false);
-    if (lineId == -1 ) return req.cycle + invLat;
+  int32_t lineId = array->lookup(req.lineAddr, nullptr, false);
+  if (lineId == -1 ){ info ("Problem, as lineId was -1 in cache %s", name.c_str()); cc->unlock_bcc(); return req.cycle; }; //means no invalidate happens
+                                        //have to remove this bug
     assert_msg(lineId != -1, "[%s] Invalidate on non-existing address 0x%lx type %s lineId %d, reqWriteback %d", name.c_str(), req.lineAddr, InvTypeName(req.type), lineId, *req.writeback);
     uint64_t respCycle = req.cycle + invLat;
     trace(Cache, "[%s] Invalidate start 0x%lx type %s lineId %d, reqWriteback %d", name.c_str(), req.lineAddr, InvTypeName(req.type), lineId, *req.writeback);

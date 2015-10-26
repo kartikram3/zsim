@@ -58,6 +58,7 @@ uint64_t non_inclusive_MESIBottomCC::processEviction(Address wbLineAddr, uint32_
 uint64_t non_inclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId, AccessType type, uint64_t cycle, uint32_t srcId, uint32_t flags) {
     uint64_t respCycle = cycle;
     MESIState* state = &array[lineId];
+
     switch (type) {
         // A PUTS/PUTX does nothing w.r.t. higher coherence levels --- it dies here
         case PUTS: //Clean writeback, nothing to do (except profiling)
@@ -75,13 +76,21 @@ uint64_t non_inclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t li
         case GETS:
             if (*state == I) {
                 uint32_t parentId = getParentId(lineAddr);
-                MemReq req = {lineAddr, GETS, selfId, state, cycle, &ccLock, *state, srcId, flags};
-                uint32_t nextLevelLat = parents[parentId]->access(req) - cycle;
-                uint32_t netLat = parentRTTs[parentId];
-                profGETNextLevelLat.inc(nextLevelLat);
-                profGETNetLat.inc(netLat);
-                respCycle += nextLevelLat + netLat;
+                if( !(flags & MemReq::INNER_COPY) ){
+                    MemReq req = {lineAddr, GETS, selfId, state, cycle, &ccLock, *state, srcId, flags};
+                    uint32_t nextLevelLat = parents[parentId]->access(req) - cycle;
+                    uint32_t netLat = parentRTTs[parentId];
+                    profGETNextLevelLat.inc(nextLevelLat);
+                    profGETNetLat.inc(netLat);
+                    respCycle += nextLevelLat + netLat;
+                }
+                else {
+                    //also need to send invx to the parents 
+                    respCycle = respCycle; //we don't need to access memory ... so don't add the latency
+                    *state = S;
+                }
                 profGETSMiss.inc();
+
                 assert(*state == S || *state == E);
             } else {
                 profGETSHit.inc();
@@ -92,13 +101,21 @@ uint64_t non_inclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t li
                 //Profile before access, state changes
                 if (*state == I) profGETXMissIM.inc();
                 else profGETXMissSM.inc();
-                uint32_t parentId = getParentId(lineAddr);
-                MemReq req = {lineAddr, GETX, selfId, state, cycle, &ccLock, *state, srcId, flags};
-                uint32_t nextLevelLat = parents[parentId]->access(req) - cycle;
-                uint32_t netLat = parentRTTs[parentId];
-                profGETNextLevelLat.inc(nextLevelLat);
-                profGETNetLat.inc(netLat);
-                respCycle += nextLevelLat + netLat;
+                if ( (*state == I) && ((flags & MemReq::INNER_COPY)) ){ //means line was not found in the non-inclusive llc
+                                                                         //so need to snoop
+                    respCycle = respCycle;  //no need to access memory, assume line is 
+                                            //magically transferred from inner levels
+                                            //tcc should invalidate it
+                    *state = M; //since it is a GETX, the final state should be M
+                }else if ( !(flags & MemReq::INNER_COPY)) {
+                   uint32_t parentId = getParentId(lineAddr);
+                   MemReq req = {lineAddr, GETX, selfId, state, cycle, &ccLock, *state, srcId, flags};
+                   uint32_t nextLevelLat = parents[parentId]->access(req) - cycle;
+                   uint32_t netLat = parentRTTs[parentId];
+                   profGETNextLevelLat.inc(nextLevelLat);
+                   profGETNetLat.inc(netLat);
+                   respCycle += nextLevelLat + netLat;
+                }
             } else {
                 if (*state == E) {
                     // Silent transition
@@ -165,7 +182,6 @@ uint64_t non_inclusive_MESIBottomCC::processNonInclusiveWriteback(Address lineAd
     return respCycle;
 }
 
-
 /* MESITopCC implementation */
 
 void non_inclusive_MESITopCC::init(const g_vector<BaseCache*>& _children, Network* network, const char* name) {
@@ -180,12 +196,13 @@ void non_inclusive_MESITopCC::init(const g_vector<BaseCache*>& _children, Networ
     }
 }
 
-uint64_t non_inclusive_MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId) {
+uint64_t non_inclusive_MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId, bool non_incl) {
+
     //Send down downgrades/invalidates
     Entry* e = &array[lineId];
 
     //Don't propagate downgrades if sharers are not exclusive.
-    if (type == INVX && !e->isExclusive()) {
+    if (type == INVX && !e->isExclusive() && !non_incl) {
         return cycle;
     }
 
@@ -194,8 +211,8 @@ uint64_t non_inclusive_MESITopCC::sendInvalidates(Address lineAddr, uint32_t lin
         uint32_t numChildren = children.size();
         uint32_t sentInvs = 0;
         for (uint32_t c = 0; c < numChildren; c++) {
-            if (e->sharers[c]) {
                 InvReq req = {lineAddr, type, reqWriteback, cycle, srcId};
+            if (e->sharers[c] ) {
                 uint64_t respCycle = children[c]->invalidate(req);
                 respCycle += childrenRTTs[c];
                 maxCycle = MAX(respCycle, maxCycle);
@@ -203,10 +220,13 @@ uint64_t non_inclusive_MESITopCC::sendInvalidates(Address lineAddr, uint32_t lin
                 sentInvs++;
             }
         }
+
         assert(sentInvs == e->numSharers);
+
         if (type == INV) {
             e->numSharers = 0;
-        } else {
+
+        } else if (!non_incl) { //not sure what to check for non_inclusive
             //TODO: This is kludgy -- once the sharers format is more sophisticated, handle downgrades with a different codepath
             assert(e->exclusive);
             assert(e->numSharers == 1);
@@ -244,7 +264,33 @@ uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineI
             e->numSharers--;
             *childState = I;
             break;
+
         case GETS:
+            if(flags & MemReq::INNER_COPY){
+                  //if there was an inner copy then what do we do ?
+                  //we should INVX it
+                  //and then put it as a sharer in the TCC
+              e->exclusive = false; // it is in shared state
+              e->numSharers = 0;
+            
+
+                  //put everythhing except child ID as sharer
+                  uint32_t i; 
+                  for (i=0; i< (uint32_t) valid_children.size(); i++){
+                     uint32_t c = valid_children[i];
+                     if(c == childId){ panic ("childId was going to be invalidated !"); }
+                     e->sharers[c] = true; 
+                  }
+
+              uint64_t respCycle;
+              respCycle = sendInvalidates(lineAddr, lineId, INVX, inducedWriteback, cycle, srcId, true);
+
+                  e->sharers[childId]=true; //set the final directory state
+                  e->numSharers++;
+                  *childState = S;
+                  return respCycle;
+            }
+
             if (e->isEmpty() && haveExclusive && !(flags & MemReq::NOEXCL)) {
                 //Give in E state
                 e->exclusive = true;
@@ -257,7 +303,7 @@ uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineI
 
                 if (e->isExclusive()) {
                     //Downgrade the exclusive sharer
-                    respCycle = sendInvalidates(lineAddr, lineId, INVX, inducedWriteback, cycle, srcId);
+                    respCycle = sendInvalidates(lineAddr, lineId, INVX, inducedWriteback, cycle, srcId, false);
                 }
 
                 assert_msg(!e->isExclusive(), "Can't have exclusivity here. isExcl=%d excl=%d numSharers=%d", e->isExclusive(), e->exclusive, e->numSharers);
@@ -271,6 +317,33 @@ uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineI
         case GETX:
             assert(haveExclusive); //the current cache better have exclusive access to this line
 
+            if(flags & MemReq::INNER_COPY){
+
+                  //if there was an inner copy then what do we do ?
+                  //we should INVX it
+                  //and then put it as a sharer in the TCC
+
+                  e->exclusive = false; // it is in shared state
+                  e->numSharers = 0;
+                  
+                  uint32_t i;
+                  for (i=0; i<valid_children.size(); i++){
+                     uint32_t c=valid_children[i];
+                     if(c == childId) panic ("ChildId was found to be an invalidation target !"); //should not happen
+                     e->sharers[c]=true;
+                  }
+
+                  uint64_t respCycle;
+                  respCycle = sendInvalidates(lineAddr, lineId, INV, inducedWriteback, cycle, srcId, true);
+
+                  e->exclusive = true;
+                  e->numSharers = 1;
+                  e->sharers[childId]=true;
+
+                  *childState = M;
+                  return respCycle;
+            }
+
             // If child is in sharers list (this is an upgrade miss), take it out
             if (e->sharers[childId]) {
                 assert_msg(!e->isExclusive(), "Spurious GETX, childId=%d numSharers=%d isExcl=%d excl=%d", childId, e->numSharers, e->isExclusive(), e->exclusive);
@@ -279,7 +352,7 @@ uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineI
             }
 
             // Invalidate all other copies
-            respCycle = sendInvalidates(lineAddr, lineId, INV, inducedWriteback, cycle, srcId);
+            respCycle = sendInvalidates(lineAddr, lineId, INV, inducedWriteback, cycle, srcId, false);
 
             // Set current sharer, mark exclusive
             e->sharers[childId] = true;
@@ -302,6 +375,6 @@ uint64_t non_inclusive_MESITopCC::processInval(Address lineAddr, uint32_t lineId
         return cycle;
     } else {
         //Just invalidate or downgrade down to children as needed
-        return sendInvalidates( lineAddr, lineId, type, reqWriteback, cycle, srcId );
+        return sendInvalidates( lineAddr, lineId, type, reqWriteback, cycle, srcId, false); //since l2 and l3 inclusive, false is OK
     }
 }

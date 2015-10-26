@@ -135,7 +135,6 @@ class non_inclusive_MESIBottomCC : public GlobAlloc {
         uint32_t getParentId(Address lineAddr);
 };
 
-
 class non_inclusive_MESITopCC : public GlobAlloc {
     private:
         struct Entry {
@@ -161,6 +160,11 @@ class non_inclusive_MESITopCC : public GlobAlloc {
         Entry* array;
         g_vector<BaseCache*> children;
         g_vector<uint32_t> childrenRTTs;
+        g_vector<uint32_t> valid_children; //checks which children are valid
+                                           //even if line is not in the tcc
+                                           //e cannot tell us this
+                                           //updated by the search_inner_banks
+                                           //function
         uint32_t numLines;
 
 
@@ -187,6 +191,23 @@ class non_inclusive_MESITopCC : public GlobAlloc {
 
         uint64_t processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 
+        uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
+              //reset the inner bank avail list
+              valid_children.clear(); 
+              uint32_t numChildren = children.size();
+              bool result = 0;
+              for (uint32_t c=0; c<numChildren; c++){
+                  if (c == childId){ continue;}
+                  int32_t lineId = children[c]->lookup(lineAddr); //looks up the line address
+                   //set the inner bank avail list 
+                  if (lineId != -1){
+                      result = 1;   //means we found the line
+                      valid_children.push_back(c);
+                  }
+              }
+              return result;
+        }
+
         inline void lock() {
             futex_lock(&ccLock);
         }
@@ -201,7 +222,8 @@ class non_inclusive_MESITopCC : public GlobAlloc {
         }
 
     private:
-        uint64_t sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
+        uint64_t sendInvalidates(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId, bool non_incl);
+
 };
 
 //non-inclusive version of the coherence
@@ -330,9 +352,12 @@ class non_inclusive_MESICC : public CC{
         //Search methods
         
         uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
-           return 0; 
+           return tcc->search_inner_banks(lineAddr, childId);
         }
 
+        void unlock_bcc(){
+            bcc->unlock();
+        }
 //        void startSnoop(){
 //
 //
@@ -355,7 +380,6 @@ class non_inclusive_MESICC : public CC{
         bool isValid(uint32_t lineId) {return bcc->isValid(lineId);}
 
 };
-
 
 class non_inclusive_MESITerminalCC : public CC {
 
@@ -446,6 +470,9 @@ class non_inclusive_MESITerminalCC : public CC {
            return 0; 
         }
 
+        void unlock_bcc(){
+            bcc->unlock();
+        }
 //        void startSnoop(){
 //
 //        }

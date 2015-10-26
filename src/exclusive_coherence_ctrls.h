@@ -159,6 +159,8 @@ class exclusive_MESITopCC : public GlobAlloc {
         Entry* array;
         g_vector<BaseCache*> children;
         g_vector<uint32_t> childrenRTTs;
+        g_vector<uint32_t> valid_children;
+
         uint32_t numLines;
 
 
@@ -188,16 +190,19 @@ class exclusive_MESITopCC : public GlobAlloc {
         uint64_t snoopInnerLevels(Address snoopAddr, uint64_t respCycle, bool * lineExists);
        
         uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
-              uint32_t numChildren = children.size();
+              valid_children.clear(); //empty the available children list
               bool result = 0;
+              uint32_t numChildren = children.size();
               for (uint32_t c=0; c<numChildren; c++){
-                  if (c == childId){ c++; continue;}
+                  if (c == childId){ continue;}
                   int32_t lineId = children[c]->lookup(lineAddr); //looks up the line address
-                  if (lineId != -1) result = 1;   //means we found the line
+                  if (lineId != -1){
+                       result = 1;   //means we found the line
+                       valid_children.push_back(c);
+                  }
               }
               return result;
         }
-
 
         inline void lock() {
             futex_lock(&ccLock);
@@ -369,6 +374,9 @@ class exclusive_MESICC : public CC{
             return tcc->search_inner_banks(lineAddr, childId);
         }
 
+        void unlock_bcc(){
+            bcc->unlock();
+        }
 
         //Snoop methods
 //        void startSnoop() {
@@ -483,6 +491,9 @@ class exclusive_MESITerminalCC : public CC {
            return 0;
         }
 
+        void unlock_bcc(){
+            bcc->unlock();
+        }
 
         //Snoop methods
 //        void startSnoop() {

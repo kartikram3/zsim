@@ -192,11 +192,14 @@ uint64_t exclusive_MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId,
                                                uint32_t childId) {
 
     uint64_t maxCycle = cycle; //keep maximum cycle only, we assume all invals are sent in parallel
-        uint32_t numChildren = children.size();
+        uint32_t num_valid_children = children.size();
         //info ("numchildren is %d", numChildren);
         uint32_t sentInvs = 0;
-        for (uint32_t c = 0; c < numChildren; c++) {
-                if (c==childId){ c++; continue;}
+        uint32_t c;
+        for (uint32_t i = 0; i < num_valid_children; i++) { //iterate through children
+                                                            //that have a valid line
+                c = valid_children[i]; 
+                if (c==childId ){ i++; continue;}
                 InvReq req = {lineAddr, type, reqWriteback, cycle, srcId};
                 uint64_t respCycle = children[c]->invalidate(req);
                 respCycle += childrenRTTs[c];

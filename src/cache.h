@@ -55,9 +55,9 @@ class Cache : public BaseCache {
         uint32_t invLat; //latency of an invalidation
 
         g_string name;
- 
+
         bool llc=false; //sets the cache as llc
-         
+
 
     public:
         Cache(uint32_t _numLines, CC* _cc, CacheArray* _array, ReplPolicy* _rp, uint32_t _accLat, uint32_t _invLat, const g_string& _name);
@@ -78,7 +78,7 @@ class Cache : public BaseCache {
         }
 
         //virtual uint64_t snoop(SnoopReq &req, uint64_t respCycle);
-    
+
         enum cache_type { INCLUSIVE, NON_INCLUSIVE, EXCLUSIVE, FLEXCLUSIVE, LINE_BASED_CLUSION };
 
     protected:
@@ -88,13 +88,11 @@ class Cache : public BaseCache {
         uint64_t finishInvalidate(const InvReq& req); // performs inv and releases downLock
 
         virtual uint64_t snoop(){  return 0; } ;
-        virtual uint64_t lookup(const Address lineAddr){ 
+        virtual uint64_t lookup(const Address lineAddr){
             int32_t lineId = array->lookup_norpupdate(lineAddr);
-            if (lineId != -1) return 1; //means we found an address value
-                                        //but should also lookup coherence state
-                                        //because I lines are not useful anyway
+            if ((lineId != -1) && cc->isValid(lineId)) return 1; //means we found an address value
+                                                               //which is valid
             else return 0;
-
          } ; //check the value in the cache
 
 };

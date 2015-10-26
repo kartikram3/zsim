@@ -50,17 +50,15 @@ uint64_t non_inclusive_cache::access(MemReq& req) {
             array->postinsert(req.lineAddr, &req, lineId); //do the actual insertion. NOTE: Now we must split insert into a 2-phase thing because cc unlocks us.
 
             //set the inner level search flag if want to check inner level
-            
+
             if(llc){
               if(cc->search_inner_banks(req.lineAddr, req.childId))
-                          req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
+              req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
             }
-            
 
         }
 
         respCycle = cc->processAccess(req, lineId, respCycle);
-         
 
         // Enforce single-record invariant: Writeback access may have a timing
         // record. If so, read it.

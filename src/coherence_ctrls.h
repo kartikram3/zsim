@@ -30,6 +30,7 @@
 #include "constants.h"
 #include "g_std/g_string.h"
 #include "g_std/g_vector.h"
+#include "g_std/g_list.h"
 #include "locks.h"
 #include "memory_hierarchy.h"
 #include "pad.h"
@@ -68,7 +69,7 @@ class CC : public GlobAlloc {
 
         //search cache bank for value
         virtual uint64_t search_inner_banks(const Address lineAddr, uint32_t childId) = 0;  //searches the parent banks for a value
-
+        virtual void unlock_bcc() = 0;
 
 };
 
@@ -417,11 +418,13 @@ class MESICC : public CC {
 
         //Search methods
         
-
         uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
            return 0; 
         }
 
+        void unlock_bcc(){
+            bcc->unlock();
+        }
         //Snoop methods
 //        void startSnoop(){
 //
@@ -538,6 +541,9 @@ class MESITerminalCC : public CC {
            return 0; 
         }
 
+        void unlock_bcc(){
+              bcc->unlock();
+        };
 
         
         //Snoop methods 
