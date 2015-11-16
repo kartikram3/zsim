@@ -55,7 +55,6 @@ uint64_t non_inclusive_cache::access(MemReq& req) {
               if(cc->search_inner_banks(req.lineAddr, req.childId))
               req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
             }
-
         }
 
         respCycle = cc->processAccess(req, lineId, respCycle);

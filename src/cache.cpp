@@ -78,7 +78,7 @@ uint64_t Cache::access(MemReq& req) {
     uint64_t respCycle = req.cycle;
               //request and response cycle
     bool skipAccess = cc->startAccess(req); //may need to skip access due to races (NOTE: may change req.type!)
-    if (likely(!skipAccess)) {
+    if (likely(!skipAccess)){
         bool updateReplacement = (req.type == GETS) || (req.type == GETX);
         int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
         respCycle += accLat;

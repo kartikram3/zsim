@@ -42,7 +42,6 @@ uint32_t MESIBottomCC::getParentId(Address lineAddr) {
     return (res % parents.size());
 }
 
-
 void MESIBottomCC::init(const g_vector<MemObject*>& _parents, Network* network, const char* name) {
     parents.resize(_parents.size());
     parentRTTs.resize(_parents.size() );
@@ -159,8 +158,9 @@ void MESIBottomCC::processWritebackOnAccess(Address lineAddr, uint32_t lineId, A
 }
 
 void MESIBottomCC::processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback) {
+
     MESIState* state = &array[lineId];
-        
+
     //assert(*state != I);  //need to change inner banks search so that these assertions can be put back in place
                             //assertions are good
     switch (type) {
@@ -184,6 +184,7 @@ void MESIBottomCC::processInval(Address lineAddr, uint32_t lineId, InvType type,
         default: panic("!?");
     }
     //NOTE: BottomCC never calls up on an invalidate, so it adds no extra latency
+
 }
 
 uint64_t MESIBottomCC::processNonInclusiveWriteback(Address lineAddr, AccessType type, uint64_t cycle, MESIState* state, uint32_t srcId, uint32_t flags) {
@@ -245,7 +246,6 @@ uint64_t MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId, InvType t
     }
     return maxCycle;
 }
-
 
 uint64_t MESITopCC::processEviction(Address wbLineAddr, uint32_t lineId, bool* reqWriteback, uint64_t cycle, uint32_t srcId) {
     if (nonInclusiveHack) {

@@ -11,7 +11,7 @@ exclusive_cache :: exclusive_cache(uint32_t _numLines, CC* _cc, CacheArray* _arr
 //do the exclusive cache access here
 //also need to test multiple levels of non_inclusive
 //timing cache
-   
+
 
 }
 
@@ -45,15 +45,16 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
                             //to find the line if llc otherwise nothing here
                             //if writeback, we need to put the data into the
                             //cache array
+            if(llc){
+                if(cc->search_inner_banks(req.lineAddr, req.childId))
+                    req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
+            }
 
             if (req.type == GETS || req.type == GETX){
                  // do nothing here, we need to access the next level in our search
                  // or do the check if it is an LLC
                  //this code works even if there is only 1 level of cache
-              if(llc){
-                if(cc->search_inner_banks(req.lineAddr, req.childId))
-                          req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
-              }
+                  ;
             }
             else{
                   //in case of PUTX or PUTS
@@ -81,13 +82,12 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
 uint64_t exclusive_cache :: lookup(const Address lineAddr){
 
       int32_t lineId = array->lookup_norpupdate(lineAddr);
-      if (lineId != -1) return 1; //means we found an address value
+      if ((lineId != -1) && cc->isValid(lineId)) return 1; //means we found an address value
                                   //but we should also lookup the coherence state
                                   //if I, then the line was not useful
                                   //add this to future versions
                                   //for more accurate results
       else return 0;
-
 }
 
 uint64_t exclusive_cache :: pushEvictedData(){ // for PUTS and PUTX
@@ -112,5 +112,4 @@ uint64_t exclusive_cache :: pushEvictedData(){ // for PUTS and PUTX
     //non inclusive writeback -- maybe it can be handled differently instead of defining the push evicted data method
 
     return 0;
-
 }

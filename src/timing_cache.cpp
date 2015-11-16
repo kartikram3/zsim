@@ -47,7 +47,6 @@ class HitEvent : public TimingEvent {
         }
 };
 
-
 class MissStartEvent : public TimingEvent {
     private:
         TimingCache* cache;
