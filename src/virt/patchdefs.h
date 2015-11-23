@@ -57,4 +57,3 @@ PF(SYS_futex, PatchTimeoutSyscall);
 PF(SYS_epoll_wait, PatchTimeoutSyscall);
 PF(SYS_epoll_pwait, PatchTimeoutSyscall);
 PF(SYS_poll, PatchTimeoutSyscall);
-

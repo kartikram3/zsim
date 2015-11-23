@@ -5,12 +5,10 @@
 
 #include "coherence_ctrls.h"
 
-
 class CC; //forward declaration of CC
           //in coherence_ctrls.h
 class Cache;
 class Network;
-
 
 static inline bool exclusive_CheckForMESIRace(AccessType& type, MESIState* state, MESIState initialState){
     //NOTE: THIS IS THE ONLY CODE THAT SHOULD DEAL WITH RACES. tcc, bcc et al should be written as if they were race-free.
@@ -191,7 +189,7 @@ class exclusive_MESITopCC : public GlobAlloc {
        
         uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
               valid_children.clear(); //empty the available children list
-              bool result = 0;
+              int result = 0;
               uint32_t numChildren = children.size();
               for (uint32_t c=0; c<numChildren; c++){
                   if (c == childId){ continue;}
@@ -319,6 +317,7 @@ class exclusive_MESICC : public CC{
 //
 //
 //            }
+
 //
             if (lineId == -1) {
                 assert((req.type == GETS) || (req.type == GETX));
@@ -401,7 +400,6 @@ class exclusive_MESICC : public CC{
         bool isValid(uint32_t lineId) {return bcc->isValid(lineId);}
 
 };
-
 
 class exclusive_MESITerminalCC : public CC {
 

@@ -10,6 +10,9 @@ flexclusive_cache :: flexclusive_cache(uint32_t _numLines, CC* _cc, CacheArray* 
 //timing cache
 
 
+
+
+
 }
 
 uint64_t flexclusive_cache :: access(MemReq& req){
@@ -19,9 +22,8 @@ uint64_t flexclusive_cache :: access(MemReq& req){
 
   //need to implement set dueling to decide between
   //inclusive and exclusive
-
   //need to implement set dueling as shown by qureshi's paper
-   
+
 
   return req.cycle;
 

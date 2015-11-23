@@ -102,10 +102,9 @@ uint64_t non_inclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t li
                 else profGETXMissSM.inc();
 
                 if ((flags & MemReq::INNER_COPY)){ //means line was not found in the non-inclusive llc
-                      //assert(*state == I); //not true anymore, as we always check for inner copy
+                      assert(*state == I);
                       *state = M; //since it is a GETX, the final state should be M
-                }
-                else if ( !(flags & MemReq::INNER_COPY)) {
+                }else if ( !(flags & MemReq::INNER_COPY)) {
                    uint32_t parentId = getParentId(lineAddr);
                    MemReq req = {lineAddr, GETX, selfId, state, cycle, &ccLock, *state, srcId, flags};
                    uint32_t nextLevelLat = parents[parentId]->access(req) - cycle;
@@ -141,13 +140,11 @@ uint64_t non_inclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t li
 
 void non_inclusive_MESIBottomCC::processWritebackOnAccess(Address lineAddr, uint32_t lineId, AccessType type) {
     MESIState* state = &array[lineId];
-    //assert(*state == M || *state == E);  //need not be E or M
-                                           //could also be I in some
-                                           //cases
+    assert(*state == M || *state == E);
     if (*state == E) {
         //Silent transition to M if in E
         *state = M;
-    } //otherwise, if in shared state, then remains shared
+    }
 }
 
 void non_inclusive_MESIBottomCC::processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback) {
@@ -262,7 +259,7 @@ uint64_t non_inclusive_MESITopCC::processEviction(Address wbLineAddr, uint32_t l
 }
 
 uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, AccessType type, uint32_t childId, bool haveExclusive,
-                                  MESIState* childState, bool* inducedWriteback, uint64_t cycle, uint32_t srcId, uint32_t flags, bool isValid) {
+                                  MESIState* childState, bool* inducedWriteback, uint64_t cycle, uint32_t srcId, uint32_t flags) {
     Entry* e = &array[lineId];
     uint64_t respCycle = cycle;
     switch (type) {
@@ -286,29 +283,27 @@ uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineI
             break;
 
         case GETS:
-            if((flags & MemReq::INNER_COPY) && isValid){
+            if((flags & MemReq::INNER_COPY) && e->isValid() ){
               //if there was an inner copy then what do we do ?
               //we should INVX it
               //and then put it as a sharer in the TCC
 
                   //info ("Found flag !");
 
-                 //assert(e->isEmpty()); //need not be empty
-                 //assert(e->sharers[0] == false);
-                 //assert(e->sharers[1] == false);
-                 //assert(e->sharers[2] == false);
-                 //assert(e->sharers[3] == false);
+                 assert(e->isEmpty());
+                 assert(e->sharers[0] == false);
+                 assert(e->sharers[1] == false);
+                 assert(e->sharers[2] == false);
+                 assert(e->sharers[3] == false);
                  e->exclusive = false; // it is in shared state
                  e->numSharers = 0;
 
                   //put everything except child ID as sharer
                   uint32_t i;
                   assert(e->sharers[childId] == false);
-                  uint32_t c;
-                  for ( i=0; i < (uint32_t) valid_children.size(); i++ ){
-                     c = valid_children[i];
-                     if(c == childId){ continue; }
-                     e->sharers[c] = true;
+                  for ( i=0; i < (uint32_t) children.size(); i++ ){
+                     if(i == childId){ continue; }
+                     e->sharers[i] = true;
                      e->numSharers++;
                   }
 
@@ -370,7 +365,7 @@ uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineI
             break;
         case GETX:
             assert(haveExclusive); //the current cache better have exclusive access to this line
-            if((flags & MemReq::INNER_COPY) && isValid){
+            if((flags & MemReq::INNER_COPY) && e->isEmpty()){
 
                   //if there was an inner copy then what do we do ?
                   //we should INVX it
@@ -385,11 +380,9 @@ uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineI
 
                   uint32_t i;
                   e->sharers[childId] = false;
-                  uint32_t c;
-                  for (i=0; i< (uint32_t) valid_children.size(); i++){
-                     c= valid_children[i];
-                     if(c == childId) continue; //should not happen
-                     e->sharers[c]=true;
+                  for (i=0; i< (uint32_t) children.size(); i++){
+                     if(i == childId) continue; //should not happen
+                     e->sharers[i]=true;
                      e->numSharers++;
                   }
 

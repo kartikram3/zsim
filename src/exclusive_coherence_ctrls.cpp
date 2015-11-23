@@ -76,8 +76,10 @@ uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId
     switch (type) {
         // A PUTS/PUTX does nothing w.r.t. higher coherence levels --- it dies here
         case PUTS: //Clean writeback, nothing to do (except profiling)
-            assert(*state == I);
-            if (flags & MemReq::INNER_COPY) ;
+            assert(*state == I); //we can't assert this a
+                                   //a copy of the data may still be there
+                                   //in the cache from somewhere else
+            if (flags & MemReq::INNER_COPY) { assert(*state == I)}
             else *state = E; //receive the data in exclusive state
                         //for multithreaded application, may need to
                         //receive data in shared state also
@@ -86,13 +88,13 @@ uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId
         case PUTX: //Dirty writeback
             assert(*state == I);
                 //Silent transition, record that block was written to
-                if ( flags & MemReq::INNER_COPY ) ;
+                if ( flags & MemReq::INNER_COPY ) { assert(*state == I);}
                 else
                 *state = M;
             profPUTX.inc();
             break;
         case GETS:
-            if (*state == I) {
+            if (*state == I && (!(flags & MemReq::INNER_COPY))) {
                 uint32_t parentId = getParentId(lineAddr);
                 MESIState dummyState = I; // does this affect race conditions ?
                 MemReq req = {lineAddr, GETS, selfId, &dummyState, cycle, &ccLock, dummyState, srcId, flags};
@@ -108,7 +110,7 @@ uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId
             *state = I;
             break;
         case GETX:
-            if (*state == I || *state == S) {
+            if ((*state == I || *state == S) && (!(flags & MemReq::INNER_COPY)))  {
                 //Profile before access, state changes
                 if (*state == I) profGETXMissIM.inc();
                 else profGETXMissSM.inc();
@@ -193,15 +195,19 @@ uint64_t exclusive_MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId,
                                                uint32_t childId) {
 
     uint64_t maxCycle = cycle; //keep maximum cycle only, we assume all invals are sent in parallel
-    uint32_t num_valid_children = valid_children.size();
-        //uint32_t numChildren = 0;
+    //uint32_t num_valid_children = valid_children.size();
+    //uint32_t numChildren = 0;
         //info ("numchildren is %d", numChildren);
         uint32_t sentInvs = 0;
+        uint32_t numChildren = valid_children.size();
+        //uint32_t numChildren = children.size();
         uint32_t c;
-        for (uint32_t i = 0; i < num_valid_children; i++) { //iterate through children
-                                                            //that have a valid line
-                c = valid_children[i];
-                if (c==childId ){ continue;}
+        for (uint32_t i = 0; i < numChildren; i++) { //iterate through children
+
+          c = valid_children[i];
+          if (i==childId ){ continue;} //no need to invalidate child
+                                       //which sent the request
+                //info ("doing invalidate !, numchildren is %d", numChildren);
                 InvReq req = {lineAddr, type, reqWriteback, cycle, srcId};
                 uint64_t respCycle = children[c]->invalidate(req);
                 respCycle += childrenRTTs[c];
@@ -224,14 +230,18 @@ uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, A
     uint64_t respCycle = cycle;
 
     if ((int) lineId == -1){
+        assert( type == GETS || type == GETX );
         if (!(flags & MemReq::INNER_COPY)){ //i.e. if line was not found in inner levels in case of excl llc
-          assert( type == GETS || type == GETX );
-          if (type == GETS)
-          *childState = E; //as line is gonna come in E state, as levels below excl are excl
+          assert(search_inner_banks(lineAddr, childId) == 0);
+          if (type == GETS){
+              assert (*childState == I);
+              *childState = E; //as line is gonna come in E state, as levels below excl are excl
                            //if shared cache, we don't know which core owns the copy though
+          }
           else *childState = M;
           return respCycle;
-        }else{
+        } else {
+          assert(search_inner_banks(lineAddr, childId) == 1);
           if (type == GETS){
             respCycle = sendInvalidates(lineAddr, lineId, INVX, inducedWriteback, cycle, srcId, childId); //sets inner level copies to S state
             *childState = S;
@@ -245,6 +255,8 @@ uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, A
     }
 
     //Entry* e = &array[lineId]; //not needed for exclusive cache
+
+
     switch (type) {
         case PUTX:
         case PUTS:
@@ -257,9 +269,15 @@ uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, A
             break;
 
         case GETS:
-            *childState = E;
+             assert (*childState == I);
+             //assert_msg(search_inner_banks(lineAddr, childId) == 0, "Haveexclusive is %d", haveExclusive);
+                                                            //this assertion is not correct
+             *childState = E; //could also be M
+                             //we just specified E
+                             //need to change this for accuracy 
             break;
         case GETX:
+             //assert(search_inner_banks(lineAddr, childId) == 0); //this assertion is not correct
             assert(haveExclusive); //the current cache better have exclusive access to this line
 
             *childState = M; //give in M directly

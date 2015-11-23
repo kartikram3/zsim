@@ -119,7 +119,7 @@ void TimingCache::initStats(AggregateStat* parentStat) {
 uint64_t TimingCache::access(MemReq& req) {
 
     //check if it is a non-inclusive, exclusive or line-based
-    //inclusion cache. 
+    //inclusion cache.
     //depending upon the answer, there will be difference in the
     //access path
 

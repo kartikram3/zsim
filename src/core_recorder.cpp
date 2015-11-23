@@ -237,6 +237,3 @@ uint64_t CoreRecorder::getUnhaltedCycles(uint64_t curCycle) const {
 uint64_t CoreRecorder::getContentionCycles() const {
     return totalGapCycles + gapCycles;
 }
-
-
-

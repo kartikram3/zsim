@@ -219,7 +219,6 @@ void ContentionSim::enqueueSynced(TimingEvent* ev, uint64_t cycle) {
     domains[ev->domain].pq.enqueue(ev, cycle);
 
     futex_unlock(&domains[domain].pqLock);
-
 }
 
 void ContentionSim::enqueueCrossing(CrossingEvent* ev, uint64_t cycle, uint32_t srcId, uint32_t srcDomain, uint32_t dstDomain, EventRecorder* evRec) {
@@ -248,7 +247,7 @@ void ContentionSim::enqueueCrossing(CrossingEvent* ev, uint64_t cycle, uint32_t 
             //Chain to previous req
             assert_msg(last->cycle <= cycle, "last->cycle (%ld) > cycle (%ld)", last->cycle, cycle);
             last->ev->addChild(ev, evRec);
-        } else {
+        }else {
             //We can't queue --- queue directly (synced, we're in phase 1)
             assert(cycle >= srcDomCycle);
             //info("Queuing xing %ld %ld (lst eve too old at cycle %ld)", cycle, srcDomCycle, last->cycle);
@@ -421,7 +420,6 @@ void ContentionSim::simulatePhaseThread(uint32_t thid) {
             if (!stalledQueue.size()) std::swap(stalledQueue, nextStalledQueue);
         }
     }
-
     //info("Phase done");
     __sync_synchronize();
 }

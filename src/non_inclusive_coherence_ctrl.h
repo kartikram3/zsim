@@ -187,7 +187,7 @@ class non_inclusive_MESITopCC : public GlobAlloc {
         uint64_t processEviction(Address wbLineAddr, uint32_t lineId, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 
         uint64_t processAccess(Address lineAddr, uint32_t lineId, AccessType type, uint32_t childId, bool haveExclusive,
-                MESIState* childState, bool* inducedWriteback, uint64_t cycle, uint32_t srcId, uint32_t flags);
+                MESIState* childState, bool* inducedWriteback, uint64_t cycle, uint32_t srcId, uint32_t flags, bool isValid);
 
         uint64_t processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 
@@ -200,7 +200,8 @@ class non_inclusive_MESITopCC : public GlobAlloc {
                   if (c == childId){ continue;}
                   int32_t lineId = children[c]->lookup(lineAddr); //looks up the line address
                    //set the inner bank avail list 
-                  if (lineId != -1){
+                  //info("Found lineid %d", lineId);
+                  if ((lineId != -1) ){
                       result = 1;   //means we found the line
                       valid_children.push_back(c);
                   }
@@ -320,7 +321,7 @@ class non_inclusive_MESICC : public CC{
                     bool lowerLevelWriteback = false;
                     //change directory info, invalidate other children if needed, tell requester about its state
                     respCycle = tcc->processAccess(req.lineAddr, lineId, req.type, req.childId, bcc->isExclusive(lineId), req.state,
-                            &lowerLevelWriteback, respCycle, req.srcId, flags);
+                            &lowerLevelWriteback, respCycle, req.srcId, flags, bcc->isValid(lineId));
                     if (lowerLevelWriteback) {
                         //Essentially, if tcc induced a writeback, bcc may need to do an E->M transition to reflect that the cache now has dirty data
                         bcc->processWritebackOnAccess(req.lineAddr, lineId, req.type);

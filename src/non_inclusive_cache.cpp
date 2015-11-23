@@ -6,16 +6,14 @@
 non_inclusive_cache :: non_inclusive_cache(uint32_t _numLines, CC* _cc, CacheArray* _array, ReplPolicy* _rp, uint32_t _accLat, uint32_t _invLat, uint32_t mshrs,   uint32_t tagLat, uint32_t ways, uint32_t cands, uint32_t _domain, const g_string& _name)
     : Cache(_numLines, _cc, _array, _rp, _accLat, _invLat, _name) {
 
-//do the non-inclusive cache access here
-//also need to test multiple levels of non_inclusive
-//timing cache
+  //do the non-inclusive cache access here
+  //also need to test multiple levels of non_inclusive
+  //timing cache
 
 }
 
 void non_inclusive_cache :: setasLLC(){ //invoked at cache creation only
-
-  Cache::setLLCflag();   //access parent cache llc set function
-
+  Cache::setLLCflag(); //access parent cache llc set function
 }
 
 uint64_t non_inclusive_cache::access(MemReq& req) {
@@ -25,11 +23,18 @@ uint64_t non_inclusive_cache::access(MemReq& req) {
 
     uint64_t respCycle = req.cycle;
               //request and response cycle
+
     bool skipAccess = cc->startAccess(req); //may need to skip access due to races (NOTE: may change req.type!)
-    if (likely(!skipAccess)) {
+
+    if (likely(!skipAccess)){
         bool updateReplacement = (req.type == GETS) || (req.type == GETX);
         int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
         respCycle += accLat;
+
+        if(llc){
+              if(cc->search_inner_banks(req.lineAddr, req.childId))
+              req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
+        }
 
         if (lineId == -1 && cc->shouldAllocate(req)) { //need to add inner level search
                                                        //when miss at llc
@@ -50,11 +55,7 @@ uint64_t non_inclusive_cache::access(MemReq& req) {
             array->postinsert(req.lineAddr, &req, lineId); //do the actual insertion. NOTE: Now we must split insert into a 2-phase thing because cc unlocks us.
 
             //set the inner level search flag if want to check inner level
-
-            if(llc){
-              if(cc->search_inner_banks(req.lineAddr, req.childId))
-              req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
-            }
+            
         }
 
         respCycle = cc->processAccess(req, lineId, respCycle);

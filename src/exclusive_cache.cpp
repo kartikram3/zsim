@@ -40,15 +40,17 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
         int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
         respCycle += accLat;
 
+        if(llc){
+             if(cc->search_inner_banks(req.lineAddr, req.childId))
+                 req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
+        }
+
         if (lineId == -1) { //if we did not find the line in the cache
                             //if load or store, we need to check private levels
                             //to find the line if llc otherwise nothing here
                             //if writeback, we need to put the data into the
                             //cache array
-            if(llc){
-                if(cc->search_inner_banks(req.lineAddr, req.childId))
-                    req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
-            }
+
 
             if (req.type == GETS || req.type == GETX){
                  // do nothing here, we need to access the next level in our search

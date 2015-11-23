@@ -10,5 +10,7 @@ line_clusive_cache :: line_clusive_cache(uint32_t _numLines, CC* _cc, CacheArray
   //also need to test multiple levels of non_inclusive
   //timing cache
 
-
 }
+
+
+
