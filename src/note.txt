@@ -1,5 +1,5 @@
 For non inclusive and exclusive llc, we need to lock the lines after an inner level search, otherwise, they
-might become invalid due to an eviction by the other thread. In this case, we would have a problem because 
+might become invalid due to an eviction by the other thread. In this case, we would have a problem because
 invx would set it to shared.
 
 To overcome this, we have modified the processInval function coherence_ctrls.cpp so that it sets the state to S

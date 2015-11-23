@@ -29,11 +29,19 @@
 #include "memory_hierarchy.h"
 #include "stats.h"
 
+typedef enum {
+   NI, //non inclusive
+   EX  //exclusive 
+} CLUState;
+
 /* General interface of a cache array. The array is a fixed-size associative container that
  * translates addresses to line IDs. A line ID represents the position of the tag. The other
  * cache components store tag data in non-associative arrays indexed by line ID.
  */
 class CacheArray : public GlobAlloc {
+
+    private: 
+        CLUState s; //the clusion state
     public:
         /* Returns tag's ID if present, -1 otherwise. If updateReplacement is set, call the replacement policy's update() on the line accessed*/
         virtual int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement) = 0;
@@ -51,6 +59,9 @@ class CacheArray : public GlobAlloc {
         virtual void initStats(AggregateStat* parent) {}
 
         virtual int32_t lookup_norpupdate(const Address lineAddr){return 0;};
+
+
+
 };
 
 class ReplPolicy;
@@ -76,6 +87,31 @@ class SetAssocArray : public CacheArray {
         uint32_t preinsert(const Address lineAddr, const MemReq* req, Address* wbLineAddr);
         void postinsert(const Address lineAddr, const MemReq* req, uint32_t candidate);
 };
+
+
+/* Flexclusive array -- set associative with set duelling */ 
+
+class FlexclusiveArray : public CacheArray {
+     protected:
+        Address* array;
+        ReplPolicy* rp;
+        HashFamily* hf;
+        uint32_t numLines;
+        uint32_t numSets;
+        uint32_t assoc;
+        uint32_t setMask;
+
+    public:
+        FlexclusiveArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);
+
+        int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement);
+        int32_t lookup_norpupdate(const Address lineAddr);
+
+        uint32_t preinsert(const Address lineAddr, const MemReq* req, Address* wbLineAddr);
+        void postinsert(const Address lineAddr, const MemReq* req, uint32_t candidate);
+} ;
+
+
 
 /* The cache array that started this simulator :) */
 class ZArray : public CacheArray {
