@@ -145,7 +145,6 @@ class Barrier : public GlobAlloc {
                 }
             }
 
-
             threadList[tid].state = WAITING;
             threadList[tid].futexWord = 1;
             tryWakeNext(tid); //NOTE: You can't cause a phase to end here.
@@ -277,6 +276,9 @@ class Barrier : public GlobAlloc {
             checkEndPhase(tid); //see if we've reached EOP, execute if if so
             checkRunList(tid); //if we started a new phase, wake up threads
         }
+
+
+
 };
 
 #endif  // BARRIER_H_

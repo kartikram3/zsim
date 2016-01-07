@@ -186,7 +186,7 @@ class exclusive_MESITopCC : public GlobAlloc {
         uint64_t processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId);
 
         uint64_t snoopInnerLevels(Address snoopAddr, uint64_t respCycle, bool * lineExists);
-       
+
         uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
               valid_children.clear(); //empty the available children list
               int result = 0;
@@ -231,7 +231,7 @@ class exclusive_MESICC : public CC{
         uint32_t numLines;
         g_string name;
         bool llc; //says whether this is an llc or not
-         
+
 
 
     public:
@@ -278,8 +278,8 @@ class exclusive_MESICC : public CC{
         }
 
         bool shouldAllocate(const MemReq& req) {
-           
-              return false; 
+
+              return false;
               //don't allocate for non terminal
               //as cache is exclusive
               //}
@@ -293,7 +293,7 @@ class exclusive_MESICC : public CC{
             return evCycle;
         }
 
-        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle, uint64_t* getDoneCycle = nullptr) {
+        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle, uint64_t* getDoneCycle = nullptr, CLUState cs = NA) {
             uint64_t respCycle = startCycle;
             //Handle non-inclusive writebacks by bypassing
             //NOTE: Most of the time, these are due to evictions, so the line is not there. But the second condition can trigger in NUCA-initiated
@@ -306,8 +306,8 @@ class exclusive_MESICC : public CC{
 //            if(llc){ //if it is a last level cache
 //                     //we want to functorize this
 //
-//                tcc->snoopInnerLevels(req.lineAddr,respCycle,&lineExists);  
-//                 
+//                tcc->snoopInnerLevels(req.lineAddr,respCycle,&lineExists);
+//
 //                     //if we find something in the inner levels
 //                     //then we should know whether it is shared or exclusive
 //                     //if it is shared, then we can get the data directly
@@ -317,7 +317,6 @@ class exclusive_MESICC : public CC{
 //
 //
 //            }
-
 //
             if (lineId == -1) {
                 assert((req.type == GETS) || (req.type == GETX));
@@ -363,12 +362,12 @@ class exclusive_MESICC : public CC{
         }
 
         void dummy(){
-        
+
         }
 
 
         //Search methods
-        
+
         uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
             return tcc->search_inner_banks(lineAddr, childId);
         }
@@ -410,7 +409,7 @@ class exclusive_MESITerminalCC : public CC {
 
 
     public:
-        
+
         exclusive_MESITerminalCC(uint32_t _numLines, const g_string& _name) : bcc(nullptr), numLines(_numLines), name(_name) {}
 
         void setParents(uint32_t childId, const g_vector<MemObject*>& parents, Network* network) {
@@ -457,7 +456,7 @@ class exclusive_MESITerminalCC : public CC {
             return endCycle;  // critical path unaffected, but TimingCache needs it
         }
 
-        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle,  uint64_t* getDoneCycle = nullptr) {
+        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle,  uint64_t* getDoneCycle = nullptr, CLUState cs = NA) {
             assert(lineId != -1);
             assert(!getDoneCycle);
             //if needed, fetch line or upgrade miss from upper level
@@ -484,7 +483,7 @@ class exclusive_MESITerminalCC : public CC {
         }
 
         //Search methods
-       
+
         uint64_t search_inner_banks(const Address lineAddr, uint32_t childId){
            return 0;
         }

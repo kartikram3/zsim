@@ -120,7 +120,6 @@ void gm_attach(int shmid) {
     }
 }
 
-
 void* gm_malloc(size_t size) {
     assert(GM);
     assert(GM->mspace_ptr);
@@ -151,7 +150,6 @@ void* __gm_memalign(size_t blocksize, size_t bytes) {
     return ptr;
 }
 
-
 void gm_free(void* ptr) {
     assert(GM);
     assert(GM->mspace_ptr);
@@ -160,14 +158,12 @@ void gm_free(void* ptr) {
     futex_unlock(&GM->lock);
 }
 
-
 char* gm_strdup(const char* str) {
     size_t l = strlen(str);
     char* res = static_cast<char*>(gm_malloc(l+1));
     memcpy(res, str, l+1);
     return res;
 }
-
 
 void gm_set_glob_ptr(void* ptr) {
     assert(GM);
@@ -209,5 +205,4 @@ void gm_detach() {
     GM = nullptr;
     gm_shmid = 0;
 }
-
 

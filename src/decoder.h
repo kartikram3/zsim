@@ -186,6 +186,7 @@ class Decoder {
         /* Macro-op (ins) fusion */
         static bool canFuse(INS ins);
         static bool decodeFusedInstrs(INS ins, DynUopVec& uops);
+
 };
 
 #endif  // DECODER_H_

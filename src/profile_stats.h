@@ -30,7 +30,6 @@
 
 #include <time.h>
 #include "stats.h"
-
 //Helper function
 inline uint64_t getNs() {
     struct timespec ts;

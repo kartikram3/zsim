@@ -24,6 +24,7 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "init.h"
 #include <list>
 #include <sstream>
@@ -68,8 +69,13 @@
 #include "stats_filter.h"
 #include "str.h"
 #include "timing_cache.h"
+#include "timing_cache_kartik.h"
+#include "flexclusive_cache.h"
+#include "flexclusive_coherence_ctrls.h"
 #include "non_inclusive_cache.h"
 #include "non_inclusive_coherence_ctrl.h"
+#include "line_clusive_cache.h"
+#include "line_clusive_coherence_ctrl.h"
 #include "exclusive_cache.h"
 #include "exclusive_coherence_ctrls.h"
 #include "timing_core.h"
@@ -79,6 +85,8 @@
 #include "virt/port_virtualizer.h"
 #include "weave_md1_mem.h" //validation, could be taken out...
 #include "zsim.h"
+
+using namespace std;
 
 extern void EndOfPhaseActions(); //in zsim.cpp
 
@@ -96,7 +104,6 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         return new TraceDriverProxyCache(name);
     }
 
-
     uint32_t lineSize = zinfo->lineSize;
     info ("the linesize is %d \n", lineSize);
     assert(lineSize > 0); //avoid config deps
@@ -113,6 +120,10 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
 
     //Need to know number of hash functions before instantiating array
     if (arrayType == "SetAssoc") {
+        numHashes = 1;
+    } else if (arrayType == "flexclusive"){
+        numHashes = 1;
+    } else if (arrayType == "linebased") {
         numHashes = 1;
     } else if (arrayType == "Z") {
         numHashes = ways;
@@ -173,12 +184,18 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         rp = new NRUReplPolicy(numLines, candidates);
     } else if (replType == "Rand") {
         rp = new RandReplPolicy(candidates);
+    } else if (replType == "CLRU") {
+        bool sharersAware = (replType == "LRU") && !isTerminal;
+        if (sharersAware) {
+            rp = new CLU_LRU_ReplPolicy<true>(numLines);
+        }else{
+            rp = new CLU_LRU_ReplPolicy<false>(numLines);
+        }
     } else if (replType == "TAP"){
 
         panic("Replacement policy TAP not defined !");
 
     } else if (replType == "DRRIP"){
-
         panic ("Replacement policy DRRIP  not defined");
 
     } else if (replType == "RRIP"){
@@ -208,6 +225,7 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             panic("Invalid repl.partMapper %s on %s", partMapper.c_str(), name.c_str());
         }
 
+
         // Partition monitor
         uint32_t umonLines = config.get<uint32_t>(prefix + "repl.umonLines", 256);
         uint32_t umonWays = config.get<uint32_t>(prefix + "repl.umonWays", ways);
@@ -234,12 +252,14 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             allocPortion = .85;
             bool smoothTransients = config.get<bool>(prefix + "repl.smoothTransients", false);
             prp = new VantageReplPolicy(mon, pm, numLines, assoc, (uint32_t)(allocPortion * 100), 10, 50, buckets, smoothTransients);
+
         }
         rp = prp;
 
         // Partitioner
         // TODO: Depending on partitioner type, we want one per bank or one per cache.
         Partitioner* p = new LookaheadPartitioner(prp, pm->getNumPartitions(), buckets, 1, allocPortion);
+
 
         //Schedule its tick
         uint32_t interval = config.get<uint32_t>(prefix + "repl.interval", 5000); //phases
@@ -267,7 +287,12 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         IdealLRUPartReplPolicy* irp = dynamic_cast<IdealLRUPartReplPolicy*>(rp);
         if (!irp) panic("IdealLRUPart array needs IdealLRUPart repl policy!");
         array = new IdealLRUPartArray(numLines, irp);
-    } else {
+    } else if (arrayType == "flexclusive"){
+        array = new FlexclusiveArray(numLines, ways, rp, hf);
+    } else if (arrayType == "linebased"){
+        array = new LineBasedArray(numLines, ways, rp, hf);
+    }
+    else {
         panic("This should not happen, we already checked for it!"); //unless someone changed arrayStr...
     }
 
@@ -294,7 +319,7 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
     if (!isTerminal) {
         if (type == "Simple") {
             cc = new MESICC(numLines, nonInclusiveHack, name);
-            rp->setCC(cc); 
+            rp->setCC(cc);
             cache = new Cache(numLines, cc, array, rp, accLat, invLat, name);
         } else if (type == "Timing") {
             uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
@@ -302,16 +327,26 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
 
             cc = new MESICC(numLines, nonInclusiveHack, name);
-            rp->setCC(cc); 
+            rp->setCC(cc);
 
             cache = new TimingCache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
-        } else if (type == "Tracing") {
+        }  else if (type == "TimingKartik") {
+            uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
+            uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
+            uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+
+            cc = new MESICC(numLines, nonInclusiveHack, name);
+            rp->setCC(cc);
+
+            cache = new TimingCacheKartik(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
+        } 
+        else if (type == "Tracing") {
 
             g_string traceFile = config.get<const char*>(prefix + "traceFile","");
             if (traceFile.empty()) traceFile = g_string(zinfo->outputDir) + "/" + name + ".trace";
 
             cc = new MESICC(numLines, nonInclusiveHack, name);
-            rp->setCC(cc); 
+            rp->setCC(cc);
 
             cache = new TracingCache(numLines, cc, array, rp, accLat, invLat, traceFile, name);
         } else if (type == "non_inclusive"){
@@ -321,46 +356,62 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
 
             cc = new non_inclusive_MESICC(numLines, name); //change to non inclusive MESI-CC
-            rp->setCC(cc); 
+            rp->setCC(cc);
 
             cache = new non_inclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
 
-        } else if (type == "exclusive" ) { 
+        } else if (type == "exclusive" ) {
 
             uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
             uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
             uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
 
             cc = new exclusive_MESICC(numLines, name); //change to non exclusive MESI-CC
-            rp->setCC(cc); 
+            rp->setCC(cc);
 
             cache = new exclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
 
 
         } else if (type == "flexclusive" ){
-            
-            panic("Invalid cache type %s", type.c_str());
+
+            uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
+            uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
+            uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+
+            cc = new flexclusive_MESICC(numLines, nonInclusiveHack, name);
+            rp->setCC(cc);
+
+            cache = new flexclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
+
 
         } else if (type == "per_line_clusion"){
 
-            panic("Invalid cache type %s", type.c_str());
+            uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
+            uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
+            uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+
+            cc = new line_clusive_MESICC(numLines, name);
+            rp->setCC(cc);
+            rp->setCacheArray(array);
+
+            cache = new line_clusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
+
 
         } else if (type == "timing_non_inclusive"){
-                          
+
             panic("Invalid cache type %s", type.c_str());
 
-        } else if (type == "timing_exclusive" ) { 
+        } else if (type == "timing_exclusive" ) {
 
             panic("Invalid cache type %s", type.c_str());
 
         } else if (type == "timing_flexclusive" ){
-            
+
             panic("Invalid cache type %s", type.c_str());
 
         } else if (type == "timing_per_line_clusion"){
 
             panic("Invalid cache type %s", type.c_str());
-
 
         }else {
             panic("Invalid cache type %s", type.c_str());
@@ -505,17 +556,18 @@ CacheGroup* BuildCacheGroup(Config& config, const string& name, bool isTerminal,
         for(uint32_t i=0; i<caches; i++){
             for(uint32_t j=0; j<banks; j++){
 
-                cg[i][j]->setasLLC();              
+                cg[i][j]->setasLLC();
 
             }
         }
     }
 
+
     return cgp;
 }
 
 static void InitSystem(Config& config) {
-    
+
     const char * result_path = config.get<const char *>("sim.result_path","");
     info("result path is %s ", result_path);
 
@@ -599,7 +651,7 @@ static void InitSystem(Config& config) {
      * it follows that we have a fully connected tree finishing at the LLC.
      */
 
-    
+
     //Build the memory controllers
     uint32_t memControllers = config.get<uint32_t>("sys.mem.controllers", 1);
     assert(memControllers > 0);
@@ -852,6 +904,7 @@ static void InitSystem(Config& config) {
             }
         }
 
+
         //FIXME: For now, we assume we are driving a single-bank LLC
         string traceFile = config.get<const char*>("sim.traceFile");
         string retraceFile = config.get<const char*>("sim.retraceFile", ""); //leave empty to not retrace
@@ -970,7 +1023,6 @@ static void InitGlobalStats() {
     zinfo->rootStat->append(phaseStat);
 }
 
-
 void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
     zinfo = gm_calloc<GlobSimInfo>();
     zinfo->outputDir = gm_strdup(outputDir);
@@ -1011,6 +1063,8 @@ void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
         assert(numCores <= MAX_THREADS); //TODO: Is there any reason for this limit?
     }
 
+
+
     zinfo->numDomains = config.get<uint32_t>("sim.domains", 1);
     uint32_t numSimThreads = config.get<uint32_t>("sim.contentionThreads", MAX((uint32_t)1, zinfo->numDomains/2)); //gives a bit of parallelism, TODO tune
     zinfo->contentionSim = new ContentionSim(zinfo->numDomains, numSimThreads);
@@ -1049,6 +1103,7 @@ void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
     zinfo->globalPauseFlag = config.get<bool>("sim.startInGlobalPause", false);
 
     zinfo->eventQueue = new EventQueue(); //must be instantiated before the memory hierarchy
+
 
     if (!zinfo->traceDriven) {
         //Build the scheduler
@@ -1124,6 +1179,8 @@ void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
         gm_stats();
     }
 
+
+
     //HACK: Read all variables that are read in the harness but not in init
     //This avoids warnings on those elements
     config.get<uint32_t>("sim.gmMBytes", (1 << 10));
@@ -1136,8 +1193,9 @@ void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
 
     zinfo->contentionSim->postInit();
 
-    info("Initialization complete");
-
     //Causes every other process to wake up
     gm_set_glob_ptr(zinfo);
+
+
 }
+

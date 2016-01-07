@@ -57,9 +57,6 @@ uint64_t SimpleMemory::access(MemReq& req) {
     return respCycle;
 }
 
-
-
-
 MD1Memory::MD1Memory(uint32_t requestSize, uint32_t megacyclesPerSecond, uint32_t megabytesPerSecond, uint32_t _zeroLoadLatency, g_string& _name)
     : zeroLoadLatency(_zeroLoadLatency), name(_name)
 {

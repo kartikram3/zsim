@@ -45,7 +45,7 @@ static string DefaultMaskStr() {
 }
 
 //Helper
-static void DumpEventualStats(uint32_t procIdx, const char* reason) {
+static void DumpEventualStats(uint32_t procIdx, const char* reason){
     uint32_t p = zinfo->procArray[procIdx]->getGroupIdx();
     info("Dumping eventual stats for process GROUP %d (%s)", p, reason);
     zinfo->trigger = p;
@@ -237,4 +237,3 @@ void CreateProcessTree(Config& config) {
 
     zinfo->procExited = gm_calloc<ProcExitStatus>(zinfo->lineSize /*max procs*/);
 }
-

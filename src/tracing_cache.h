@@ -26,7 +26,7 @@
 #ifndef __TRACING_CACHE_H__
 #define __TRACING_CACHE_H__
 
-#include "access_tracing.h"
+#include "access_tracing.hpp"
 #include "cache.h"
 
 class TracingCache : public Cache {

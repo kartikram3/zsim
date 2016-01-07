@@ -62,6 +62,7 @@ Config::Config(const char* inFile) {
         const char* peFile = inFile;
 #endif
         panic("Input config file %s could not be parsed, line %d, error: %s", peFile, pe.getLine(), pe.getError());
+
     }
 }
 

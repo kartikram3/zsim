@@ -26,6 +26,8 @@
 #ifndef STL_GALLOC_H_
 #define STL_GALLOC_H_
 
+#include <stdlib.h>
+#include <utility>
 #include <stddef.h>
 #include "galloc.h"
 

@@ -179,4 +179,3 @@ void DRAMSimMemory::DRAM_read_return_cb(uint32_t id, uint64_t addr, uint64_t mem
 void DRAMSimMemory::DRAM_write_return_cb(uint32_t id, uint64_t addr, uint64_t memCycle) { panic("???"); }
 
 #endif
-

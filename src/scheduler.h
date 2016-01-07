@@ -162,7 +162,7 @@ class Scheduler : public GlobAlloc, public Callee {
         VectorCounter occHist, runQueueHist;
         uint32_t scheduledThreads;
 
-        // gid <-> (pid, tid) xlat functions
+        // gid <-> (pid, TID) XLAt functions
         inline uint32_t getGid(uint32_t pid, uint32_t tid) const {return (pid << 16) | tid;}
         inline uint32_t getPid(uint32_t gid) const {return gid >> 16;}
         inline uint32_t getTid(uint32_t gid) const {return gid & 0x0FFFF;}

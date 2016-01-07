@@ -34,7 +34,7 @@
 #include <queue>
 #include <stdio.h>
 
-#include "access_tracing.h"
+#include "access_tracing.hpp"
 #include "galloc.h"
 
 using namespace std;

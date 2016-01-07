@@ -144,7 +144,6 @@ void CoreRecorder::recordAccess(uint64_t startCycle) {
     eventRecorder.getCrossingStack().clear();
 }
 
-
 uint64_t CoreRecorder::cSimStart(uint64_t curCycle) {
     if (state == HALTED) return curCycle; //nothing to do
 

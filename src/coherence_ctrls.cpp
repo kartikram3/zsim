@@ -42,9 +42,10 @@ uint32_t MESIBottomCC::getParentId(Address lineAddr) {
     return (res % parents.size());
 }
 
+
 void MESIBottomCC::init(const g_vector<MemObject*>& _parents, Network* network, const char* name) {
     parents.resize(_parents.size());
-    parentRTTs.resize(_parents.size() );
+    parentRTTs.resize(_parents.size());
     for (uint32_t p = 0; p < parents.size(); p++) {
         parents[p] = _parents[p];
         parentRTTs[p] = (network)? network->getRTT(name, parents[p]->getName()) : 0;
@@ -115,6 +116,7 @@ uint64_t MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId, AccessTy
             }
             break;
         case GETX:
+            //info("Processing GETX");
             if (*state == I || *state == S) {
                 //Profile before access, state changes
                 if (*state == I) profGETXMissIM.inc();
@@ -136,6 +138,7 @@ uint64_t MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId, AccessTy
                      * transition and now that it is evictiong, it's our turn to maintain M info.
                      */
                     *state = M;
+                    //info("changed state during GETX");
                 }
                 profGETXHit.inc();
             }
@@ -156,6 +159,32 @@ void MESIBottomCC::processWritebackOnAccess(Address lineAddr, uint32_t lineId, A
         *state = M;
     }
 }
+
+//void MESIBottomCC::processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback) {
+//    MESIState* state = &array[lineId];
+//    assert(*state != I);
+//    switch (type) {
+//        case INVX: //lose exclusivity
+//            //Hmmm, do we have to propagate loss of exclusivity down the tree? (nah, topcc will do this automatically -- it knows the final state, always!)
+//            assert_msg(*state == E || *state == M, "Invalid state %s", MESIStateName(*state));
+//            if (*state == M) *reqWriteback = true;
+//            *state = S;
+//            profINVX.inc();
+//            break;
+//        case INV: //invalidate
+//            assert(*state != I);
+//            if (*state == M) *reqWriteback = true;
+//            *state = I;
+//            profINV.inc();
+//            break;
+//        case FWD: //forward
+//            assert_msg(*state == S, "Invalid state %s on FWD", MESIStateName(*state));
+//            profFWD.inc();
+//            break;
+//        default: panic("!?");
+//    }
+//    //NOTE: BottomCC never calls up on an invalidate, so it adds no extra latency
+//}
 
 void MESIBottomCC::processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback) {
 
@@ -186,6 +215,7 @@ void MESIBottomCC::processInval(Address lineAddr, uint32_t lineId, InvType type,
     //NOTE: BottomCC never calls up on an invalidate, so it adds no extra latency
 
 }
+//
 
 uint64_t MESIBottomCC::processNonInclusiveWriteback(Address lineAddr, AccessType type, uint64_t cycle, MESIState* state, uint32_t srcId, uint32_t flags) {
     if (!nonInclusiveHack) panic("Non-inclusive %s on line 0x%lx, this cache should be inclusive", AccessTypeName(type), lineAddr);
@@ -222,7 +252,7 @@ uint64_t MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId, InvType t
 
     uint64_t maxCycle = cycle; //keep maximum cycle only, we assume all invals are sent in parallel
     if (!e->isEmpty()) {
-        uint32_t numChildren =  children.size();
+        uint32_t numChildren = children.size();
         uint32_t sentInvs = 0;
         for (uint32_t c = 0; c < numChildren; c++) {
             if (e->sharers[c]) {
@@ -247,6 +277,7 @@ uint64_t MESITopCC::sendInvalidates(Address lineAddr, uint32_t lineId, InvType t
     return maxCycle;
 }
 
+
 uint64_t MESITopCC::processEviction(Address wbLineAddr, uint32_t lineId, bool* reqWriteback, uint64_t cycle, uint32_t srcId) {
     if (nonInclusiveHack) {
         // Don't invalidate anything, just clear our entry
@@ -260,13 +291,12 @@ uint64_t MESITopCC::processEviction(Address wbLineAddr, uint32_t lineId, bool* r
 
 uint64_t MESITopCC::processAccess(Address lineAddr, uint32_t lineId, AccessType type, uint32_t childId, bool haveExclusive,
                                   MESIState* childState, bool* inducedWriteback, uint64_t cycle, uint32_t srcId, uint32_t flags) {
-
     Entry* e = &array[lineId];
     uint64_t respCycle = cycle;
     switch (type) {
         case PUTX:
             assert(e->isExclusive());
-            if (flags & MemReq::PUTX_KEEPEXCL){
+            if (flags & MemReq::PUTX_KEEPEXCL) {
                 assert(e->sharers[childId]);
                 assert(*childState == M);
                 *childState = E; //they don't hold dirty data anymore
@@ -328,6 +358,7 @@ uint64_t MESITopCC::processAccess(Address lineAddr, uint32_t lineId, AccessType 
 
         default: panic("!?");
     }
+
     return respCycle;
 }
 
@@ -340,3 +371,5 @@ uint64_t MESITopCC::processInval(Address lineAddr, uint32_t lineId, InvType type
         return sendInvalidates(lineAddr, lineId, type, reqWriteback, cycle, srcId);
     }
 }
+
+

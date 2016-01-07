@@ -28,6 +28,12 @@
 
 // Unconditional patches
 
+#include "virt/common.h"
+
+#ifndef PF
+#define PF(syscall, pfn) PostPatchFn pfn(PrePatchArgs args);
+#endif
+
 // File system -- fs.cpp
 PF(SYS_open, PatchOpen);
 PF(SYS_openat, PatchOpen);
@@ -57,3 +63,5 @@ PF(SYS_futex, PatchTimeoutSyscall);
 PF(SYS_epoll_wait, PatchTimeoutSyscall);
 PF(SYS_epoll_pwait, PatchTimeoutSyscall);
 PF(SYS_poll, PatchTimeoutSyscall);
+
+

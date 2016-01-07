@@ -58,7 +58,6 @@ class OOOIssueEvent : public TimingEvent {
         friend class OOOCoreRecorder;
 };
 
-
 class OOODispatchEvent : public TimingEvent {
     private:
         uint64_t zllStartCycle; //minStartCycle - gapCycles, stable across readjustments of gapCycles
@@ -372,4 +371,3 @@ uint64_t OOOCoreRecorder::getUnhaltedCycles(uint64_t curCycle) const {
 uint64_t OOOCoreRecorder::getContentionCycles() const {
     return totalGapCycles + gapCycles;
 }
-

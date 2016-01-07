@@ -133,4 +133,3 @@ void TimingCore::PredLoadAndRecordFunc(THREADID tid, ADDRINT addr, BOOL pred) {
 void TimingCore::PredStoreAndRecordFunc(THREADID tid, ADDRINT addr, BOOL pred) {
     if (pred) static_cast<TimingCore*>(cores[tid])->storeAndRecord(addr);
 }
-

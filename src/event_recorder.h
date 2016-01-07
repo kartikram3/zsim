@@ -53,8 +53,6 @@ typedef g_vector<CrossingEvent*> CrossingStack;
 class EventRecorder : public GlobAlloc {
     private:
         slab::SlabAlloc slabAlloc;
-        TimingRecord tr;
-        CrossingStack crossingStack;
         uint32_t srcId;
 
         volatile uint64_t lastGapCycles;
@@ -63,6 +61,8 @@ class EventRecorder : public GlobAlloc {
         PAD();
 
     public:
+        CrossingStack crossingStack;
+        TimingRecord tr;
         EventRecorder() {
             tr.clear();
         }
@@ -79,10 +79,10 @@ class EventRecorder : public GlobAlloc {
         }
 
         //Event recording interface
-
         void pushRecord(const TimingRecord& rec) {
-            assert(!tr.isValid());
-            tr = rec;
+          //assert(!tr.isValid());
+          if(!tr.isValid())
+              tr = rec;
             assert(tr.isValid());
         }
 
@@ -90,6 +90,7 @@ class EventRecorder : public GlobAlloc {
         inline TimingRecord popRecord() __attribute__((always_inline)) {
             TimingRecord rec = tr;
             tr.clear();
+            assert(!tr.isValid());
             return rec;
         }
 

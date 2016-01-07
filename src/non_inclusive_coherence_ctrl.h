@@ -297,7 +297,7 @@ class non_inclusive_MESICC : public CC{
             return evCycle;
         }
 
-        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle, uint64_t* getDoneCycle = nullptr) {
+        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle, uint64_t* getDoneCycle = nullptr, CLUState cs = NA) {
             uint64_t respCycle = startCycle;
             //Handle non-inclusive writebacks by bypassing
             //NOTE: Most of the time, these are due to evictions, so the line is not there. But the second condition can trigger in NUCA-initiated
@@ -439,7 +439,7 @@ class non_inclusive_MESITerminalCC : public CC {
             return endCycle;  // critical path unaffected, but TimingCache needs it
         }
 
-        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle,  uint64_t* getDoneCycle = nullptr) {
+        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle,  uint64_t* getDoneCycle = nullptr, CLUState cs = NA) {
             assert(lineId != -1);
             assert(!getDoneCycle);
             //if needed, fetch line or upgrade miss from upper level

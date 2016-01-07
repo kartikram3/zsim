@@ -28,7 +28,7 @@
 #include <queue>
 #include <stdio.h>
 
-#include "access_tracing.h"
+#include "access_tracing.hpp"
 #include "galloc.h"
 #include "memory_hierarchy.h"  // to translate access type to strings
 

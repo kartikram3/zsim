@@ -438,7 +438,7 @@ uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineI
 
 }
 
-uint64_t non_inclusive_MESITopCC::processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId) {
+uint64_t non_inclusive_MESITopCC::processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId) { //never called
     if (type == FWD){ //if it's a FWD, we should be inclusive for now, so we must have the line, just invLat works
         return cycle;
     } else {

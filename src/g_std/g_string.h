@@ -29,7 +29,7 @@
 // Just be thankful that std::spot does not exist
 
 #include <string>
-#include "g_std/stl_galloc.h"
+#include "/home/kartik/zsim_kartik/src/g_std/stl_galloc.h"
 
 /* basic_string is actually an STL-mandated class, not an internal GCC thing.
  * This should work with other compilers

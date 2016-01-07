@@ -35,6 +35,7 @@
 #include "memory_hierarchy.h"
 #include "pad.h"
 #include "stats.h"
+#include "cache_arrays.h"
 
 //TODO: Now that we have a pure CC interface, the MESI controllers should go on different files.
 
@@ -51,7 +52,7 @@ class CC : public GlobAlloc {
         virtual bool startAccess(MemReq& req) = 0; //initial locking, address races; returns true if access should be skipped; may change req!
         virtual bool shouldAllocate(const MemReq& req) = 0; //called when we don't find req's lineAddr in the array
         virtual uint64_t processEviction(const MemReq& triggerReq, Address wbLineAddr, int32_t lineId, uint64_t startCycle) = 0; //called iff shouldAllocate returns true
-        virtual uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle, uint64_t* getDoneCycle = nullptr) = 0;
+        virtual uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle, uint64_t* getDoneCycle = nullptr, CLUState cs = NA) = 0;
         virtual void endAccess(const MemReq& req) = 0;
 
         //Inv methods
@@ -356,12 +357,13 @@ class MESICC : public CC {
 
         uint64_t processEviction(const MemReq& triggerReq, Address wbLineAddr, int32_t lineId, uint64_t startCycle) {
             bool lowerLevelWriteback = false;
+            //info("processing eviction");
             uint64_t evCycle = tcc->processEviction(wbLineAddr, lineId, &lowerLevelWriteback, startCycle, triggerReq.srcId); //1. if needed, send invalidates/downgrades to lower level
             evCycle = bcc->processEviction(wbLineAddr, lineId, lowerLevelWriteback, evCycle, triggerReq.srcId); //2. if needed, write back line to upper level
             return evCycle;
         }
 
-        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle, uint64_t* getDoneCycle = nullptr) {
+        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle, uint64_t* getDoneCycle = nullptr, CLUState cs = NA) {
             uint64_t respCycle = startCycle;
             //Handle non-inclusive writebacks by bypassing
             //NOTE: Most of the time, these are due to evictions, so the line is not there. But the second condition can trigger in NUCA-initiated
@@ -369,6 +371,7 @@ class MESICC : public CC {
             //but if we do proper NI/EX mid-level caches backed by directories, this may start becoming more common (and it is perfectly acceptable to
             //upgrade without any interaction with the parent... the child had the permissions!)
             if (lineId == -1 || (((req.type == PUTS) || (req.type == PUTX)) && !bcc->isValid(lineId))) { //can only be a non-inclusive wback
+
                 assert(nonInclusiveHack);
                 assert((req.type == PUTS) || (req.type == PUTX));
                 respCycle = bcc->processNonInclusiveWriteback(req.lineAddr, req.type, startCycle, req.state, req.srcId, req.flags);
@@ -509,7 +512,7 @@ class MESITerminalCC : public CC {
             return endCycle;  // critical path unaffected, but TimingCache needs it
         }
 
-        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle,  uint64_t* getDoneCycle = nullptr) {
+        uint64_t processAccess(const MemReq& req, int32_t lineId, uint64_t startCycle,  uint64_t* getDoneCycle = nullptr, CLUState cs=NA) {
             assert(lineId != -1);
             assert(!getDoneCycle);
             //if needed, fetch line or upgrade miss from upper level
@@ -567,5 +570,8 @@ class MESITerminalCC : public CC {
         uint32_t numSharers(uint32_t lineId) {return 0;} //no sharers
         bool isValid(uint32_t lineId) {return bcc->isValid(lineId);}
 };
+
+
+
 
 #endif  // COHERENCE_CTRLS_H_

@@ -24,6 +24,9 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef clang_check_virt_cpp
+#define clang_check_virt_cpp
+
 #include <syscall.h>
 #include "constants.h"
 #include "log.h"
@@ -86,3 +89,5 @@ PostPatchAction VirtSyscallExit(THREADID tid, CONTEXT *ctxt, SYSCALL_STANDARD st
     return postPatchFunctions[tid]({tid, ctxt, std});
 }
 
+
+#endif

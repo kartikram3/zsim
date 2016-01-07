@@ -40,7 +40,7 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <unistd.h>
-#include "access_tracing.h"
+#include "access_tracing.hpp"
 #include "constants.h"
 #include "contention_sim.h"
 #include "core.h"

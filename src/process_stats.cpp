@@ -92,4 +92,3 @@ void ProcessStats::update() {
     }
     lastUpdatePhase = zinfo->numPhases;
 }
-

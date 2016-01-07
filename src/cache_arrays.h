@@ -30,9 +30,16 @@
 #include "stats.h"
 
 typedef enum {
+    NA, //not applicable
+    INC, //inclusive
    NI, //non inclusive
-   EX  //exclusive 
+   EX  //exclusive
 } CLUState;
+
+typedef enum {
+   noDUP, 
+   DUP
+} DUPState;
 
 /* General interface of a cache array. The array is a fixed-size associative container that
  * translates addresses to line IDs. A line ID represents the position of the tag. The other
@@ -40,9 +47,16 @@ typedef enum {
  */
 class CacheArray : public GlobAlloc {
 
-    private: 
+    private:
         CLUState s; //the clusion state
-    public:
+     public:
+        int32_t ex_hit_counter;
+        int32_t ni_hit_counter;
+        int32_t access_counter;
+        int32_t ex_access_counter;
+        int32_t ni_access_counter;
+        CLUState policy = NI;
+
         /* Returns tag's ID if present, -1 otherwise. If updateReplacement is set, call the replacement policy's update() on the line accessed*/
         virtual int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement) = 0;
 
@@ -60,8 +74,19 @@ class CacheArray : public GlobAlloc {
 
         virtual int32_t lookup_norpupdate(const Address lineAddr){return 0;};
 
+        virtual CLUState getCLU(const Address lineAddr){ return NA; };
 
+        virtual CLUState getCLU(uint32_t lineId){ return NA; };
 
+        virtual void setCLU(uint32_t lineId, CLUState cs) {  };
+
+        virtual void updateCounters(const Address lineAddr, uint32_t lineId){};
+
+        virtual void setDup(uint32_t lineId){};
+        
+        virtual void setnoDup(uint32_t lineId){};
+        
+        DUPState getDup(uint32_t lineId){return noDUP;};
 };
 
 class ReplPolicy;
@@ -89,7 +114,7 @@ class SetAssocArray : public CacheArray {
 };
 
 
-/* Flexclusive array -- set associative with set duelling */ 
+/* Flexclusive array -- set associative with set duelling */
 
 class FlexclusiveArray : public CacheArray {
      protected:
@@ -109,6 +134,44 @@ class FlexclusiveArray : public CacheArray {
 
         uint32_t preinsert(const Address lineAddr, const MemReq* req, Address* wbLineAddr);
         void postinsert(const Address lineAddr, const MemReq* req, uint32_t candidate);
+
+        CLUState getCLU(const Address lineAddr);
+
+        virtual void updateCounters(const Address lineAddr, uint32_t lineId);
+} ;
+
+/* line-based clusion array */
+class  LineBasedArray : public CacheArray {
+     protected:
+        Address* array;
+        CLUState* clu_array;
+        DUPState* dup_array;
+        ReplPolicy* rp;
+        HashFamily* hf;
+        uint32_t numLines;
+        uint32_t numSets;
+        uint32_t assoc;
+        uint32_t setMask;
+
+    public:
+        LineBasedArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);
+
+        int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement);
+        int32_t lookup_norpupdate(const Address lineAddr);
+
+        uint32_t preinsert(const Address lineAddr, const MemReq* req, Address* wbLineAddr);
+        void postinsert(const Address lineAddr, const MemReq* req, uint32_t candidate);
+
+
+        CLUState getCLU(uint32_t lineId);
+
+        void setCLU(uint32_t lineId, CLUState cs);
+
+        void setDup(uint32_t lineId);
+        
+        void setnoDup(uint32_t lineId);
+
+        DUPState getDup(uint32_t lineId);
 } ;
 
 

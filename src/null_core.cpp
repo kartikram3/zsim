@@ -83,4 +83,3 @@ void NullCore::BblFunc(THREADID tid, ADDRINT bblAddr, BblInfo* bblInfo) {
         if (newCid != cid) break; /*context-switch*/
     }
 }
-

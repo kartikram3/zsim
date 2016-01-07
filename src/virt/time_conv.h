@@ -28,6 +28,9 @@
 #define VIRT_TIME_CONV_H_
 
 #include <unistd.h>
+#include <stdint.h>
+#include <sys/time.h>
+#include <zsim.h>
 
 // Helper functions to translate between ns, timespec/timeval, and cycles
 

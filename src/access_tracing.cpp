@@ -23,7 +23,7 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "access_tracing.h"
+#include "access_tracing.hpp"
 #include "bithacks.h"
 #include <hdf5.h>
 #include <hdf5_hl.h>

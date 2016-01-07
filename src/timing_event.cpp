@@ -82,7 +82,6 @@ void TimingEvent::checkDomain(TimingEvent* ch) {
     //assert(domain == ch->domain || dynamic_cast<CrossingEvent*>(ch));
 }
 
-
 /* CrossingEvent */
 
 CrossingEvent::CrossingEvent(TimingEvent* parent, TimingEvent* child, uint64_t _minStartCycle, EventRecorder* _evRec)

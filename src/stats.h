@@ -321,7 +321,6 @@ class ProxyStat : public ScalarStat {
         }
 };
 
-
 class ProxyFuncStat : public ScalarStat {
     private:
         uint64_t (*_func)();
@@ -350,7 +349,7 @@ class ProxyFuncStat : public ScalarStat {
  *  cyclesStat->init("cycles", "Simulated cycles"); //etc. Use as an usual stat!
  */
 template <typename F>
-class LambdaStat : public ScalarStat {
+class LambdaStat : public ScalarStat{
     private:
         F f;
 
@@ -390,7 +389,6 @@ class StatsBackend : public GlobAlloc {
         virtual void dump(bool buffered)=0;
 };
 
-
 class TextBackendImpl;
 
 class TextBackend : public StatsBackend {
@@ -402,10 +400,9 @@ class TextBackend : public StatsBackend {
         virtual void dump(bool buffered);
 };
 
-
 class HDF5BackendImpl;
 
-class HDF5Backend : public StatsBackend {
+class HDF5Backend : public StatsBackend{
     private:
         HDF5BackendImpl* backend;
 

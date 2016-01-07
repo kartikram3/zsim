@@ -344,6 +344,7 @@ void TimingCache::simulateMissWriteback(MissWritebackEvent* ev, uint64_t cycle, 
         profMissLat.inc(cycle - mse->startCycle);
         activeMisses--;
         profOccHist.transition(activeMisses, lookupCycle);
+
         if (!pendingQueue.empty()) {
             //info("XXX %ld elems in pending queue", pendingQueue.size());
             for (TimingEvent* qev : pendingQueue) {

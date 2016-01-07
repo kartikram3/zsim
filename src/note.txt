@@ -4,3 +4,5 @@ invx would set it to shared.
 
 To overcome this, we have modified the processInval function coherence_ctrls.cpp so that it sets the state to S
 only if the state is not I.
+
+

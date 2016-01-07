@@ -98,5 +98,4 @@ class Cache : public BaseCache {
          } ; //check the value in the cache
 
 };
-
 #endif  // CACHE_H_

@@ -23,6 +23,7 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "cache.h"
 #include "hash.h"
 
@@ -35,6 +36,7 @@ Cache::Cache(uint32_t _numLines, CC* _cc, CacheArray* _array, ReplPolicy* _rp, u
 
 const char* Cache::getName() {
     return name.c_str();
+    return 0;
 }
 
 void Cache::setParents(uint32_t childId, const g_vector<MemObject*>& parents, Network* network) {
@@ -83,8 +85,10 @@ uint64_t Cache::access(MemReq& req) {
         int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
         respCycle += accLat;
 
+
         if (lineId == -1 && cc->shouldAllocate(req)) {
             //Make space for new line
+            //info ("making space for new line");
             Address wbLineAddr;
             lineId = array->preinsert(req.lineAddr, &req, &wbLineAddr); //find the lineId to replace
             trace(Cache, "[%s] Evicting 0x%lx", name.c_str(), wbLineAddr);
@@ -96,11 +100,12 @@ uint64_t Cache::access(MemReq& req) {
             array->postinsert(req.lineAddr, &req, lineId); //do the actual insertion. NOTE: Now we must split insert into a 2-phase thing because cc unlocks us.
         }
 
-        respCycle = cc->processAccess(req, lineId, respCycle);
+
+        //respCycle = cc->processAccess(req, lineId, respCycle);
         // Enforce single-record invariant: Writeback access may have a timing
         // record. If so, read it.
 
-        #if 0
+        //#if 0
         EventRecorder* evRec = zinfo->eventRecorders[req.srcId];
                                               //src is the source core
         TimingRecord wbAcc;
@@ -144,10 +149,11 @@ uint64_t Cache::access(MemReq& req) {
                 evRec->pushRecord(acc);
             }
         }
-        #endif
+        //#endif
     }
 
     cc->endAccess(req);
+
 
     assert_msg(respCycle >= req.cycle, "[%s] resp < req? 0x%lx type %s childState %s, respCycle %ld reqCycle %ld",
             name.c_str(), req.lineAddr, AccessTypeName(req.type), MESIStateName(*req.state), respCycle, req.cycle);
@@ -162,14 +168,16 @@ uint64_t Cache::finishInvalidate(const InvReq& req) {
   int32_t lineId = array->lookup(req.lineAddr, nullptr, false);
   if (lineId == -1 ){ panic("Problem, as lineId was -1 in cache %s", name.c_str()); cc->unlock_bcc(); return req.cycle; }; //means no invalidate happens
                                         //have to remove this bug
+  //info("Doing invalidate !");
     assert_msg(lineId != -1, "[%s] Invalidate on non-existing address 0x%lx type %s lineId %d, reqWriteback %d", name.c_str(), req.lineAddr, InvTypeName(req.type), lineId, *req.writeback);
     uint64_t respCycle = req.cycle + invLat;
     trace(Cache, "[%s] Invalidate start 0x%lx type %s lineId %d, reqWriteback %d", name.c_str(), req.lineAddr, InvTypeName(req.type), lineId, *req.writeback);
     respCycle = cc->processInv(req, lineId, respCycle); //send invalidates or downgrades to children, and adjust our own state
     trace(Cache, "[%s] Invalidate end 0x%lx type %s lineId %d, reqWriteback %d, latency %ld", name.c_str(), req.lineAddr, InvTypeName(req.type), lineId, *req.writeback, respCycle - req.cycle);
 
-    return respCycle;
+    return respCycle + 1;
 }
+
 
 //uint64_t Cache::snoop(SnoopReq &req, uint64_t respCycle){
 //      cc->startSnoop();
@@ -177,16 +185,15 @@ uint64_t Cache::finishInvalidate(const InvReq& req) {
 //      int32_t lineId = array->lookup(req.lineAddr, nullptr, false);
 //      respCycle += accLat;
 //
-//      if(lineId == -1) { 
+//      if(lineId == -1) {
 //            cc->processSnoop(req);
 //
 //      }          //means the snoop did not find the line
 //                 //so continue the snoop
-//      else {   
+//      else {
 //
 //
-//      }          //means snoop found the line 
+//      }          //means snoop found the line
 //
 //      return 0;
 //}
-
