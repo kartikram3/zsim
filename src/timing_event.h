@@ -70,9 +70,9 @@ class TimingEvent {
 
     public:
         TimingEvent* next; //used by PrioQueue --- PRIVATE
+        EventState state;
 
     private:
-        EventState state;
         uint64_t cycle;
 
         uint64_t minStartCycle;
@@ -105,20 +105,39 @@ class TimingEvent {
 
         TimingEvent* addChild(TimingEvent* childEv, EventRecorder* evRec) {
             assert_msg(state == EV_NONE || state == EV_QUEUED, "adding child in invalid state %d %s -> %s", state, typeid(*this).name(), typeid(*childEv).name()); //either not scheduled or not executed yet
+
+            //assert_msg(childEv != nullptr, "child event");
+            //info ("child ev foudn 1 !");
+
+            if (childEv == nullptr){
+               //info ("detect nullptr");
+               return childEv; 
+            }
+
+            assert_msg(childEv->state == EV_NONE, "state is not correct");
+
+
             assert(childEv->state == EV_NONE);
 
             TimingEvent* res = childEv;
 
+            //info ("X");
+
+
             if (numChildren == 0) {
+                //info ("A");
                 numChildren = 1;
                 child = childEv;
+
             } else if (numChildren == 1) {
+                //info ("B");
                 TimingEvent* firstChild = child;
                 children = new (evRec) TimingEventBlock();
                 children->events[0] = firstChild;
                 children->events[1] = childEv;
                 numChildren = 2;
             } else {
+                //info ("C");
                 uint32_t idx = numChildren % TIMING_BLOCK_EVENTS;
                 if (idx == 0) {
                     TimingEventBlock* tmp = children;
@@ -130,10 +149,14 @@ class TimingEvent {
             }
 
             if (domain != -1 && childEv->domain == -1) {
+                //info ("D");
                 childEv->propagateDomain(domain);
             }
 
+            //info ("E");
+
             childEv->numParents++;
+            //info ("child ev foudn 2 !");
             return res; //useful for chaining
         }
 

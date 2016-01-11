@@ -264,6 +264,9 @@ uint64_t DDRMemory::access(MemReq& req) {
         bool isWrite = (req.type == PUTX);
         uint64_t respCycle = req.cycle + (isWrite? minWrLatency : minRdLatency);
         if (zinfo->eventRecorders[req.srcId]) {
+
+            EventRecorder * evRec= zinfo->eventRecorders[req.srcId];
+
                if (!(zinfo->eventRecorders[req.srcId])->hasRecord()){
                //info("Adding mem record !");
                DDRMemoryAccEvent* memEv = new (zinfo->eventRecorders[req.srcId]) DDRMemoryAccEvent(this,
@@ -271,6 +274,36 @@ uint64_t DDRMemory::access(MemReq& req) {
                memEv->setMinStartCycle(req.cycle);
                TimingRecord tr = {req.lineAddr, req.cycle, respCycle, req.type, memEv, memEv};
                zinfo->eventRecorders[req.srcId]->pushRecord(tr);
+            }else{
+
+
+               DDRMemoryAccEvent* memEv = new (zinfo->eventRecorders[req.srcId]) DDRMemoryAccEvent(this,
+                       isWrite, req.lineAddr, domain, preDelay, isWrite? postDelayWr : postDelayRd);
+               memEv->setMinStartCycle(req.cycle);
+               TimingRecord wbAcc = {req.lineAddr, req.cycle, respCycle, req.type, memEv, memEv};
+
+
+                // Connect both events
+                //info("weird wbAcc happened");
+                TimingRecord acc = evRec->popRecord();
+                assert(wbAcc.reqCycle >= req.cycle);
+                assert(acc.reqCycle >= req.cycle);
+                DelayEvent* startEv = new (evRec) DelayEvent(0);
+                DelayEvent* dWbEv = new (evRec) DelayEvent(wbAcc.reqCycle - req.cycle);
+                DelayEvent* dAccEv = new (evRec) DelayEvent(acc.reqCycle - req.cycle);
+                startEv->setMinStartCycle(req.cycle);
+                dWbEv->setMinStartCycle(req.cycle);
+                dAccEv->setMinStartCycle(req.cycle);
+                startEv->addChild(dWbEv, evRec)->addChild(wbAcc.startEvent, evRec);
+                startEv->addChild(dAccEv, evRec)->addChild(acc.startEvent, evRec);
+
+                acc.reqCycle = req.cycle;
+                acc.startEvent = startEv;
+                // endEvent / endCycle stay the same; wbAcc's endEvent not connected
+
+                evRec->pushRecord(acc);
+
+
             }
         }
         //info("Access to %lx at %ld, %ld latency", req.lineAddr, req.cycle, minLatency);

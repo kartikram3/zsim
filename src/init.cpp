@@ -1180,7 +1180,6 @@ void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
     }
 
 
-
     //HACK: Read all variables that are read in the harness but not in init
     //This avoids warnings on those elements
     config.get<uint32_t>("sim.gmMBytes", (1 << 10));

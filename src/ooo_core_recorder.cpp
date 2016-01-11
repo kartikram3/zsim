@@ -245,7 +245,15 @@ void OOOCoreRecorder::recordAccess(uint64_t curCycle, uint64_t dispatchCycle, ui
         lastEvProduced->addChild(dDisp, eventRecorder)->addChild(dispEv, eventRecorder)->addChild(dUp, eventRecorder)->addChild(tr.startEvent, eventRecorder);
 
         //Link response
-        assert(respCycle >= tr.respCycle);
+        //assert(respCycle >= tr.respCycle); // commented out by Kartik
+        
+        if (respCycle < tr.respCycle){
+             //info ("respcycle is %d due to prefetch",  tr.respCycle);
+             //info ("Loss is cycles is %d", tr.respCycle - respCycle);
+             //respCycle = tr.respCycle;
+             tr.respCycle = respCycle;
+        }
+        
         uint32_t downDelay = respCycle - tr.respCycle;
         uint64_t zllStartCycle = respCycle - gapCycles;
         OOORespEvent* respEvent = new (eventRecorder) OOORespEvent(downDelay, this, domain);
@@ -255,6 +263,7 @@ void OOOCoreRecorder::recordAccess(uint64_t curCycle, uint64_t dispatchCycle, ui
         TRACE_MSG("Adding resp zllCycle %ld delay %ld", respCycle - gapCycles, respCycle-curCycle);
         futureResponses.push({zllStartCycle, respEvent});
     } else {
+
         //info("Handling PUT: curCycle %ld", curCycle);
         assert(IsPut(tr.type));
 

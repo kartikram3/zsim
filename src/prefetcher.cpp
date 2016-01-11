@@ -25,6 +25,9 @@
 
 #include "prefetcher.h"
 #include "bithacks.h"
+#include "event_recorder.h"
+#include "zsim.h"
+#include "timing_event.h"
 
 //#define DBG(args...) info(args)
 #define DBG(args...)
@@ -45,8 +48,7 @@ void StreamPrefetcher::setChildren(const g_vector<BaseCache*>& children,
   child = children[0];
 }
 
-void StreamPrefetcher::initStats(AggregateStat* parentStat) {
-  AggregateStat* s = new AggregateStat();
+void StreamPrefetcher::initStats(AggregateStat* parentStat) { AggregateStat* s = new AggregateStat();
   s->init(name.c_str(), "Prefetcher stats");
   profAccesses.init("acc", "Accesses");
   s->append(&profAccesses);
@@ -74,10 +76,27 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
   if (req.type != GETS)
     return parent->access(req);  // other reqs ignored, including stores
 
+
+  //uint32_t cycle_req = req.cycle;
+
   profAccesses.inc();
 
-  uint64_t reqCycle = req.cycle;
   uint64_t respCycle = parent->access(req);
+  uint64_t reqCycle = req.cycle;
+
+
+  //-------- get trace from current access ----------//
+  EventRecorder * evRec = zinfo->eventRecorders[req.srcId];  //remove the current record
+  TimingRecord tr;
+  tr.clear();
+
+  if(evRec->hasRecord()){
+      tr = evRec->popRecord();
+      //info ("popped record, with reqcycle = %d", tr.reqCycle);
+  }
+  //info ("req cycle is %d", reqCycle);
+
+  //-------- got trae ---------//
 
   Address pageAddr = req.lineAddr >> 6;
   uint32_t pos = req.lineAddr & (64 - 1);
@@ -88,8 +107,8 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
     bool match = (pageAddr == tag[i]);
     idx = match ? i : idx;  // ccmov, no branch
   }
-
   DBG("%s: 0x%lx page %lx pos %d", name.c_str(), req.lineAddr, pageAddr, pos);
+
 
   if (idx == 16) {  // entry miss
     uint32_t cand = 16;
@@ -117,6 +136,7 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
       array[idx].ts = timestamp++;
       tag[idx] = pageAddr;
     }
+
     DBG("%s: MISS alloc idx %d", name.c_str(), idx);
   } else {  // entry hit
     profPageHits.inc();
@@ -130,8 +150,12 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
       uint64_t pfRespCycle = e.times[pos].respCycle;
       shortPrefetch = pfRespCycle > respCycle;
       e.valid[pos] = false;  // close, will help with long-lived transactions
+      //info ("Here!");
+      //info ("respcycle is %d", (int)respCycle);
+      //info ("pfRespcycle is %d", (int)pfRespCycle);
       respCycle = MAX(pfRespCycle, respCycle);
       e.lastCycle = MAX(respCycle, e.lastCycle);
+
       profHits.inc();
       if (shortPrefetch) profShortHits.inc();
       DBG(
@@ -170,23 +194,28 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
                           req.childLock,
                           state,
                           req.srcId,
-                          MemReq::PREFETCH};
+                          MemReq::PREFETCH | MemReq::DONT_RECORD };
+
           uint64_t pfRespCycle =
               parent->access(pfReq);  // FIXME, might segfault
+          //info ("did pf1");
+
           e.valid[prefetchPos] = true;
           e.times[prefetchPos].fill(reqCycle, pfRespCycle);
           profPrefetches.inc();
 
-          if (shortPrefetch && fetchDepth < 8 && prefetchPos + stride < 64 &&
-              !e.valid[prefetchPos + stride]) {
-            prefetchPos += stride;
-            pfReq.lineAddr += stride;
-            pfRespCycle = parent->access(pfReq);
-            e.valid[prefetchPos] = true;
-            e.times[prefetchPos].fill(reqCycle, pfRespCycle);
-            profPrefetches.inc();
-            profDoublePrefetches.inc();
-          }
+
+//          if (shortPrefetch && fetchDepth < 8 && prefetchPos + stride < 64 &&
+//              !e.valid[prefetchPos + stride]) {
+//            prefetchPos += stride;
+//            pfReq.lineAddr += stride;
+//            info ("doing pf2");
+//            pfRespCycle = parent->access(pfReq);
+//            e.valid[prefetchPos] = true;
+//            e.times[prefetchPos].fill(reqCycle, pfRespCycle);
+//            profPrefetches.inc();
+//            profDoublePrefetches.inc();
+//          }
           e.lastPrefetchPos = prefetchPos;
           assert(state ==
                  I);  // prefetch access should not give us any permissions
@@ -214,6 +243,83 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
   }
 
   req.childId = origChildId;
+
+  // ----- trace for the prefetch access ----
+  // ----- needs to be attached to the access trace as a second branch ----
+
+  if(evRec->hasRecord() ){
+
+      if ((tr.startEvent != nullptr)) {
+
+        assert_msg(tr.startEvent != nullptr,"The start event is not true");
+        TimingRecord acc = evRec->popRecord();
+        assert_msg(acc.startEvent != nullptr,"The start event is not true");
+        assert(tr.reqCycle >= reqCycle);
+        assert(acc.reqCycle >= reqCycle);
+        DelayEvent* startEv = new (evRec) DelayEvent(0);
+        DelayEvent* dWbEv = new (evRec) DelayEvent(tr.reqCycle - reqCycle);
+        DelayEvent* dAccEv = new (evRec) DelayEvent(acc.reqCycle - reqCycle);
+        startEv->setMinStartCycle(reqCycle);
+        dWbEv->setMinStartCycle(reqCycle);
+        dAccEv->setMinStartCycle(reqCycle);
+
+
+        assert_msg (dWbEv!= nullptr,"the msg is not valid");
+        assert_msg (dAccEv!= nullptr,"the msg is not valid");
+        assert_msg (tr.startEvent != nullptr, "null ptr start event");
+
+
+        TimingEvent * x = startEv->addChild(dWbEv, evRec);
+        //info ("The state is %d", (tr.startEvent)->state);
+        //info ("added first child");
+        assert(x);
+        TimingEvent * y = tr.startEvent;
+        assert_msg (y != nullptr, "y is a null ptr");
+        assert_msg (y != NULL, "y is a NULL");
+        assert_msg ((long)y != 0, "y is 0");
+        assert (y != nullptr);
+        assert (y != NULL);
+        assert ((long)y != 0);  //asserts don't work here
+        //info ("Printing y = %d", (long)y);
+
+        x->addChild(y, evRec);
+        startEv->addChild(dAccEv, evRec)->addChild(acc.startEvent, evRec);
+
+        acc.reqCycle = reqCycle;
+        acc.startEvent = startEv;
+
+        // endEvent / endCycle stay the same; wbAcc's endEvent not connected
+
+        //info ("returning stitched prefetch record");
+        evRec->pushRecord(acc);
+
+
+        //info ("req cycle is %d", acc.reqCycle);
+        //info ("resp cycle is %d", acc.respCycle);
+        //
+        //return acc.respCycle;
+        return respCycle;
+      }
+  }else {
+
+        assert (!evRec->hasRecord());
+        //info ("returning non-stitched prefetch record");
+
+        if (tr.isValid()){
+            evRec->pushRecord(tr);
+        }
+
+        //info ("req cycle is %d", tr.reqCycle);
+        //info ("resp cycle is %d", tr.respCycle);
+        //info ("pushed record");
+        //
+
+        //return tr.respCycle;
+        return respCycle;
+  }
+
+  //info ("respcycle without record is %d", respCycle);
+
   return respCycle;
 }
 

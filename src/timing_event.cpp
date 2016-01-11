@@ -58,7 +58,7 @@ void TimingEvent::requeue(uint64_t nextCycle) {
 void TimingEvent::produceCrossings(EventRecorder* evRec) {
     assert(domain != -1);
     //assert(dynamic_cast<CrossingEvent*>(this) == nullptr); //careful, expensive...
-    auto pcLambda = [this, evRec](TimingEvent** childPtr) {
+    auto pcLambda = [this, evRec](TimingEvent** childPtr){
         TimingEvent* c = *childPtr;
         if (c->domain != domain) *childPtr = handleCrossing(c, evRec, true);
         c->produceCrossings(evRec);

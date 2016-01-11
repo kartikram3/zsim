@@ -80,7 +80,7 @@ class EventRecorder : public GlobAlloc {
 
         //Event recording interface
         void pushRecord(const TimingRecord& rec) {
-          //assert(!tr.isValid());
+          assert(!tr.isValid());
           if(!tr.isValid())
               tr = rec;
             assert(tr.isValid());
