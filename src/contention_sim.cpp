@@ -368,17 +368,24 @@ void ContentionSim::simulatePhaseThread(uint32_t thid) {
     domain.profTime.start();
     PrioQueue<TimingEvent, PQ_BLOCKS>& pq = domain.pq;
     while (pq.size() && pq.firstCycle() < limit) {
+
       uint64_t domCycle = domain.curCycle;
       uint64_t cycle;
+
       TimingEvent* te = pq.dequeue(cycle);
+      //info ("The cycle is %d", (int)cycle);
+
       assert(cycle >= domCycle);
       if (cycle != domCycle) {
         domCycle = cycle;
         domain.curCycle = cycle;
       }
+
       te->run(cycle);
+
       uint64_t newCycle = pq.size() ? pq.firstCycle() : limit;
       assert(newCycle >= domCycle);
+
       if (newCycle != domCycle) domain.curCycle = newCycle;
 #if POST_MORTEM
       simThreads[thid].logVec.push_back(std::make_pair(cycle, te));

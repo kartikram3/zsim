@@ -1,8 +1,8 @@
 build/opt/init.os: build/opt/init.cpp build/opt/init.h build/opt/cache.h \
  build/opt/cache_arrays.h build/opt/memory_hierarchy.h \
- build/opt/g_std/g_vector.h src/g_std/stl_galloc.h src/galloc.h \
- build/opt/galloc.h build/opt/locks.h build/opt/log.h build/opt/stats.h \
- build/opt/coherence_ctrls.h build/opt/constants.h \
+ build/opt/g_std/g_vector.h build/opt/g_std/stl_galloc.h \
+ build/opt/galloc.h build/opt/galloc.h build/opt/locks.h build/opt/log.h \
+ build/opt/stats.h build/opt/coherence_ctrls.h build/opt/constants.h \
  build/opt/g_std/g_string.h \
  /home/kartik/zsim_kartik/src/g_std/stl_galloc.h build/opt/g_std/g_list.h \
  build/opt/pad.h build/opt/repl_policies.h build/opt/bithacks.h \
@@ -154,5 +154,5 @@ build/opt/init.os: build/opt/init.cpp build/opt/init.h build/opt/cache.h \
  build/opt/exclusive_coherence_ctrls.h build/opt/timing_core.h \
  build/opt/core_recorder.h build/opt/trace_driver.h \
  build/opt/access_tracing.hpp build/opt/tracing_cache.h \
- build/opt/virt/port_virtualizer.h src/g_std/g_unordered_map.h \
- src/locks.h build/opt/weave_md1_mem.h
+ build/opt/virt/port_virtualizer.h build/opt/g_std/g_unordered_map.h \
+ build/opt/locks.h build/opt/weave_md1_mem.h

@@ -1,12 +1,12 @@
 build/opt/contention_sim.os: build/opt/contention_sim.cpp \
  build/opt/contention_sim.h build/opt/bithacks.h \
  build/opt/event_recorder.h build/opt/g_std/g_vector.h \
- src/g_std/stl_galloc.h src/galloc.h build/opt/memory_hierarchy.h \
- build/opt/galloc.h build/opt/locks.h build/opt/log.h build/opt/pad.h \
- build/opt/slab_alloc.h build/opt/mutex.h build/opt/g_std/stl_galloc.h \
- build/opt/prio_queue.h build/opt/g_std/g_multimap.h \
- build/opt/profile_stats.h build/opt/stats.h build/opt/ooo_core.h \
- build/opt/core.h build/opt/decoder.h \
+ build/opt/g_std/stl_galloc.h build/opt/galloc.h \
+ build/opt/memory_hierarchy.h build/opt/galloc.h build/opt/locks.h \
+ build/opt/log.h build/opt/pad.h build/opt/slab_alloc.h build/opt/mutex.h \
+ build/opt/g_std/stl_galloc.h build/opt/prio_queue.h \
+ build/opt/g_std/g_multimap.h build/opt/profile_stats.h build/opt/stats.h \
+ build/opt/ooo_core.h build/opt/core.h build/opt/decoder.h \
  /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/include/pin/pin.H \
  /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/include/pin/compiler_version_check2.H \
  /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/include/pin/gen/cc_used_ia32e_l.CVH \

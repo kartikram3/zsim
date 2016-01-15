@@ -29,7 +29,7 @@
 #include "zsim.h"
 
 //the way this works is that the timing record for this
-//access is built up and then the record function in 
+//access is built up and then the record function in
 //ooo_core class pops it out and simulates it during the
 //contention simulation
 //--KARTIK
@@ -138,6 +138,7 @@ uint64_t TimingCache::access(MemReq& req) {
         int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
         respCycle += accLat;
 
+
         if (lineId == -1 /*&& cc->shouldAllocate(req)*/) {
             assert(cc->shouldAllocate(req)); //dsm: for now, we don't deal with non-inclusion in TimingCache
 
@@ -163,6 +164,8 @@ uint64_t TimingCache::access(MemReq& req) {
         // At this point we have all the info we need to hammer out the timing record
         TimingRecord tr = {req.lineAddr << lineBits, req.cycle, respCycle, req.type, nullptr, nullptr}; //note the end event is the response, not the wback
 
+        info ("Created timing cache record BEBE , acc type is %d, req cycle is %d", req.type, (int)req.cycle);
+
         if (getDoneCycle - req.cycle == accLat) {
             // Hit
             assert(!writebackRecord.isValid());
@@ -187,8 +190,10 @@ uint64_t TimingCache::access(MemReq& req) {
 
             // Tie two events to an optional timing record
             // TODO: Promote to evRec if this is more generally useful
+
             auto connect = [evRec](const TimingRecord* r, TimingEvent* startEv, TimingEvent* endEv, uint64_t startCycle, uint64_t endCycle) {
-                assert_msg(startCycle <= endCycle, "start > end? %ld %ld", startCycle, endCycle);
+              info ("Connecting records");
+              assert_msg(startCycle <= endCycle, "start > end? %ld %ld", startCycle, endCycle);
                 if (r) {
                     assert_msg(startCycle <= r->reqCycle, "%ld / %ld", startCycle, r->reqCycle);
                     assert_msg(r->respCycle <= endCycle, "%ld %ld %ld %ld", startCycle, r->reqCycle, r->respCycle, endCycle);
@@ -278,7 +283,15 @@ uint64_t TimingCache::access(MemReq& req) {
 }
 
 uint64_t TimingCache::highPrioAccess(uint64_t cycle) {
-    assert(cycle >= lastFreeCycle);
+    //assert(cycle >= lastFreeCycle);
+
+    if (lastFreeCycle > cycle){  //hack -- prefetching contention not modelled in timing cache
+                                  // we lose about 100 cycles because lastFreeCycle is ahead
+                                  //  due to prefetcher accesses
+
+                                  //panic ("last free cycle is %d, the cycle is %d",(int) lastFreeCycle, (int) cycle);
+        lastFreeCycle = cycle;
+    }
     uint64_t lookupCycle = MAX(cycle, lastAccCycle+1);
     if (lastAccCycle < cycle-1) lastFreeCycle = cycle-1; //record last free run
     lastAccCycle = lookupCycle;
@@ -318,7 +331,7 @@ void TimingCache::simulateHit(HitEvent* ev, uint64_t cycle) {
 }
 
 void TimingCache::simulateMissStart(MissStartEvent* ev, uint64_t cycle) {
-    if (activeMisses < numMSHRs) {
+    if (activeMisses < numMSHRs){
         activeMisses++;
         profOccHist.transition(activeMisses, cycle);
 

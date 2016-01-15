@@ -378,6 +378,8 @@ class MESICC : public CC {
                 //respCycle = startCycle;
             } else {
                 //Prefetches are side requests and get handled a bit differently
+                //if (req.flags == 160)
+                //info ("DONT RECORD ACCESS"); 
                 bool isPrefetch = req.flags & MemReq::PREFETCH;
                 assert(!isPrefetch || req.type == GETS);
                 uint32_t flags = req.flags & ~MemReq::PREFETCH; //always clear PREFETCH, this flag cannot propagate up

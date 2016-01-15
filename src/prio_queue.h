@@ -49,6 +49,9 @@ class PrioQueue {
             assert(res);
             offset = pos;
             res->next = nullptr;
+      
+            //info ("The offset is %d", offset);
+
             return res;
         }
 

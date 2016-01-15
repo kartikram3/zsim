@@ -245,14 +245,14 @@ void OOOCoreRecorder::recordAccess(uint64_t curCycle, uint64_t dispatchCycle, ui
         lastEvProduced->addChild(dDisp, eventRecorder)->addChild(dispEv, eventRecorder)->addChild(dUp, eventRecorder)->addChild(tr.startEvent, eventRecorder);
 
         //Link response
-        //assert(respCycle >= tr.respCycle); // commented out by Kartik
+        assert(respCycle >= tr.respCycle); // commented out by Kartik
         
-        if (respCycle < tr.respCycle){
+        //if (respCycle < tr.respCycle){
              //info ("respcycle is %d due to prefetch",  tr.respCycle);
              //info ("Loss is cycles is %d", tr.respCycle - respCycle);
              //respCycle = tr.respCycle;
-             tr.respCycle = respCycle;
-        }
+             //tr.respCycle = respCycle;
+        //}
         
         uint32_t downDelay = respCycle - tr.respCycle;
         uint64_t zllStartCycle = respCycle - gapCycles;
@@ -273,6 +273,7 @@ void OOOCoreRecorder::recordAccess(uint64_t curCycle, uint64_t dispatchCycle, ui
         lastEvProduced->addChild(putUp, eventRecorder)->addChild(tr.startEvent, eventRecorder);
 
         //PUT's endEvent not linked to anything, it's a wback in some cache above and we should not capture it
+        
     }
 
     // For multi-domain

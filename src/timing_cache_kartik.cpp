@@ -23,10 +23,10 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "timing_cache_kartik.h"
 #include "event_recorder.h"
 #include "timing_event.h"
 #include "zsim.h"
+#include "timing_cache_kartik.h"
 
 //the way this works is that the timing record for this
 //access is built up and then the record function in
@@ -122,6 +122,8 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
     //inclusion cache.
     //depending upon the answer, there will be difference in the
     //access path
+     //if (req.flags == 128)
+    //info ("FOUND A PURE PREFETCH! ");
 
     EventRecorder* evRec = zinfo->eventRecorders[req.srcId];
     assert_msg(evRec, "TimingCacheKartik is not connected to TimingCore");
@@ -138,6 +140,7 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
         int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
         respCycle += accLat;
 
+
         if (lineId == -1 /*&& cc->shouldAllocate(req)*/) {
             assert(cc->shouldAllocate(req)); //dsm: for now, we don't deal with non-inclusion in TimingCacheKartik
 
@@ -148,47 +151,25 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
 
             //Evictions are not in the critical path in any sane implementation -- we do not include their delays
             //NOTE: We might be "evicting" an invalid line for all we know. Coherence controllers will know what to do
-            
-            
-            if (evRec->hasRecord()){ //hack to kill extra records
-              evRec->popRecord();
-              evRec->crossingStack.clear();
-            }
-//
             evDoneCycle = cc->processEviction(req, wbLineAddr, lineId, respCycle); //if needed, send invalidates/downgrades to lower level, and wb to upper level
 
             array->postinsert(req.lineAddr, &req, lineId); //do the actual insertion. NOTE: Now we must split insert into a 2-phase thing because cc unlocks us.
 
-            if (evRec->hasRecord()) {
-
-              //writebackRecord = evRec->popRecord();
-              evRec->popRecord();
-              info("writeback record detected !");
-
-            }
+            if (evRec->hasRecord()) writebackRecord = evRec->popRecord();
         }
 
-        if (evRec->hasRecord()){ //hack to kill extra records
-          evRec->popRecord();
-          evRec->crossingStack.clear();
-        }
-//       
         uint64_t getDoneCycle = respCycle;
         respCycle = cc->processAccess(req, lineId, respCycle, &getDoneCycle);
 
-        if (evRec->hasRecord()){
-          accessRecord = evRec->popRecord();
-          info("The access type is %d", req.type);
-        }
+        if (evRec->hasRecord()) accessRecord = evRec->popRecord();
 
         // At this point we have all the info we need to hammer out the timing record
         TimingRecord tr = {req.lineAddr << lineBits, req.cycle, respCycle, req.type, nullptr, nullptr}; //note the end event is the response, not the wback
 
+        //info ("Created timing cache record , acc type is %d, req cycle is %d", req.type, (int)req.cycle);
+
         if (getDoneCycle - req.cycle == accLat) {
-            // Hit
-            info("acc latency is %d", accLat);
-            info("getdonecycle is %d", (int)getDoneCycle);
-            info("respCycle is is %d", (int)respCycle);
+            // Hit  -- in inclusive PUTS, PUTX are always hits, however, GETS, GETX can also be hits
             assert(!writebackRecord.isValid());
             assert(!accessRecord.isValid());
             uint64_t hitLat = respCycle - req.cycle; // accLat + invLat
@@ -197,7 +178,11 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
             tr.startEvent = tr.endEvent = ev;
         } else {
             assert_msg(getDoneCycle == respCycle, "gdc %ld rc %ld", getDoneCycle, respCycle);
+            assert (!evRec->hasRecord());
+            //assert(!writebackRecord.isValid());
+            //assert(!accessRecord.isValid());
 
+            //info ("Adding  miss start event at cycle %d, with type %d",  (int)req.cycle, (int)req.type);
             // Miss events:
             // MissStart (does high-prio lookup) -> getEvent || evictionEvent || replEvent (if needed) -> MissWriteback
 
@@ -211,8 +196,10 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
 
             // Tie two events to an optional timing record
             // TODO: Promote to evRec if this is more generally useful
+
             auto connect = [evRec](const TimingRecord* r, TimingEvent* startEv, TimingEvent* endEv, uint64_t startCycle, uint64_t endCycle) {
-                assert_msg(startCycle <= endCycle, "start > end? %ld %ld", startCycle, endCycle);
+              //info ("Connecting records");
+              assert_msg(startCycle <= endCycle, "start > end? %ld %ld", startCycle, endCycle);
                 if (r) {
                     assert_msg(startCycle <= r->reqCycle, "%ld / %ld", startCycle, r->reqCycle);
                     assert_msg(r->respCycle <= endCycle, "%ld %ld %ld %ld", startCycle, r->reqCycle, r->respCycle, endCycle);
@@ -227,7 +214,7 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
                         startEv->addChild(r->startEvent, evRec);
                     }
 
-                    if (downLat){
+                    if (downLat) {
                         DelayEvent* dDown = new (evRec) DelayEvent(downLat);
                         dDown->setMinStartCycle(r->respCycle);
                         r->endEvent->addChild(dDown, evRec)->addChild(endEv, evRec);
@@ -242,8 +229,8 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
                         dEv->setMinStartCycle(startCycle);
                         startEv->addChild(dEv, evRec)->addChild(endEv, evRec);
                     }
-                }
-            };
+}
+};
 
             // Get path
             connect(accessRecord.isValid()? &accessRecord : nullptr, mse, mre, req.cycle + accLat, getDoneCycle);
@@ -290,6 +277,7 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
 
             tr.startEvent = mse;
             tr.endEvent = mre; // note the end event is the response, not the wback
+            //tr.endEvent = mse;
         }
         evRec->pushRecord(tr);
     }
@@ -302,7 +290,17 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
 }
 
 uint64_t TimingCacheKartik::highPrioAccess(uint64_t cycle) {
-    assert(cycle >= lastFreeCycle);
+  assert(cycle >= lastFreeCycle);
+
+//    if (lastFreeCycle > cycle){  //hack -- prefetching contention not modelled in timing cache
+//                                  //The prefetcher updates lastFreeCycle during the same cycle
+//                                  //We decrease lastFreeCycle, so the contention model is optimistic
+//
+//
+//                                  //panic ("last free cycle is %d, the cycle is %d",(int) lastFreeCycle, (int) cycle);
+//        panic ("MODIFYING LFC from %d to %d",(int)cycle , (int)lastFreeCycle);
+//        lastFreeCycle = cycle;
+//    }
     uint64_t lookupCycle = MAX(cycle, lastAccCycle+1);
     if (lastAccCycle < cycle-1) lastFreeCycle = cycle-1; //record last free run
     lastAccCycle = lookupCycle;
@@ -333,20 +331,20 @@ void TimingCacheKartik::simulateHit(HitEvent* ev, uint64_t cycle) {
     if (activeMisses < numMSHRs) {
         uint64_t lookupCycle = highPrioAccess(cycle);
         profHitLat.inc(lookupCycle-cycle);
-        ev->done(lookupCycle);  // postDelay includes accLat + invalLat
+        ev->done(lookupCycle);  //postDelay includes accLat + invalLat
     } else {
-        // queue
+        //queue
         ev->hold();
         pendingQueue.push_back(ev);
     }
 }
 
 void TimingCacheKartik::simulateMissStart(MissStartEvent* ev, uint64_t cycle) {
-    if (activeMisses < numMSHRs) {
+    if (activeMisses < numMSHRs){
         activeMisses++;
         profOccHist.transition(activeMisses, cycle);
 
-        ev->startCycle = cycle;
+        ev->startCycle = cycle;  //used for profiling
         uint64_t lookupCycle = highPrioAccess(cycle);
         ev->done(lookupCycle);
     } else {
@@ -368,6 +366,7 @@ void TimingCacheKartik::simulateMissWriteback(MissWritebackEvent* ev, uint64_t c
         profMissLat.inc(cycle - mse->startCycle);
         activeMisses--;
         profOccHist.transition(activeMisses, lookupCycle);
+
         if (!pendingQueue.empty()) {
             //info("XXX %ld elems in pending queue", pendingQueue.size());
             for (TimingEvent* qev : pendingQueue) {
@@ -375,6 +374,7 @@ void TimingCacheKartik::simulateMissWriteback(MissWritebackEvent* ev, uint64_t c
             }
             pendingQueue.clear();
         }
+
         ev->done(cycle);
     } else {
         ev->requeue(cycle+1);

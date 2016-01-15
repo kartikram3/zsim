@@ -274,8 +274,9 @@ uint64_t DDRMemory::access(MemReq& req) {
                memEv->setMinStartCycle(req.cycle);
                TimingRecord tr = {req.lineAddr, req.cycle, respCycle, req.type, memEv, memEv};
                zinfo->eventRecorders[req.srcId]->pushRecord(tr);
-            }else{
 
+                }else{ //never happens for inclusive timing cache
+               info ("pushing record"); // does not happen for inclusive cache
 
                DDRMemoryAccEvent* memEv = new (zinfo->eventRecorders[req.srcId]) DDRMemoryAccEvent(this,
                        isWrite, req.lineAddr, domain, preDelay, isWrite? postDelayWr : postDelayRd);
@@ -302,7 +303,6 @@ uint64_t DDRMemory::access(MemReq& req) {
                 // endEvent / endCycle stay the same; wbAcc's endEvent not connected
 
                 evRec->pushRecord(acc);
-
 
             }
         }

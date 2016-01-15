@@ -56,7 +56,14 @@ class CycleBreakdownStat : public VectorCounter {
         void transition(uint32_t newState, uint64_t cycle) {
             assert(curState < size());
             assert(newState < size());
-            assert(lastCycle <= cycle);
+            assert_msg(lastCycle <= cycle, "Last cycle is %d, cycle is %d", (int)lastCycle, (int)cycle);
+            
+//            if (lastCycle > cycle){  //means there is a pure prefetch
+//                                     //does not affect the contention simulation
+//               //panic ("last cycle is %d, cycle is %d",(int) lastCycle, (int) cycle);
+//                  lastCycle = cycle;  //hack, as prefetcher contention is not modelled in timing cache
+//            }
+
             inc(curState, cycle - lastCycle);
             curState = newState;
             lastCycle = cycle;
