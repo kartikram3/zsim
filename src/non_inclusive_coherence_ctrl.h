@@ -359,6 +359,7 @@ class non_inclusive_MESICC : public CC{
         void unlock_bcc(){
             bcc->unlock();
         }
+
 //        void startSnoop(){
 //
 //

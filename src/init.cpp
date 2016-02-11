@@ -73,6 +73,7 @@
 #include "flexclusive_cache.h"
 #include "flexclusive_coherence_ctrls.h"
 #include "non_inclusive_cache.h"
+#include "non_inclusive_cache_timing.h"
 #include "non_inclusive_coherence_ctrl.h"
 #include "line_clusive_cache.h"
 #include "line_clusive_coherence_ctrl.h"
@@ -316,11 +317,13 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
     }
     rp->setCC(cc); */
 
+
     if (!isTerminal) {
         if (type == "Simple") {
             cc = new MESICC(numLines, nonInclusiveHack, name);
             rp->setCC(cc);
             cache = new Cache(numLines, cc, array, rp, accLat, invLat, name);
+            zinfo->cache_banks->push_back(cache);
         } else if (type == "Timing") {
             uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
             uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
@@ -330,6 +333,7 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             rp->setCC(cc);
 
             cache = new TimingCache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
+            zinfo->cache_banks->push_back(cache);
         }  else if (type == "TimingKartik") {
             uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
             uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
@@ -339,6 +343,7 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
             rp->setCC(cc);
 
             cache = new TimingCacheKartik(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
+            zinfo->cache_banks->push_back(cache);
         } 
         else if (type == "Tracing") {
 
@@ -399,7 +404,15 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
 
         } else if (type == "timing_non_inclusive"){
 
-            panic("Invalid cache type %s", type.c_str());
+            uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
+            uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
+            uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+
+            cc = new non_inclusive_MESICC(numLines, name);
+            rp->setCC(cc);
+            rp->setCacheArray(array);
+
+            cache = new non_inclusive_cache_timing(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
 
         } else if (type == "timing_exclusive" ) {
 
@@ -424,6 +437,7 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         cc = new MESITerminalCC(numLines, name);
         rp->setCC(cc);
         cache = new FilterCache(numSets, numLines, cc, array, rp, accLat, invLat, name);
+        zinfo->cache_banks->push_back(cache);
     }
 
 #if 0
@@ -904,7 +918,6 @@ static void InitSystem(Config& config) {
             }
         }
 
-
         //FIXME: For now, we assume we are driving a single-bank LLC
         string traceFile = config.get<const char*>("sim.traceFile");
         string retraceFile = config.get<const char*>("sim.retraceFile", ""); //leave empty to not retrace
@@ -915,6 +928,7 @@ static void InitSystem(Config& config) {
         zinfo->traceDriver->initStats(zinfo->rootStat);
     }
 
+    
     //Init stats: caches, mem
     for (const char* group : cacheGroupNames) {
         AggregateStat* groupStat = new AggregateStat(true);
@@ -951,9 +965,6 @@ static void PostInitStats(bool perProcessDir, Config& config) {
     pathStr += "/";
 
     // Absolute paths for stats files. Note these must be in the global heap.
-    const char* pStatsFile = gm_strdup((pathStr + "zsim.h5").c_str());
-    const char* evStatsFile = gm_strdup((pathStr + "zsim-ev.h5").c_str());
-    const char* cmpStatsFile = gm_strdup((pathStr + "zsim-cmp.h5").c_str());
     const char* sim_name = config.get<const char*>("sim.sim_name", "");
     //zinfo->sim_name_str = sim_name;
     zinfo->sim_name = gm_strdup(sim_name);
@@ -961,6 +972,12 @@ static void PostInitStats(bool perProcessDir, Config& config) {
     mkdir((pathStr+"results" + "/"+ss+"/").c_str(),0777);
     info ("Directory path is %s", (pathStr+"results" + "/"+ss+"/").c_str());
     const char* statsFile = gm_strdup((pathStr +"results" + "/"+ ss + "/" + ss + "_zsim.out").c_str());
+
+
+    const char* pStatsFile = gm_strdup((pathStr + "results" + "/"+ ss + "/" + "zsim.h5").c_str());
+    const char* evStatsFile = gm_strdup((pathStr + "results" + "/"+ ss + "/" + "zsim-ev.h5").c_str());
+    const char* cmpStatsFile = gm_strdup((pathStr + "results" + "/"+ ss + "/" + "zsim-cmp.h5").c_str());
+
 
     if (zinfo->statsPhaseInterval) {
         const char* periodicStatsFilter = config.get<const char*>("sim.periodicStatsFilter", "");
@@ -983,6 +1000,9 @@ static void PostInitStats(bool perProcessDir, Config& config) {
     } else {
         zinfo->periodicStatsBackend = nullptr;
     }
+
+    //panic ("The periodic stats are parsed, exiting simulation");
+
 
     zinfo->eventualStatsBackend = new HDF5Backend(evStatsFile, zinfo->rootStat, (1 << 17) /* 128KB chunks */, zinfo->skipStatsVectors, false /* don't sum regular aggregates*/);
     zinfo->eventualStatsBackend->dump(true); //must have a first sample
@@ -1026,6 +1046,9 @@ static void InitGlobalStats() {
 void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
     zinfo = gm_calloc<GlobSimInfo>();
     zinfo->outputDir = gm_strdup(outputDir);
+    zinfo->cache_banks = new g_vector<Cache *>();
+//    zinfo->phase_life_start = new g_unordered_map<uint64_t, uint64_t>(); 
+//    (*(zinfo->phase_life_start))[0] = 100; 
     zinfo->statsBackends = new g_vector<StatsBackend*>();
 
     Config config(configFile);
@@ -1192,9 +1215,18 @@ void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
 
     zinfo->contentionSim->postInit();
 
+
+    //Global counters for recording per cache line information
+    //zinfo->phase_life_start = new g_unordered_map<uint64_t, uint64_t>(); 
+//    zinfo->phase_life_end = new g_unordered_map<uint64_t, uint64_t>(); 
+//    zinfo->phase_hit_count = new g_unordered_map<uint64_t, uint64_t>(); 
+//
+//    zinfo->agg_life_start = new g_unordered_map<uint64_t, uint64_t>();
+//    zinfo->agg_life_end = new g_unordered_map<uint64_t, uint64_t>();
+//    zinfo->agg_hit_count = new g_unordered_map<uint64_t, uint64_t>();
+
+
     //Causes every other process to wake up
     gm_set_glob_ptr(zinfo);
 
-
 }
-

@@ -37,15 +37,23 @@ SetAssocArray::SetAssocArray(uint32_t _numLines, uint32_t _assoc,
   setMask = numSets - 1;
   assert_msg(isPow2(numSets),
              "must have a power of 2 # sets, but you specified %d", numSets);
+
+
 }
 
 int32_t SetAssocArray::lookup(const Address lineAddr, const MemReq* req,
                               bool updateReplacement) {
+
   uint32_t set = hf->hash(0, lineAddr) & setMask;
   uint32_t first = set * assoc;
   for (uint32_t id = first; id < first + assoc; id++) {
     if (array[id] == lineAddr) {
-      if (updateReplacement) rp->update(id, req);
+      if (updateReplacement){
+        //means it was a cache hit
+        rp->update(id, req);
+      }
+
+
       return id;
     }
   }

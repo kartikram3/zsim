@@ -113,6 +113,8 @@ class StreamPrefetcher : public BaseCache {
         uint64_t invalidate(const InvReq& req);
         void setasLLC(){} //we don't need to do anything
                           //as prefetcher will never be LLC
+        
+        virtual void dumpLifetimeStats(){ };
         virtual uint64_t snoop() { return 0;  };
         virtual uint64_t lookup(const Address lineAddr) { return 0;}
 };

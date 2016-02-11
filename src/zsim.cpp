@@ -527,6 +527,23 @@ VOID EndOfPhaseActions() {
 
     CheckForTermination();
     zinfo->contentionSim->simulatePhase(zinfo->globPhaseCycles + zinfo->phaseLength);
+   
+    if (zinfo->numPhases % zinfo->statsPhaseInterval == 0){ //every dump clear the metadata
+     
+      for ( Cache * x : *(zinfo->cache_banks)){  // remove per phase stats ... make sure terminal cache is covered
+          (x->phase_lifetimes).clear();
+          (x->phase_hit_counter).clear();
+        }
+
+    }
+
+    if (zinfo->terminationConditionMet){
+      for ( Cache * x : *(zinfo->cache_banks)){  // remove per phase stats ... make sure terminal cache is covered
+            //update lifetime of lines which were never evicted
+            x->dumpLifetimeStats();
+      }
+    }
+
     zinfo->eventQueue->tick();
     zinfo->profSimTime->transition(PROF_BOUND);
 }

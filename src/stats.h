@@ -112,11 +112,11 @@ class Stat : public GlobAlloc {
 
 class AggregateStat : public Stat {
     private:
-        g_vector<Stat*> _children;
         bool _isMutable;
         bool _isRegular;
 
     public:
+        g_vector<Stat*> _children;
         /* An aggregate stat is regular if all its children are 1) aggregate and 2) of the same type (e.g. all the threads).
          * This lets us express all the subtypes of instances of a common datatype, and this collection as an array. It is
          * useful with HDF5, where we would otherwise be forced to have huge compund datatypes, which HDF5 can't do after some
@@ -273,10 +273,22 @@ class VectorCounter : public VectorStat {
         }
 
         inline void inc(uint32_t idx, uint64_t value) {
+             if (idx >= _counters.size()){
+//                    int size = _counters.size();
+//                    _counters.resize(2*size);
+//                    info ("resized the vector counter to %d from original size %d",(int) _counters.size(), (int)size);
+                      info ("Went beyond max vector counter size");
+             }
             _counters[idx] += value;
         }
 
         inline void inc(uint32_t idx) {
+          if (idx >= _counters.size()){
+//                    int size = _counters.size();
+//                    _counters.resize(2*size);
+//                    info ("resized the vector counter to %d from original size %d",(int) _counters.size(), (int)size);
+            info ("Went beyond max vector counter size in in inc(int) of vector counter, %d", idx);
+          }
              _counters[idx]++;
         }
 
@@ -295,7 +307,17 @@ class VectorCounter : public VectorStat {
         inline uint32_t size() const {
             return _counters.size();
         }
+
+        inline void clear(){
+            for (int i=0; i<_counters.size(); i++){
+               _counters[i] = 0; 
+            }
+        }
 };
+
+
+
+
 
 /*
 class Histogram : public Stat {

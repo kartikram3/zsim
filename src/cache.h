@@ -1,5 +1,5 @@
 /** $lic$
- * Copyright (C) 2012-2015 by Massachusetts Institute of Technology
+ info* Copyright (C) 2012-2015 by Massachusetts Institute of Technology
  * Copyright (C) 2010-2013 by The Board of Trustees of Stanford University
  *
  * This file is part of zsim.
@@ -33,6 +33,9 @@
 #include "memory_hierarchy.h"
 #include "repl_policies.h"
 #include "stats.h"
+#include "g_std/g_unordered_map.h"
+#include "zsim.h"
+#include "contention_sim.h"
 
 class Network;
 
@@ -59,7 +62,24 @@ class Cache : public BaseCache {
         bool llc=false; //sets the cache as llc
 
 
+
     public:
+
+
+        g_unordered_map<uint64_t, uint64_t> phase_life_start;
+        g_unordered_map<uint64_t, uint64_t> phase_hits;
+
+
+        g_unordered_map<uint64_t, uint64_t> agg_life_start;
+        g_unordered_map<uint64_t, uint64_t> agg_hits;
+
+        VectorCounter phase_lifetimes;
+        VectorCounter phase_hit_counter;
+        VectorCounter agg_lifetimes;
+        VectorCounter agg_hit_counter;
+        Counter hotInv;
+        Counter prefetchPollution;
+
         Cache(uint32_t _numLines, CC* _cc, CacheArray* _array, ReplPolicy* _rp, uint32_t _accLat, uint32_t _invLat, const g_string& _name);
 
         const char* getName();
@@ -71,6 +91,7 @@ class Cache : public BaseCache {
         virtual void setasLLC();
         void setLLCflag();
 
+
         //NOTE: reqWriteback is pulled up to true, but not pulled down to false.
         virtual uint64_t invalidate(const InvReq& req) {
             startInvalidate();
@@ -78,6 +99,8 @@ class Cache : public BaseCache {
         }
 
         //virtual uint64_t snoop(SnoopReq &req, uint64_t respCycle);
+
+        void dumpLifetimeStats();
 
         enum cache_type { INCLUSIVE, NON_INCLUSIVE, EXCLUSIVE, FLEXCLUSIVE, LINE_BASED_CLUSION };
 
@@ -96,6 +119,5 @@ class Cache : public BaseCache {
                                                                  //which is valid
             else return -1;
          } ; //check the value in the cache
-
 };
 #endif  // CACHE_H_

@@ -277,8 +277,6 @@ class Barrier : public GlobAlloc {
             checkRunList(tid); //if we started a new phase, wake up threads
         }
 
-
-
 };
 
 #endif  // BARRIER_H_

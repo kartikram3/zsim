@@ -100,6 +100,7 @@ class TraceDriverProxyCache : public BaseCache {
             return drv->invalidate(id, req.lineAddr, req.type, req.writeback, req.cycle, req.srcId);
         }
         void setasLLC(){} //do nothing if this is LLC
+        virtual void dumpLifetimeStats(){ };
 
         virtual uint64_t  snoop(){ return 0;} ;
         virtual uint64_t lookup(const Address lineAddr){ return 0;};

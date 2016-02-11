@@ -139,14 +139,25 @@ uint64_t TimingCache::access(MemReq& req) {
         respCycle += accLat;
 
 
+
+        if (lineId != -1 && (req.type == GETS || req.type == GETX)){ //means it is a hit
+             //phase_life_start[lineId] = req.cycle;
+             //agg_life_start[lineId] = req.cycle;
+             phase_hits[lineId]++;
+             agg_hits[lineId]++;
+        }
+
+
+
+
         if (lineId == -1 /*&& cc->shouldAllocate(req)*/) {
             assert(cc->shouldAllocate(req)); //dsm: for now, we don't deal with non-inclusion in TimingCache
 
             //Make space for new line
             Address wbLineAddr;
             lineId = array->preinsert(req.lineAddr, &req, &wbLineAddr); //find the lineId to replace
-            trace(Cache, "[%s] Evicting 0x%lx", name.c_str(), wbLineAddr);
 
+            trace(Cache, "[%s] Evicting 0x%lx", name.c_str(), wbLineAddr);
             //Evictions are not in the critical path in any sane implementation -- we do not include their delays
             //NOTE: We might be "evicting" an invalid line for all we know. Coherence controllers will know what to do
             evDoneCycle = cc->processEviction(req, wbLineAddr, lineId, respCycle); //if needed, send invalidates/downgrades to lower level, and wb to upper level
@@ -154,6 +165,40 @@ uint64_t TimingCache::access(MemReq& req) {
             array->postinsert(req.lineAddr, &req, lineId); //do the actual insertion. NOTE: Now we must split insert into a 2-phase thing because cc unlocks us.
 
             if (evRec->hasRecord()) writebackRecord = evRec->popRecord();
+
+
+            uint64_t lifetime =  (float) ( respCycle - phase_life_start[lineId] ) * 100.00 / (float)(zinfo->phaseLength * zinfo->statsPhaseInterval) ; //histogram partition on cycles per dump
+            //assert_msg (lifetime < 100, "lifetimes was more than 100");
+
+            if (lifetime > 99){  //lump greater than dump length lifetimes in the same category
+                lifetime = 99;
+            }
+
+            phase_lifetimes.inc(lifetime); // approximate histogram of lifetimes of lines in a phase
+            agg_lifetimes.inc(lifetime); // approximate histogram of lifetimes of lines in a phase
+
+
+            if (req.flags & MemReq::DONT_RECORD){ //means was evicted due to prefetch
+                if (agg_hits[lineId] > 10) {  //means the line was hot
+                   prefetchPollution.inc();
+                }
+            }
+
+
+            phase_life_start[lineId] = respCycle;
+            agg_life_start[lineId] = respCycle;
+
+
+
+            int hits = phase_hits[lineId] ;
+            if (hits > 99) hits = 99;
+
+            agg_hit_counter.inc(hits);
+            phase_hit_counter.inc(hits);
+
+            agg_hits[lineId] = 0;
+            phase_hits[lineId] = 0;
+
         }
 
         uint64_t getDoneCycle = respCycle;
@@ -164,13 +209,13 @@ uint64_t TimingCache::access(MemReq& req) {
         // At this point we have all the info we need to hammer out the timing record
         TimingRecord tr = {req.lineAddr << lineBits, req.cycle, respCycle, req.type, nullptr, nullptr}; //note the end event is the response, not the wback
 
-        info ("Created timing cache record BEBE , acc type is %d, req cycle is %d", req.type, (int)req.cycle);
+        //info ("Created timing cache record BEBE , acc type is %d, req cycle is %d", req.type, (int)req.cycle);
 
         if (getDoneCycle - req.cycle == accLat) {
             // Hit
             assert(!writebackRecord.isValid());
             assert(!accessRecord.isValid());
-            uint64_t hitLat = respCycle - req.cycle; // accLat + invLat
+           uint64_t hitLat = respCycle - req.cycle; // accLat + invLat
             HitEvent* ev = new (evRec) HitEvent(this, hitLat, domain);
             ev->setMinStartCycle(req.cycle);
             tr.startEvent = tr.endEvent = ev;
@@ -192,7 +237,7 @@ uint64_t TimingCache::access(MemReq& req) {
             // TODO: Promote to evRec if this is more generally useful
 
             auto connect = [evRec](const TimingRecord* r, TimingEvent* startEv, TimingEvent* endEv, uint64_t startCycle, uint64_t endCycle) {
-              info ("Connecting records");
+              //info ("Connecting records");
               assert_msg(startCycle <= endCycle, "start > end? %ld %ld", startCycle, endCycle);
                 if (r) {
                     assert_msg(startCycle <= r->reqCycle, "%ld / %ld", startCycle, r->reqCycle);

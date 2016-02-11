@@ -141,6 +141,15 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
         respCycle += accLat;
 
 
+        if (lineId != -1 && (req.type == GETS || req.type == GETX)){ //means it is a hit
+             //phase_life_start[lineId] = req.cycle;
+             //agg_life_start[lineId] = req.cycle;
+             phase_hits[lineId]++;
+             agg_hits[lineId]++;
+        }
+
+
+
         if (lineId == -1 /*&& cc->shouldAllocate(req)*/) {
             assert(cc->shouldAllocate(req)); //dsm: for now, we don't deal with non-inclusion in TimingCacheKartik
 
@@ -156,6 +165,39 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
             array->postinsert(req.lineAddr, &req, lineId); //do the actual insertion. NOTE: Now we must split insert into a 2-phase thing because cc unlocks us.
 
             if (evRec->hasRecord()) writebackRecord = evRec->popRecord();
+
+
+
+
+            uint64_t lifetime =  (float) ( respCycle - phase_life_start[lineId] ) * 100.00 / (float)(zinfo->phaseLength * zinfo->statsPhaseInterval) ; //histogram partition on cycles per dump
+            //assert_msg (lifetime < 100, "lifetimes was more than 100");
+
+            if (lifetime > 99){  //lump greater than dump length lifetimes in the same category
+                lifetime = 99;
+            }
+
+            phase_lifetimes.inc(lifetime); // approximate histogram of lifetimes of lines in a phase
+            agg_lifetimes.inc(lifetime); // approximate histogram of lifetimes of lines in a phase
+
+
+            if (req.flags & MemReq::DONT_RECORD){ //means was evicted due to prefetch
+                if (agg_hits[lineId] > 10) {  //means the line was hot
+                   prefetchPollution.inc();
+                }
+            }
+
+            phase_life_start[lineId] = respCycle;
+            agg_life_start[lineId] = respCycle;
+
+            int hits = phase_hits[lineId] ;
+            if (hits > 99) hits = 99;
+
+            agg_hit_counter.inc(hits);
+            phase_hit_counter.inc(hits);
+
+            agg_hits[lineId] = 0;
+            phase_hits[lineId] = 0;
+
         }
 
         uint64_t getDoneCycle = respCycle;
@@ -177,6 +219,7 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
             ev->setMinStartCycle(req.cycle);
             tr.startEvent = tr.endEvent = ev;
         } else {
+            info ("Here");
             assert_msg(getDoneCycle == respCycle, "gdc %ld rc %ld", getDoneCycle, respCycle);
             assert (!evRec->hasRecord());
             //assert(!writebackRecord.isValid());

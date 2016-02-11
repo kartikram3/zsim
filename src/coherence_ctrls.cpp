@@ -26,6 +26,7 @@
 #include "coherence_ctrls.h"
 #include "cache.h"
 #include "network.h"
+#include "zsim.h"
 
 /* Do a simple XOR block hash on address to determine its bank. Hacky for now,
  * should probably have a class that deals with this with a real hash function
@@ -110,7 +111,8 @@ uint64_t MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId, AccessTy
                 profGETNetLat.inc(netLat);
                 respCycle += nextLevelLat + netLat;
                 profGETSMiss.inc();
-                assert(*state == S || *state == E);
+                //assert_msg(*state == S || *state == E, "Final state is %d", *state);
+                //can't assert this if prefetches. Prefetches could invalidate the data
             } else {
                 profGETSHit.inc();
             }
@@ -199,12 +201,14 @@ void MESIBottomCC::processInval(Address lineAddr, uint32_t lineId, InvType type,
             if (*state == M) *reqWriteback = true;
             if (*state != I ) *state = S;
             profINVX.inc();
+            //profPhaseINVX.inc(zinfo->curPhaseProfile); 
             break;
         case INV: //invalidate
             //assert(*state != I);
             if (*state == M) *reqWriteback = true;
             *state = I;
             profINV.inc();
+            //profPhaseINVX.inc(zinfo->curPhaseProfile); 
             break;
         case FWD: //forward
             assert_msg(*state == S, "Invalid state %s on FWD", MESIStateName(*state));
@@ -360,6 +364,7 @@ uint64_t MESITopCC::processAccess(Address lineAddr, uint32_t lineId, AccessType 
     }
 
     return respCycle;
+
 }
 
 uint64_t MESITopCC::processInval(Address lineAddr, uint32_t lineId, InvType type, bool* reqWriteback, uint64_t cycle, uint32_t srcId) {
@@ -371,5 +376,4 @@ uint64_t MESITopCC::processInval(Address lineAddr, uint32_t lineId, InvType type
         return sendInvalidates(lineAddr, lineId, type, reqWriteback, cycle, srcId);
     }
 }
-
 

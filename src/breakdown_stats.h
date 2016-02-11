@@ -57,7 +57,8 @@ class CycleBreakdownStat : public VectorCounter {
             assert(curState < size());
             assert(newState < size());
             assert_msg(lastCycle <= cycle, "Last cycle is %d, cycle is %d", (int)lastCycle, (int)cycle);
-            
+
+
 //            if (lastCycle > cycle){  //means there is a pure prefetch
 //                                     //does not affect the contention simulation
 //               //panic ("last cycle is %d, cycle is %d",(int) lastCycle, (int) cycle);
@@ -67,6 +68,7 @@ class CycleBreakdownStat : public VectorCounter {
             inc(curState, cycle - lastCycle);
             curState = newState;
             lastCycle = cycle;
+
         }
 
         // Accounts for time in current state, even if the last transition happened long ago

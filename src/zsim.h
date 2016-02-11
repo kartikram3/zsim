@@ -32,6 +32,9 @@
 #include "debug.h"
 #include "locks.h"
 #include "pad.h"
+#include "g_std/g_unordered_map.h"
+#include "g_std/g_multimap.h"
+#include "cache.h"
 
 class Core;
 class Scheduler;
@@ -186,7 +189,26 @@ struct GlobSimInfo {
 
     //sim_name_info
     const char * sim_name;  
-    lock_t pin_cmd_lock;
+    uint32_t curPhaseProfile = 0;
+
+    //cache information
+    g_vector<Cache *>* cache_banks;
+
+
+
+    
+    //TODO ...
+    //Global metadata class
+    
+    //g_unordered_map <uint64_t, uint64_t> * phase_life_start; 
+//    g_unordered_map <uint64_t, uint64_t> * phase_life_end;
+//    g_unordered_map <uint64_t, uint64_t> * phase_hit_count;
+//
+//    g_unordered_map <uint64_t, uint64_t> * agg_life_start; 
+//    g_unordered_map <uint64_t, uint64_t> * agg_life_end;
+//    g_unordered_map <uint64_t, uint64_t> * agg_hit_count;
+
+    //lock_t pin_cmd_lock;
 };
 
 

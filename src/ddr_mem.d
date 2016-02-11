@@ -9,4 +9,6 @@ build/opt/ddr_mem.os: build/opt/ddr_mem.cpp build/opt/ddr_mem.h \
  build/opt/g_std/stl_galloc.h build/opt/prio_queue.h \
  build/opt/g_std/g_multimap.h build/opt/profile_stats.h \
  build/opt/timing_event.h build/opt/zsim.h build/opt/constants.h \
- build/opt/debug.h
+ build/opt/debug.h build/opt/g_std/g_unordered_map.h build/opt/cache.h \
+ build/opt/cache_arrays.h build/opt/coherence_ctrls.h \
+ build/opt/g_std/g_list.h build/opt/repl_policies.h build/opt/mtrand.h

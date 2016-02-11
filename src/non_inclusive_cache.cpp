@@ -55,7 +55,7 @@ uint64_t non_inclusive_cache::access(MemReq& req) {
             array->postinsert(req.lineAddr, &req, lineId); //do the actual insertion. NOTE: Now we must split insert into a 2-phase thing because cc unlocks us.
 
             //set the inner level search flag if want to check inner level
-            
+
         }
 
         respCycle = cc->processAccess(req, lineId, respCycle);

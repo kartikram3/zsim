@@ -106,6 +106,7 @@ class MESIBottomCC : public GlobAlloc {
         //Counter profWBIncl, profWBCoh /* writebacks due to inclusion or coherence, received from downstream, does not include PUTS */;
         // TODO: Measuring writebacks is messy, do if needed
         Counter profGETNextLevelLat, profGETNetLat;
+        //VectorCounter profPhaseINV, profPhaseINVX;
 
         bool nonInclusiveHack;
 
@@ -142,6 +143,9 @@ class MESIBottomCC : public GlobAlloc {
             profFWD.init("FWD", "Forwards (from upper level)");
             profGETNextLevelLat.init("latGETnl", "GET request latency on next level");
             profGETNetLat.init("latGETnet", "GET request latency on network to next level");
+            //profPhaseINV.init("phaseINV", "Number of invalidates every 1000 phase", 100);
+            //profPhaseINVX.init("phaseINVX", "Number of invalidate exclusive every 1000 phase", 100);
+
 
             parentStat->append(&profGETSHit);
             parentStat->append(&profGETXHit);
@@ -155,6 +159,8 @@ class MESIBottomCC : public GlobAlloc {
             parentStat->append(&profFWD);
             parentStat->append(&profGETNextLevelLat);
             parentStat->append(&profGETNetLat);
+            //parentStat->append(&profPhaseINV);
+            //parentStat->append(&profPhaseINVX);
         }
 
         uint64_t processEviction(Address wbLineAddr, uint32_t lineId, bool lowerLevelWriteback, uint64_t cycle, uint32_t srcId);

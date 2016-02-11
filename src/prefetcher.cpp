@@ -92,6 +92,9 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
   uint64_t respCycle = parent->access(req);
   uint64_t reqCycle = req.cycle;
 
+  assert_msg (*(req.state)  == S || *(req.state) == E, "The childstate is not S or E !")
+
+
   //-------- get trace from current access ----------//
   EventRecorder* evRec =
       zinfo->eventRecorders[req.srcId];  // remove the current record
@@ -106,7 +109,6 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
   assert (tr.type != PUTX);
 
   // info ("req cycle is %d", reqCycle);
-
   //-------- got trae ---------//
 
   Address pageAddr = req.lineAddr >> 6;
@@ -218,9 +220,9 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
           // info ("did pf1");
           pf1 = true;
 
-          // ----- trace for the prefetch access ----
+          // ----- trace for the prefetch access ---
           // ----- needs to be attached to the access trace as a second branch
-          // ----
+          // ----- trace for prefetch access ---
 
           if (evRec->hasRecord()) {
             if ((tr.startEvent != nullptr)) {
@@ -478,7 +480,6 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
   }
 
   // info ("respcycle without record is %d", respCycle);
-
   return respCycle;
 }
 

@@ -177,6 +177,10 @@ void ContentionSim::simulatePhase(uint64_t limit) {
     if (ocore) ocore->cSimStart();
   }
 
+
+ if (zinfo->numPhases % 1000 == 0) zinfo->curPhaseProfile++ ;
+
+
   inCSim = true;
   __sync_synchronize();
 
@@ -187,6 +191,16 @@ void ContentionSim::simulatePhase(uint64_t limit) {
 
   // Sleep until phase is simulated
   futex_lock_nospin(&waitLock);
+
+  //info ("Waking up because phase contention has been calculated");
+  //adding stats for cache invalidates
+
+//  AggregateStat * cacheroot  = zinfo->cacherootStat;
+//  int bankCount = cacheroot->size();
+//  for (int i=0; i< bankCount ; i++){
+//        Stat * curStat =
+//
+//  }
 
   inCSim = false;
   __sync_synchronize();
@@ -337,10 +351,12 @@ void ContentionSim::simThreadLoop(uint32_t thid) {
 
     uint32_t val = __sync_add_and_fetch(&threadsDone, 1);
     if (val == numSimThreads) {
+      //info("Finished contention simulation thread %d", thid);
       threadsDone = 0;
       futex_unlock(&waitLock);  // unblock caller
     }
   }
+
   info("Finished contention simulation thread %d", thid);
 }
 
@@ -499,6 +515,10 @@ void ContentionSim::simulatePhaseThread(uint32_t thid) {
     }
   }
   // info("Phase done");
+  //
+  //
+  //
+
   __sync_synchronize();
 }
 

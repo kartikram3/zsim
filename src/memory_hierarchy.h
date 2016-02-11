@@ -149,6 +149,7 @@ class BaseCache : public MemObject {
         virtual void setasLLC() = 0;
         virtual uint64_t snoop() = 0;
         virtual uint64_t lookup(const Address lineAddr) = 0;
+        virtual void dumpLifetimeStats() = 0;
 };
 
 #endif  // MEMORY_HIERARCHY_H_

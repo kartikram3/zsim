@@ -42,6 +42,7 @@ AggregateStat* FilterStatsLevel(const AggregateStat* src, const regex& filter, c
             if (fs) children.push_back(fs);
         } else {
             string name = base + child->name();
+            info ("THE NAME of the periodic stats is %s", name.c_str());
             if (regex_match(name, filter)) children.push_back(child);
         }
     }

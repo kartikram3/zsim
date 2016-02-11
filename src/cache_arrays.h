@@ -28,6 +28,7 @@
 
 #include "memory_hierarchy.h"
 #include "stats.h"
+#include "g_std/g_unordered_map.h"
 
 typedef enum {
     NA, //not applicable
@@ -102,6 +103,8 @@ class SetAssocArray : public CacheArray {
         uint32_t numSets;
         uint32_t assoc;
         uint32_t setMask;
+
+
 
     public:
         SetAssocArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);

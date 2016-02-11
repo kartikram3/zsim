@@ -108,6 +108,10 @@ class FilterCache : public Cache {
                                                         // with ordering to
                                                         // avoid timing races
     if (vLineAddr == filterArray[idx].rdAddr) {
+      Address pLineAddr = procMask | vLineAddr;
+      uint32_t lineId = array->lookup_norpupdate(pLineAddr); 
+      phase_hits[lineId]++;
+      agg_hits[lineId]++;
       fGETSHit++;
       return MAX(curCycle, availCycle);
     } else {

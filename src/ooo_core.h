@@ -35,6 +35,9 @@
 #include "ooo_core_recorder.h"
 #include "pad.h"
 
+
+#include "breakdown_stats.h"
+
 // Uncomment to enable stall stats
 // #define OOO_STALL_STATS
 
@@ -419,6 +422,11 @@ class OOOCore : public Core {
         Counter profFetchStalls, profDecodeStalls, profIssueStalls;
 #endif
 
+        //VectorCounter profPhaseCycles;
+        //VectorCounter profPhaseInstr;
+        //int currentPhaseProfile=0;
+        //uint64_t lastTargetCycle=0;
+        //uint64_t lastPhaseInstr=0;
         // Load-store forwarding
         // Just a direct-mapped array of last store cycles to 4B-wide blocks
         // (i.e., indexed by (addr >> 2) & (FWD_ENTRIES-1))

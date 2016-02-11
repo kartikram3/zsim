@@ -33,6 +33,8 @@
 #include "zsim.h"
 #include "pin.H"
 
+#include "breakdown_stats.h"
+
 /* Uncomment to induce backpressure to the IW when the load/store buffers fill
  * up. In theory, more detailed,
  * but sometimes much slower (as it relies on range poisoning in the IW,
@@ -87,6 +89,13 @@ void OOOCore::initStats(AggregateStat* parentStat) {
   AggregateStat* coreStat = new AggregateStat();
   coreStat->init(name.c_str(), "Core stats");
 
+
+  //VectorCounter * profIPC = new VectorCounter(); 
+  //profIPC = new VectorCounter();
+  //profPhaseCycles.init("profPhaseCycles", "Profiling Phase Cycles", 100);
+  //profPhaseInstr.init("profPhaseInstr", "Profiling Phase Instructions", 100);  
+
+
   auto x = [this]() { return cRec.getUnhaltedCycles(curCycle); };
   LambdaStat<decltype(x)>* cyclesStat = new LambdaStat<decltype(x)>(x);
   cyclesStat->init("cycles", "Simulated unhalted cycles");
@@ -115,6 +124,8 @@ void OOOCore::initStats(AggregateStat* parentStat) {
   coreStat->append(bblsStat);
   coreStat->append(approxInstrsStat);
   coreStat->append(mispredBranchesStat);
+  //coreStat->append(&profPhaseCycles);
+  //coreStat->append(&profPhaseInstr);
 
 #ifdef OOO_STALL_STATS
   profFetchStalls.init("fetchStalls", "Fetch stalls");
@@ -496,6 +507,16 @@ void OOOCore::leave() {
 void OOOCore::cSimStart() {
   uint64_t targetCycle = cRec.cSimStart(curCycle);
   assert(targetCycle >= curCycle);
+  //info ("the numphases is %d", (int)zinfo->numPhases);
+  //if (zinfo->numPhases % 1000 == 0){
+      //profPhaseCycles.inc( currentPhaseProfile, (targetCycle - lastTargetCycle));
+      //profPhaseInstr.inc( currentPhaseProfile, this->instrs - lastPhaseInstr);
+      //currentPhaseProfile++;
+      //lastTargetCycle = targetCycle;
+      //lastPhaseInstr = this->instrs;
+  //}
+  //info ("The target cycle at the end of contention simulation is %d", (int)targetCycle);
+  //info ("The target instructions at the end of contention simulation is %d", (int)this->instrs);
   if (targetCycle > curCycle) advance(targetCycle);
 }
 
@@ -544,10 +565,13 @@ void OOOCore::PredStoreFunc(THREADID tid, ADDRINT addr, BOOL pred) {
 }
 
 void OOOCore::BblFunc(THREADID tid, ADDRINT bblAddr, BblInfo* bblInfo) {
+
   OOOCore* core = static_cast<OOOCore*>(cores[tid]);
   core->bbl(bblAddr, bblInfo);
 
   while (core->curCycle > core->phaseEndCycle) {
+    
+   //info ("Instructions at the end of this phase is %d, phase length is %d", (int)core->instrs, (int)zinfo->phaseLength);
     core->phaseEndCycle += zinfo->phaseLength;
 
     uint32_t cid = getCid(tid);
@@ -557,7 +581,9 @@ void OOOCore::BblFunc(THREADID tid, ADDRINT bblAddr, BblInfo* bblInfo) {
     // we can race and corrupt core state. However, the information
     // here is insufficient to do that, so we could wind up double-counting
     // phases.
+   
     uint32_t newCid = TakeBarrier(tid, cid);
+
     // NOTE: Upon further observation, we cannot race if newCid == cid, so this
     // code should be enough.
     // It may happen that we had an intervening context-switch and we are now
@@ -568,6 +594,7 @@ void OOOCore::BblFunc(THREADID tid, ADDRINT bblAddr, BblInfo* bblInfo) {
     if (newCid != cid)
       break; /*context-switch, we do not own this context anymore*/
   }
+
 }
 
 void OOOCore::BranchFunc(THREADID tid, ADDRINT pc, BOOL taken, ADDRINT takenNpc,

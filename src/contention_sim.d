@@ -131,6 +131,10 @@ build/opt/contention_sim.os: build/opt/contention_sim.cpp \
  /home/kartik/Prefetch_Simulator/pinplay-1.4-pin-2.14-67254-gcc.4.4.7-linux/source/include/pin/gen/probe_instrument.PH \
  build/opt/g_std/g_string.h \
  /home/kartik/zsim_kartik/src/g_std/stl_galloc.h \
- build/opt/ooo_core_recorder.h build/opt/timing_core.h \
- build/opt/core_recorder.h build/opt/timing_event.h build/opt/zsim.h \
- build/opt/constants.h build/opt/debug.h
+ build/opt/ooo_core_recorder.h build/opt/breakdown_stats.h \
+ build/opt/zsim.h build/opt/constants.h build/opt/debug.h \
+ build/opt/g_std/g_unordered_map.h build/opt/cache.h \
+ build/opt/cache_arrays.h build/opt/coherence_ctrls.h \
+ build/opt/g_std/g_list.h build/opt/repl_policies.h build/opt/mtrand.h \
+ build/opt/timing_core.h build/opt/core_recorder.h \
+ build/opt/timing_event.h
