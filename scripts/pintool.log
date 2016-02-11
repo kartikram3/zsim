@@ -1,0 +1,4 @@
+Pin 2.14 kit 67254
+ ERROR: Thread 0 dying after unexpected exception @icount: 498618 PC 0x000415eb0
+
+see /home/kartik/Prefetch_Simulator/cpu2006_pinballs/cactusADM/pinball_short.pp/pinball_t0r1_warmup3000_prolog0_region1000000028_epilog0_001_1-00000.0.replay.txt for more details. Exiting...

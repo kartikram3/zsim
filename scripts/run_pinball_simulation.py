@@ -16,7 +16,7 @@ from datetime import datetime
 
 
 def run_bench ( bench ):
-     
+
      command =  "/home/kartik/zsim_kartik/build/opt/zsim " + bench
      subprocess.call( command , shell=True )
 
@@ -27,7 +27,7 @@ startTime = datetime.now()
 #print path_pinball
 #path_config = "".join(sys.argv[2]) + "/cfg"
 #print path_config
-#subprocess.call(['rm', '-rf', path_config]) 
+#subprocess.call(['rm', '-rf', path_config])
 #arch_name = "".join(sys.argv[3])
 #print arch_name
 #settings_name = "".join(sys.argv[4])
@@ -53,7 +53,7 @@ for root, dirs, files in os.walk(path_pinball):
     name_list = file.split('.')
     name_list = name_list[0:2]
     arg2 = ".".join(name_list)
-    name_list.append("address")  
+    name_list.append("address")
     arg1 = ".".join(name_list)
     print len(path)*'---',arg1
     print len(path)*'---',arg2
@@ -82,15 +82,15 @@ for root, dirs, files in os.walk(path_config):
 #*** need to write to file
 #*** keep track of processes opened
 #*** and only start new process if not more than
-#*** 5 are running currently 
+#*** 5 are running currently
 
-process_list = [] 
+process_list = []
 
 for cfg in cfg_list:
   print cfg
   for key in D :
-     cfg_file = open(cfg,"r") 
-     cfg_split = cfg.split(".") 
+     cfg_file = open(cfg,"r")
+     cfg_split = cfg.split(".")
      cfg_split.pop()
      cfg_mod = string.join(cfg_split)
      bench = cfg_mod + "_" + key + ".cfg"
@@ -115,12 +115,13 @@ for cfg in cfg_list:
      #subprocess.Popen(' ../build/opt/zsim ../simple.cfg', shell=True)
 
 print process_list # for debug
-pool = Pool(processes=8)
+pool = Pool(processes=2)
 pool.map(run_bench,process_list)
 
 
 print "Total runtime for spec run: "
-print datetime.now() - startTime #from stackoverflow 
-#http://stackoverflow.com/questions/6786990/find-out-time-it-took-for-a-python-script-to-complete-execution 
+print datetime.now() - startTime #from stackoverflow
+#http://stackoverflow.com/questions/6786990/find-out-time-it-took-for-a-python-script-to-complete-execution
+
 
 #*** run combinations of the processes ***#

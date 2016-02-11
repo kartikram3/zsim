@@ -1,9 +1,9 @@
 Running on: cslp11a-umh
-Start time: Fri Aug  7 15:36:51 2015
-Heartbeat time: Fri Aug  7 15:40:54 2015
+Start time: Thu Feb  4 21:41:55 2016
+Heartbeat time: Thu Feb  4 21:49:15 2016
 Stats since start:
- 124325 phases
- 1243250000 cycles
- 5116255 cycles/s
-Stats since last heartbeat (1s):
- 0 cycles/s
+ 119468 phases
+ 1194680000 cycles
+ 2715181 cycles/s
+Stats since last heartbeat (10s):
+ 2659000 cycles/s

@@ -1,0 +1,28 @@
+#!/usr/bin/python
+# This file plots the data so that we can interpret/present simulation results
+# Currently plots : 
+#     IPC
+
+
+import h5py # presents HDF5 files as numpy arrays
+import numpy as np
+import matplotlib as plt
+
+from settings import *
+import os
+import sys
+import string
+
+path_results = "/home/kartik/zsim_kartik/clusion_config/2-core-mix/results"
+
+
+#----- walk the result directory -------- #
+for root, dirs, files in os.walk(path_results):
+  path = root.split('/')
+  print ( len(path) - 1) *'---' , os.path.basename(root)
+  f_path = path_results+"/"+os.path.basename(root)+"/"+"zsim.h5"
+  if os.path.isfile(f_path):
+    f = h5py.File(f_path, 'r')
+    print f_path
+    dset = f["stats"]["root"]
+    print len(dset)
