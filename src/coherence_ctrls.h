@@ -72,6 +72,8 @@ class CC : public GlobAlloc {
         virtual uint64_t search_inner_banks(const Address lineAddr, uint32_t childId) = 0;  //searches the parent banks for a value
         virtual void unlock_bcc() = 0;
 
+        //skipaccess to the next level
+        virtual uint64_t access_next_level(MemReq & req){ return req.cycle;};
 };
 
 
@@ -94,7 +96,6 @@ class Network;
 class MESIBottomCC : public GlobAlloc {
     private:
         MESIState* array;
-        g_vector<MemObject*> parents;
         g_vector<uint32_t> parentRTTs;
         uint32_t numLines;
         uint32_t selfId;
@@ -115,6 +116,7 @@ class MESIBottomCC : public GlobAlloc {
         PAD();
 
     public:
+        g_vector<MemObject*> parents;
         MESIBottomCC(uint32_t _numLines, uint32_t _selfId, bool _nonInclusiveHack) : numLines(_numLines), selfId(_selfId), nonInclusiveHack(_nonInclusiveHack) {
             array = gm_calloc<MESIState>(numLines);
             for (uint32_t i = 0; i < numLines; i++) {
@@ -349,6 +351,7 @@ class MESICC : public CC {
         }
 
         bool shouldAllocate(const MemReq& req) {
+
             if ((req.type == GETS) || (req.type == GETX)) {
                 return true;
             } else {
@@ -460,6 +463,11 @@ class MESICC : public CC {
         //Repl policy interface
         uint32_t numSharers(uint32_t lineId) {return tcc->numSharers(lineId);}
         bool isValid(uint32_t lineId) {return bcc->isValid(lineId);}
+
+        //skip access and directly access next level cache for prefetch
+        uint64_t access_next_level(MemReq& req){
+           return bcc->parents[0]->access(req); 
+        }
 };
 
 // Terminal CC, i.e., without children --- accepts GETS/X, but not PUTS/X
@@ -488,6 +496,7 @@ class MESITerminalCC : public CC {
 
 
         //Access methods
+        
         bool startAccess(MemReq& req) {
             assert((req.type == GETS) || (req.type == GETX)); //no puts!
 
@@ -505,6 +514,7 @@ class MESITerminalCC : public CC {
             /* The situation is now stable, true race-wise. No one can touch the child state, because we hold
              * both parent's locks. So, we first handle races, which may cause us to skip the access.
              */
+
             bool skipAccess = CheckForMESIRace(req.type /*may change*/, req.state, req.initialState);
             return skipAccess;
 

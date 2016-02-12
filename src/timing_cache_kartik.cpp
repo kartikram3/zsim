@@ -219,7 +219,7 @@ uint64_t TimingCacheKartik::access(MemReq& req) {
             ev->setMinStartCycle(req.cycle);
             tr.startEvent = tr.endEvent = ev;
         } else {
-            info ("Here");
+            //info ("Here");
             assert_msg(getDoneCycle == respCycle, "gdc %ld rc %ld", getDoneCycle, respCycle);
             assert (!evRec->hasRecord());
             //assert(!writebackRecord.isValid());

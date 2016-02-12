@@ -99,11 +99,20 @@ uint64_t Cache::access(MemReq& req) {
 
     uint64_t respCycle = req.cycle;
               //request and response cycle
+              
+    if ( req.flags & MemReq::LLC_PREFETCH){
+       //info ("Here");
+       assert (!llc);
+       req.flags = req.flags & ~MemReq::LLC_PREFETCH ;  //works for inclusive
+                                            //for other kinds, maybe not
+       assert(req.flags & MemReq::PREFETCH);                                     
+       return cc->access_next_level(req);
+    }
+
     bool skipAccess = cc->startAccess(req); //may need to skip access due to races (NOTE: may change req.type!)
 
 
     if (likely(!skipAccess)){
-
         bool updateReplacement = (req.type == GETS) || (req.type == GETX);
         int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
         respCycle += accLat;
@@ -203,8 +212,6 @@ uint64_t Cache::access(MemReq& req) {
         // record. If so, read it.
 
         //#if 0
-
-
         EventRecorder* evRec = zinfo->eventRecorders[req.srcId];
                                               //src is the source core
 

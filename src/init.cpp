@@ -84,6 +84,7 @@
 #include "trace_driver.h"
 #include "tracing_cache.h"
 #include "virt/port_virtualizer.h"
+#include "llc_prefetcher.h"
 #include "weave_md1_mem.h" //validation, could be taken out...
 #include "zsim.h"
 
@@ -537,6 +538,21 @@ CacheGroup* BuildCacheGroup(Config& config, const string& name, bool isTerminal,
             ss << name << "-" << i;
             g_string pfName(ss.str().c_str());
             cg[i][0] = new StreamPrefetcher(pfName);
+        }
+        return cgp;
+    }
+
+
+    bool isllcPrefetcher = config.get<bool>(prefix + "isllcPrefetcher", false);
+    if (isllcPrefetcher) { //build a prefetcher group
+        uint32_t prefetchers = config.get<uint32_t>(prefix + "prefetchers", 1);
+        cg.resize(prefetchers);
+        for (vector<BaseCache*>& bg : cg) bg.resize(1);
+        for (uint32_t i = 0; i < prefetchers; i++) {
+            stringstream ss;
+            ss << name << "-" << i;
+            g_string pfName(ss.str().c_str());
+            cg[i][0] = new llc_StreamPrefetcher(pfName);
         }
         return cgp;
     }

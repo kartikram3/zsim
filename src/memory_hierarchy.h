@@ -99,7 +99,8 @@ struct MemReq {
         PREFETCH      = (1<<5), //Prefetch GETS access. Only set at level where prefetch is issued; handled early in MESICC
         INNER_COPY = (1<<6), //means we found copy in inner private cache
                             //this flag is used by exclusive LLC
-        DONT_RECORD = (1<<7)                    
+        DONT_RECORD = (1<<7),  //used if we don't want to record contention simulation information
+        LLC_PREFETCH  = (1<<8) //means prefetch only to LLC
                             
     };
     uint32_t flags;
