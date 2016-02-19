@@ -1,46 +1,22 @@
-/** $lic$
- * Copyright (C) 2012-2015 by Massachusetts Institute of Technology
- * Copyright (C) 2010-2013 by The Board of Trustees of Stanford University
- *
- * This file is part of zsim.
- *
- * zsim is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation, version 2.
- *
- * If you use this software in your research, we request that you reference
- * the zsim paper ("ZSim: Fast and Accurate Microarchitectural Simulation of
- * Thousand-Core Systems", Sanchez and Kozyrakis, ISCA-40, June 2013) as the
- * source of the simulator in any publications that use this software, and that
- * you send us a citation of your work.
- *
- * zsim is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-#include "timing_cache.h"
 #include "event_recorder.h"
 #include "timing_event.h"
 #include "zsim.h"
+#include "timing_flexclusive_cache.h"
 
-//the way this works is that the timing record for this
-//access is built up and then the record function in
-//ooo_core class pops it out and simulates it during the
-//contention simulation
-//--KARTIK
+//should work like exclusive cache
+//Follow mod listed in timing exclusive cache
+//If need to use for multiprogramming benchmarks
+//Also, need to decide statistics for use with these
+//files
+
 
 // Events
 class HitEvent : public TimingEvent {
     private:
-        TimingCache* cache;
+        timing_flexclusive_cache* cache;
 
     public:
-        HitEvent(TimingCache* _cache,  uint32_t postDelay, int32_t domain) : TimingEvent(0, postDelay, domain), cache(_cache) {}
+        HitEvent(timing_flexclusive_cache* _cache,  uint32_t postDelay, int32_t domain) : TimingEvent(0, postDelay, domain), cache(_cache) {}
 
         void simulate(uint64_t startCycle) {
             cache->simulateHit(this, startCycle);
@@ -49,53 +25,43 @@ class HitEvent : public TimingEvent {
 
 class MissStartEvent : public TimingEvent {
     private:
-        TimingCache* cache;
+        timing_flexclusive_cache* cache;
     public:
         uint64_t startCycle; //for profiling purposes
-        MissStartEvent(TimingCache* _cache,  uint32_t postDelay, int32_t domain) : TimingEvent(0, postDelay, domain), cache(_cache) {}
+        MissStartEvent(timing_flexclusive_cache* _cache,  uint32_t postDelay, int32_t domain) : TimingEvent(0, postDelay, domain), cache(_cache) {}
         void simulate(uint64_t startCycle) {cache->simulateMissStart(this, startCycle);}
 };
 
 class MissResponseEvent : public TimingEvent {
     private:
-        TimingCache* cache;
+        timing_flexclusive_cache* cache;
         MissStartEvent* mse;
     public:
-        MissResponseEvent(TimingCache* _cache, MissStartEvent* _mse, int32_t domain) : TimingEvent(0, 0, domain), cache(_cache), mse(_mse) {}
+        MissResponseEvent(timing_flexclusive_cache* _cache, MissStartEvent* _mse, int32_t domain) : TimingEvent(0, 0, domain), cache(_cache), mse(_mse) {}
         void simulate(uint64_t startCycle) {cache->simulateMissResponse(this, startCycle, mse);}
 };
 
 class MissWritebackEvent : public TimingEvent {
     private:
-        TimingCache* cache;
+        timing_flexclusive_cache* cache;
         MissStartEvent* mse;
     public:
-        MissWritebackEvent(TimingCache* _cache,  MissStartEvent* _mse, uint32_t postDelay, int32_t domain) : TimingEvent(0, postDelay, domain), cache(_cache), mse(_mse) {}
+        MissWritebackEvent(timing_flexclusive_cache* _cache,  MissStartEvent* _mse, uint32_t postDelay, int32_t domain) : TimingEvent(0, postDelay, domain), cache(_cache), mse(_mse) {}
         void simulate(uint64_t startCycle) {cache->simulateMissWriteback(this, startCycle, mse);}
 };
 
 class ReplAccessEvent : public TimingEvent {
     private:
-        TimingCache* cache;
+        timing_flexclusive_cache* cache;
     public:
         uint32_t accsLeft;
-        ReplAccessEvent(TimingCache* _cache, uint32_t _accsLeft, uint32_t preDelay, uint32_t postDelay, int32_t domain) : TimingEvent(preDelay, postDelay, domain), cache(_cache), accsLeft(_accsLeft) {}
+        ReplAccessEvent(timing_flexclusive_cache* _cache, uint32_t _accsLeft, uint32_t preDelay, uint32_t postDelay, int32_t domain) : TimingEvent(preDelay, postDelay, domain), cache(_cache), accsLeft(_accsLeft) {}
         void simulate(uint64_t startCycle) {cache->simulateReplAccess(this, startCycle);}
 };
 
-TimingCache::TimingCache(uint32_t _numLines, CC* _cc, CacheArray* _array, ReplPolicy* _rp,
-        uint32_t _accLat, uint32_t _invLat, uint32_t mshrs, uint32_t _tagLat, uint32_t _ways, uint32_t _cands, uint32_t _domain, const g_string& _name)
-    : Cache(_numLines, _cc, _array, _rp, _accLat, _invLat, _name), numMSHRs(mshrs), tagLat(_tagLat), ways(_ways), cands(_cands)
-{
-    lastFreeCycle = 0;
-    lastAccCycle = 0;
-    assert(numMSHRs > 0);
-    activeMisses = 0;
-    domain = _domain;
-    info("%s: mshrs %d domain %d", name.c_str(), numMSHRs, domain);
-}
 
-void TimingCache::initStats(AggregateStat* parentStat) {
+
+void timing_flexclusive_cache::initStats(AggregateStat* parentStat) {
     AggregateStat* cacheStat = new AggregateStat();
     cacheStat->init(name.c_str(), "Timing cache stats");
     initCacheStats(cacheStat);
@@ -104,9 +70,22 @@ void TimingCache::initStats(AggregateStat* parentStat) {
     profOccHist.init("occHist", "Occupancy MSHR cycle histogram", numMSHRs+1);
     cacheStat->append(&profOccHist);
 
+    //Stats specific to flexclusive cache
+    //Other stats are in cache array and maybe elsewhere
+    agg_EX_hits.init("agg_EX_hits", "Aggregate hits in Exclusive mode");
+    agg_EX_accesses.init("agg_EX_accesses", "Aggregate accesses in Exclusive mode");
+
+    agg_NI_hits.init("agg_NI_hits", "Aggregate hits in Non Inclusive mode");
+    agg_NI_accesses.init("agg_NI_accesses", "Aggregate accesses in Non Inclusive mode");
+
     profHitLat.init("latHit", "Cumulative latency accesses that hit (demand and non-demand)");
     profMissRespLat.init("latMissResp", "Cumulative latency for miss start to response");
     profMissLat.init("latMiss", "Cumulative latency for miss start to finish (free MSHR)");
+
+    cacheStat->append(&agg_EX_hits);
+    cacheStat->append(&agg_EX_accesses);
+    cacheStat->append(&agg_NI_hits);
+    cacheStat->append(&agg_NI_accesses);
 
     cacheStat->append(&profHitLat);
     cacheStat->append(&profMissRespLat);
@@ -115,13 +94,36 @@ void TimingCache::initStats(AggregateStat* parentStat) {
     parentStat->append(cacheStat);
 }
 
-// TODO(dsm): This is copied verbatim from Cache. We should split Cache into different methods, then call those.
-uint64_t TimingCache::access(MemReq& req) {
 
-    //check if it is a non-inclusive, exclusive or line-based
-    //inclusion cache.
-    //depending upon the answer, there will be difference in the
-    //access path
+
+timing_flexclusive_cache::timing_flexclusive_cache(uint32_t _numLines, CC* _cc, CacheArray* _array, ReplPolicy* _rp,
+        uint32_t _accLat, uint32_t _invLat, uint32_t mshrs, uint32_t _tagLat, uint32_t _ways, uint32_t _cands, uint32_t _domain, const g_string& _name)
+    : Cache(_numLines, _cc, _array, _rp, _accLat, _invLat, _name), numMSHRs(mshrs), tagLat(_tagLat), ways(_ways), cands(_cands){
+
+    lastFreeCycle = 0;
+    lastAccCycle = 0;
+    assert(numMSHRs > 0);
+    activeMisses = 0;
+    domain = _domain;
+    info("%s: mshrs %d domain %d", name.c_str(), numMSHRs, domain);
+
+  // do the non-inclusive cache access here
+  // also need to test multiple levels of non_inclusive
+  // timing cache
+}
+
+void timing_flexclusive_cache::setasLLC() {  // invoked at cache creation only
+  Cache::setLLCflag();  // access parent cache llc set function
+}
+
+uint64_t timing_flexclusive_cache::access(MemReq& req){
+  // need to implement set dueling to decide between
+  // inclusive and exclusive
+  // need to implement set dueling as shown by qureshi's paper
+  // we need a new access function that
+  // accesses data in a non-inclusive/exclusive/line-wise
+  // inclusive way also
+
 
     EventRecorder* evRec = zinfo->eventRecorders[req.srcId];
     assert_msg(evRec, "TimingCache is not connected to TimingCore");
@@ -130,15 +132,30 @@ uint64_t TimingCache::access(MemReq& req) {
     writebackRecord.clear();
     accessRecord.clear();
     uint64_t evDoneCycle = 0;
-
-    uint64_t respCycle = req.cycle;
-    bool skipAccess = cc->startAccess(req); //may need to skip access due to races (NOTE: may change req.type!)
-    if (likely(!skipAccess)) {
-        bool updateReplacement = (req.type == GETS) || (req.type == GETX);
-        int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
-        respCycle += accLat;
+    bool hitflag = false;
 
 
+  uint64_t respCycle = req.cycle;
+  // request and response cycle
+  bool skipAccess = cc->startAccess(req);  // may need to skip access due to
+                                           // races (NOTE: may change req.type!)
+  if (likely(!skipAccess)) {
+
+    bool updateReplacement = (req.type == GETS) || (req.type == GETX);
+    int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
+    respCycle += accLat;
+
+    CLUState cs = array->getCLU(req.lineAddr);
+
+    if (llc) {
+      if (cc->search_inner_banks(req.lineAddr, req.childId))
+        req.flags |=
+            MemReq::INNER_COPY;  // says that the private caches had a copy
+    }
+
+    if(req.type == GETS || req.type == GETX){
+        array->updateCounters(req.lineAddr , lineId);
+    }
 
         if (lineId != -1 && (req.type == GETS || req.type == GETX)){ //means it is a hit
              //phase_life_start[lineId] = req.cycle;
@@ -147,20 +164,74 @@ uint64_t TimingCache::access(MemReq& req) {
              agg_hits[lineId]++;
         }
 
+    if (lineId != -1){
+          hitflag = true;
+    }
 
-        if (lineId == -1 /*&& cc->shouldAllocate(req)*/) {
-            assert(cc->shouldAllocate(req)); //dsm: for now, we don't deal with non-inclusion in TimingCache
+    if (cs == EX){
+         agg_EX_accesses.inc();
+        if (lineId != -1){
+          agg_EX_hits.inc();
+        }
 
-            //Make space for new line
-            Address wbLineAddr;
-            lineId = array->preinsert(req.lineAddr, &req, &wbLineAddr); //find the lineId to replace
+    }else { ///means NI clusion state
+         agg_NI_accesses.inc();
+         if (lineId != -1){
+           agg_NI_hits.inc();
+         }
+    }
 
-            trace(Cache, "[%s] Evicting 0x%lx", name.c_str(), wbLineAddr);
-            //Evictions are not in the critical path in any sane implementation -- we do not include their delays
-            //NOTE: We might be "evicting" an invalid line for all we know. Coherence controllers will know what to do
-            evDoneCycle = cc->processEviction(req, wbLineAddr, lineId, respCycle); //if needed, send invalidates/downgrades to lower level, and wb to upper level
 
-            array->postinsert(req.lineAddr, &req, lineId); //do the actual insertion. NOTE: Now we must split insert into a 2-phase thing because cc unlocks us.
+    if (lineId == -1)  {
+      // Make space for new line
+      // info ("making space for new line");
+
+      if (cs == EX) {
+        if ((req.type == PUTS) || (req.type == PUTX)) {
+          Address wbLineAddr;
+          lineId = array->preinsert(req.lineAddr, &req,
+                                    &wbLineAddr);  // find the lineId to replace
+          trace(Cache, "[%s] Evicting 0x%lx", name.c_str(), wbLineAddr);
+
+          // Evictions are not in the critical path in any sane implementation
+          // -- we do not include their delays
+          // NOTE: We might be "evicting" an invalid line for all we know.
+          // Coherence controllers will know what to do
+          evDoneCycle = cc->processEviction(req, wbLineAddr, lineId,
+                              respCycle);  // 1. if needed, send
+                                           // invalidates/downgrades to lower
+                                           // level
+          array->postinsert(req.lineAddr, &req,
+                            lineId);  // do the actual insertion. NOTE: Now we
+                                      // must split insert into a 2-phase thing
+                                      // because cc unlocks us.
+                                      //
+          //info("Got EX state for line and allocated for PUTS || PUTX");
+        }
+        //info("Got EX state for line and not allocated for PUTS || PUTX");
+      } else if (cc->shouldAllocate(req)) {
+        Address wbLineAddr;
+        lineId = array->preinsert(req.lineAddr, &req,
+                                  &wbLineAddr);  // find the lineId to replace
+        trace(Cache, "[%s] Evicting 0x%lx", name.c_str(), wbLineAddr);
+
+        // Evictions are not in the critical path in any sane implementation --
+        // we do not include their delays
+        // NOTE: We might be "evicting" an invalid line for all we know.
+        // Coherence controllers will know what to do
+        evDoneCycle = cc->processEviction(req, wbLineAddr, lineId,
+                            respCycle);  // 1. if needed, send
+                                         // invalidates/downgrades to lower
+                                         // level
+
+        array->postinsert(req.lineAddr, &req,
+                          lineId);  // do the actual insertion. NOTE: Now we
+                                    // must split insert into a 2-phase thing
+                                    // because cc unlocks us.
+      }
+
+      if ( lineId != -1){
+
 
             if (evRec->hasRecord()) writebackRecord = evRec->popRecord();
 
@@ -187,7 +258,6 @@ uint64_t TimingCache::access(MemReq& req) {
             agg_life_start[lineId] = respCycle;
 
 
-
             int hits = phase_hits[lineId] ;
             if (hits > 99) hits = 99;
 
@@ -197,10 +267,15 @@ uint64_t TimingCache::access(MemReq& req) {
             agg_hits[lineId] = 0;
             phase_hits[lineId] = 0;
 
-        }
+      }
+    }
 
-        uint64_t getDoneCycle = respCycle;
-        respCycle = cc->processAccess(req, lineId, respCycle, &getDoneCycle);
+
+    uint64_t getDoneCycle;
+    respCycle = cc->processAccess(req, lineId, respCycle, &getDoneCycle, cs);
+
+
+    if (lineId != -1){ //means we allocate a line or got a hit. In this case, we need to create a cache event
 
         if (evRec->hasRecord()) accessRecord = evRec->popRecord();
 
@@ -209,9 +284,9 @@ uint64_t TimingCache::access(MemReq& req) {
 
         //info ("Created timing cache record BEBE , acc type is %d, req cycle is %d", req.type, (int)req.cycle);
 
-        if (getDoneCycle - req.cycle == accLat) {
+        //if (getDoneCycle - req.cycle == accLat) {
+        if (hitflag && !accessRecord.isValid()){
             // Hit
-            //assert (req.type != GETX); 
             assert(!writebackRecord.isValid());
             assert(!accessRecord.isValid());
             uint64_t hitLat = respCycle - req.cycle; // accLat + invLat
@@ -219,8 +294,8 @@ uint64_t TimingCache::access(MemReq& req) {
             ev->setMinStartCycle(req.cycle);
             tr.startEvent = tr.endEvent = ev;
         } else {
-            assert_msg(getDoneCycle == respCycle, "gdc %ld rc %ld", getDoneCycle, respCycle);
-
+            //assert_msg(getDoneCycle == respCycle, "gdc %ld rc %ld", getDoneCycle, respCycle);
+            getDoneCycle = respCycle;
             // Miss events:
             // MissStart (does high-prio lookup) -> getEvent || evictionEvent || replEvent (if needed) -> MissWriteback
 
@@ -317,16 +392,33 @@ uint64_t TimingCache::access(MemReq& req) {
             tr.endEvent = mre; // note the end event is the response, not the wback
         }
         evRec->pushRecord(tr);
+
+
+
+
+    }else{
+
+          assert (!writebackRecord.isValid());
+          assert (!accessRecord.isValid());
     }
 
-    cc->endAccess(req);
 
-    assert_msg(respCycle >= req.cycle, "[%s] resp < req? 0x%lx type %s childState %s, respCycle %ld reqCycle %ld",
-            name.c_str(), req.lineAddr, AccessTypeName(req.type), MESIStateName(*req.state), respCycle, req.cycle);
-    return respCycle;
+
+  }
+  cc->endAccess(req);
+
+  assert_msg(respCycle >= req.cycle,
+             "[%s] resp < req? 0x%lx type %s childState %s, respCycle %ld "
+             "reqCycle %ld",
+             name.c_str(), req.lineAddr, AccessTypeName(req.type),
+             MESIStateName(*req.state), respCycle, req.cycle);
+  return respCycle;
 }
 
-uint64_t TimingCache::highPrioAccess(uint64_t cycle) {
+
+
+
+uint64_t timing_flexclusive_cache::highPrioAccess(uint64_t cycle) {
     //assert(cycle >= lastFreeCycle);
 
     if (lastFreeCycle > cycle){  //hack -- prefetching contention not modelled in timing cache
@@ -352,7 +444,7 @@ uint64_t TimingCache::highPrioAccess(uint64_t cycle) {
  * path accesses. Essentially, we're modeling that we know those accesses one
  * cycle in advance.
  */
-uint64_t TimingCache::tryLowPrioAccess(uint64_t cycle) {
+uint64_t timing_flexclusive_cache::tryLowPrioAccess(uint64_t cycle) {
     if (lastAccCycle < cycle-1 || lastFreeCycle == cycle-1) {
         lastFreeCycle = 0;
         lastAccCycle = MAX(cycle-1, lastAccCycle);
@@ -362,7 +454,7 @@ uint64_t TimingCache::tryLowPrioAccess(uint64_t cycle) {
     }
 }
 
-void TimingCache::simulateHit(HitEvent* ev, uint64_t cycle) {
+void timing_flexclusive_cache::simulateHit(HitEvent* ev, uint64_t cycle) {
     if (activeMisses < numMSHRs) {
         uint64_t lookupCycle = highPrioAccess(cycle);
         profHitLat.inc(lookupCycle-cycle);
@@ -374,7 +466,7 @@ void TimingCache::simulateHit(HitEvent* ev, uint64_t cycle) {
     }
 }
 
-void TimingCache::simulateMissStart(MissStartEvent* ev, uint64_t cycle) {
+void timing_flexclusive_cache::simulateMissStart(MissStartEvent* ev, uint64_t cycle) {
     if (activeMisses < numMSHRs){
         activeMisses++;
         profOccHist.transition(activeMisses, cycle);
@@ -389,12 +481,12 @@ void TimingCache::simulateMissStart(MissStartEvent* ev, uint64_t cycle) {
     }
 }
 
-void TimingCache::simulateMissResponse(MissResponseEvent* ev, uint64_t cycle, MissStartEvent* mse) {
+void timing_flexclusive_cache::simulateMissResponse(MissResponseEvent* ev, uint64_t cycle, MissStartEvent* mse) {
     profMissRespLat.inc(cycle - mse->startCycle);
     ev->done(cycle);
 }
 
-void TimingCache::simulateMissWriteback(MissWritebackEvent* ev, uint64_t cycle, MissStartEvent* mse) {
+void timing_flexclusive_cache::simulateMissWriteback(MissWritebackEvent* ev, uint64_t cycle, MissStartEvent* mse) {
     uint64_t lookupCycle = tryLowPrioAccess(cycle);
     if (lookupCycle) { //success, release MSHR
         assert(activeMisses);
@@ -415,7 +507,7 @@ void TimingCache::simulateMissWriteback(MissWritebackEvent* ev, uint64_t cycle, 
     }
 }
 
-void TimingCache::simulateReplAccess(ReplAccessEvent* ev, uint64_t cycle) {
+void timing_flexclusive_cache::simulateReplAccess(ReplAccessEvent* ev, uint64_t cycle) {
     assert(ev->accsLeft);
     uint64_t lookupCycle = tryLowPrioAccess(cycle);
     if (lookupCycle) {

@@ -67,6 +67,7 @@ class line_clusive_MESIBottomCC : public GlobAlloc {
   // TODO: Measuring writebacks is messy, do if needed
   Counter profGETNextLevelLat, profGETNetLat;
 
+
   PAD();
   lock_t ccLock;
   PAD();

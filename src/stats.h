@@ -247,6 +247,7 @@ class Counter : public ScalarStat {
         inline void set(uint64_t data) {
             _count = data;
         }
+
 };
 
 class VectorCounter : public VectorStat {

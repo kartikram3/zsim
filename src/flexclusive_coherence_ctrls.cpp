@@ -138,6 +138,7 @@ uint64_t flexclusive_MESIBottomCC::processAccess(Address lineAddr,
         // for multithreaded application, may need to
         // receive data in shared state also
         profPUTS.inc();
+        profExclWB.inc();
         break;
       case PUTX:  // Dirty writeback
         //assert(*state == I);
@@ -147,6 +148,7 @@ uint64_t flexclusive_MESIBottomCC::processAccess(Address lineAddr,
         } else
           *state = M;
         profPUTX.inc();
+        profExclWB.inc();
         break;
       case GETS:
         if (*state == I && (!(flags & MemReq::INNER_COPY))) {

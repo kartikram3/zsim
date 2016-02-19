@@ -72,10 +72,13 @@
 #include "timing_cache_kartik.h"
 #include "flexclusive_cache.h"
 #include "flexclusive_coherence_ctrls.h"
+#include "timing_flexclusive_cache.h"
 #include "non_inclusive_cache.h"
 #include "non_inclusive_cache_timing.h"
 #include "non_inclusive_coherence_ctrl.h"
+#include "timing_exclusive_cache.h"
 #include "line_clusive_cache.h"
+#include "timing_line_clusive_cache.h"
 #include "line_clusive_coherence_ctrl.h"
 #include "exclusive_cache.h"
 #include "exclusive_coherence_ctrls.h"
@@ -417,15 +420,39 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
 
         } else if (type == "timing_exclusive" ) {
 
-            panic("Invalid cache type %s", type.c_str());
+            uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
+            uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
+            uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+
+            cc = new exclusive_MESICC(numLines, name);
+            rp->setCC(cc);
+            rp->setCacheArray(array);
+
+            cache = new timing_exclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
+
 
         } else if (type == "timing_flexclusive" ){
 
-            panic("Invalid cache type %s", type.c_str());
+            uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
+            uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
+            uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+
+            cc = new flexclusive_MESICC(numLines, nonInclusiveHack, name);
+            rp->setCC(cc);
+
+            cache = new timing_flexclusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
 
         } else if (type == "timing_per_line_clusion"){
 
-            panic("Invalid cache type %s", type.c_str());
+            uint32_t mshrs = config.get<uint32_t>(prefix + "mshrs", 16);
+            uint32_t tagLat = config.get<uint32_t>(prefix + "tagLat", 5);
+            uint32_t timingCandidates = config.get<uint32_t>(prefix + "timingCandidates", candidates);
+
+            cc = new line_clusive_MESICC(numLines, name);
+            rp->setCC(cc);
+            rp->setCacheArray(array);
+
+            cache = new timing_line_clusive_cache(numLines, cc, array, rp, accLat, invLat, mshrs, tagLat, ways, timingCandidates, domain, name);
 
         }else {
             panic("Invalid cache type %s", type.c_str());
@@ -1234,12 +1261,12 @@ void SimInit(const char* configFile, const char* outputDir, uint32_t shmid) {
 
     //Global counters for recording per cache line information
     //zinfo->phase_life_start = new g_unordered_map<uint64_t, uint64_t>(); 
-//    zinfo->phase_life_end = new g_unordered_map<uint64_t, uint64_t>(); 
-//    zinfo->phase_hit_count = new g_unordered_map<uint64_t, uint64_t>(); 
+// zinfo->phase_life_end = new g_unordered_map<uint64_t, uint64_t>(); 
+// zinfo->phase_hit_count = new g_unordered_map<uint64_t, uint64_t>(); 
 //
-//    zinfo->agg_life_start = new g_unordered_map<uint64_t, uint64_t>();
-//    zinfo->agg_life_end = new g_unordered_map<uint64_t, uint64_t>();
-//    zinfo->agg_hit_count = new g_unordered_map<uint64_t, uint64_t>();
+// zinfo->agg_life_start = new g_unordered_map<uint64_t, uint64_t>();
+// zinfo->agg_life_end = new g_unordered_map<uint64_t, uint64_t>();
+// zinfo->agg_hit_count = new g_unordered_map<uint64_t, uint64_t>();
 
 
     //Causes every other process to wake up

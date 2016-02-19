@@ -3,6 +3,15 @@
 #include "zsim.h"
 #include "flexclusive_cache.h"
 
+//should work like exclusive cache
+//Follow mod listed in timing exclusive cache
+//If need to use for multiprogramming benchmarks
+//Also, need to decide statistics for use with these
+//files
+
+
+
+
 flexclusive_cache::flexclusive_cache(uint32_t _numLines, CC* _cc,
                                      CacheArray* _array, ReplPolicy* _rp,
                                      uint32_t _accLat, uint32_t _invLat,
@@ -10,6 +19,9 @@ flexclusive_cache::flexclusive_cache(uint32_t _numLines, CC* _cc,
                                      uint32_t ways, uint32_t cands,
                                      uint32_t _domain, const g_string& _name)
     : Cache(_numLines, _cc, _array, _rp, _accLat, _invLat, _name) {
+
+
+
   // do the non-inclusive cache access here
   // also need to test multiple levels of non_inclusive
   // timing cache
@@ -119,6 +131,7 @@ uint64_t flexclusive_cache::access(MemReq& req){
 
     // Access may have generated another timing record. If *both* access
     // and wb have records, stitch them together
+
     if (unlikely(wbAcc.isValid())) {
       if (!evRec->hasRecord()) {
         // Downstream should not care about endEvent for PUTs

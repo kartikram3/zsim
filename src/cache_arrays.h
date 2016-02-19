@@ -129,8 +129,20 @@ class FlexclusiveArray : public CacheArray {
         uint32_t assoc;
         uint32_t setMask;
 
+        Counter state_ex;
+        Counter state_ni;
+
+        Counter duel_ni_hits;
+        Counter duel_ni_accesses;
+
+        Counter duel_ex_hits;
+        Counter duel_ex_accesses;
+
     public:
         FlexclusiveArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);
+
+        void initStats(AggregateStat * parentStat);
+
 
         int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement);
         int32_t lookup_norpupdate(const Address lineAddr);
@@ -158,6 +170,8 @@ class  LineBasedArray : public CacheArray {
 
     public:
         LineBasedArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);
+
+        void initStats(AggregateStat * parentStat);
 
         int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement);
         int32_t lookup_norpupdate(const Address lineAddr);

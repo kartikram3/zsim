@@ -83,6 +83,10 @@ class flexclusive_MESIBottomCC : public GlobAlloc {
   // TODO: Measuring writebacks is messy, do if needed
   Counter profGETNextLevelLat, profGETNetLat;
 
+  //data traffic due to exclusive cache
+  Counter profExclWB;
+
+
   bool nonInclusiveHack;
 
   PAD();
@@ -124,6 +128,7 @@ class flexclusive_MESIBottomCC : public GlobAlloc {
     profGETNextLevelLat.init("latGETnl", "GET request latency on next level");
     profGETNetLat.init("latGETnet",
                        "GET request latency on network to next level");
+    profExclWB.init("exclWB","Writebacks to LLC because exclusive LLC"    );
 
     parentStat->append(&profGETSHit);
     parentStat->append(&profGETXHit);
@@ -137,6 +142,7 @@ class flexclusive_MESIBottomCC : public GlobAlloc {
     parentStat->append(&profFWD);
     parentStat->append(&profGETNextLevelLat);
     parentStat->append(&profGETNetLat);
+    parentStat->append(&profExclWB);
   }
 
   uint64_t processEviction(Address wbLineAddr, uint32_t lineId,

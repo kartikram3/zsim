@@ -90,8 +90,30 @@ void SetAssocArray::postinsert(const Address lineAddr, const MemReq* req,
   rp->update(candidate, req);
 }
 
-
 /* Set duelling array */
+
+void FlexclusiveArray::initStats(AggregateStat * parentStat){
+    
+  AggregateStat* objStats = new AggregateStat();
+  objStats->init("array", "FlexclusiveArray stats");
+  state_ex.init("ni_to_ex", "No of times set ex policy");
+  state_ni.init("ex_to_ni", "Num times set ni policy");
+  duel_ni_hits.init("duel_ni_hits", "NI cache line hits during set duelling");
+  duel_ni_accesses.init("duel_ni_acc", "NI cache line accesses during set duelling");
+  duel_ex_hits.init("duel_ex_hits", "EX cache line hits during set duelling");
+  duel_ex_accesses.init("duel_ex_accesses", "EX cache line accesses during set duelling");
+
+  objStats->append(&state_ex);
+  objStats->append(&state_ni);
+  objStats->append(&duel_ni_hits);
+  objStats->append(&duel_ni_accesses);
+  objStats->append(&duel_ex_hits);
+  objStats->append(&duel_ex_accesses);
+
+  parentStat->append(objStats);
+
+}
+
 FlexclusiveArray::FlexclusiveArray(uint32_t _numLines, uint32_t _assoc,
                                    ReplPolicy* _rp, HashFamily* _hf)
     : rp(_rp), hf(_hf), numLines(_numLines), assoc(_assoc) {
@@ -101,6 +123,8 @@ FlexclusiveArray::FlexclusiveArray(uint32_t _numLines, uint32_t _assoc,
   assert_msg(isPow2(numSets),
              "must have a power of 2 # sets, but you specified %d", numSets);
 }
+
+
 
 int32_t FlexclusiveArray::lookup(const Address lineAddr, const MemReq* req,
                                  bool updateReplacement) {
@@ -163,15 +187,21 @@ void FlexclusiveArray::updateCounters(const Address lineAddr, uint32_t lineId) {
     if (set % 16 == 1) {
       ni_hit_counter++;
       ni_access_counter++;
+      duel_ni_hits.inc();
+      duel_ni_accesses.inc();
     } else if (set % 16 == 0) {
       ex_hit_counter++;
       ex_access_counter++;
+      duel_ex_hits.inc();
+      duel_ex_accesses.inc();
     }
   } else {
     if (set % 16 == 1){
         ni_access_counter++;
+        duel_ni_accesses.inc();
     } else if (set % 16 == 0){
         ex_access_counter++;
+        duel_ex_accesses.inc();
     }
   }
 
@@ -185,8 +215,10 @@ void FlexclusiveArray::updateCounters(const Address lineAddr, uint32_t lineId) {
     if (ni_hit_rate >
         0.9 * ex_hit_rate) {  // if ni does 10 % better, then use that
       policy = NI;
+      state_ni.inc();
     } else {
       policy = EX;
+      state_ex.inc();
     }
 
     info("The ni hit rate is %f, The ex hit rate is %f", ni_hit_rate,
@@ -205,6 +237,17 @@ void FlexclusiveArray::updateCounters(const Address lineAddr, uint32_t lineId) {
 }
 
 /* Line based clusion arrays */
+void LineBasedArray::initStats( AggregateStat * parentStat){
+
+  AggregateStat* objStats = new AggregateStat();
+  objStats->init("array", "LineBasedArray stats");
+
+
+  parentStat->append(objStats);
+}
+
+
+
 LineBasedArray::LineBasedArray(uint32_t _numLines, uint32_t _assoc,
                                    ReplPolicy* _rp, HashFamily* _hf)
     : rp(_rp), hf(_hf), numLines(_numLines), assoc(_assoc) {
