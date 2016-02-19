@@ -9,6 +9,5 @@ build/opt/timing_event.os: build/opt/timing_event.cpp \
  build/opt/zsim.h build/opt/constants.h build/opt/debug.h \
  build/opt/g_std/g_unordered_map.h build/opt/cache.h \
  build/opt/cache_arrays.h build/opt/coherence_ctrls.h \
- build/opt/g_std/g_string.h \
- /home/kartik/zsim_kartik/src/g_std/stl_galloc.h build/opt/g_std/g_list.h \
+ build/opt/g_std/g_string.h build/opt/g_std/g_list.h \
  build/opt/repl_policies.h build/opt/mtrand.h

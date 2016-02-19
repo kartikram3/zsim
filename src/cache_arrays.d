@@ -5,6 +5,5 @@ build/opt/cache_arrays.os: build/opt/cache_arrays.cpp \
  build/opt/stats.h build/opt/g_std/g_unordered_map.h build/opt/hash.h \
  build/opt/repl_policies.h build/opt/bithacks.h \
  build/opt/coherence_ctrls.h build/opt/constants.h \
- build/opt/g_std/g_string.h \
- /home/kartik/zsim_kartik/src/g_std/stl_galloc.h build/opt/g_std/g_list.h \
- build/opt/pad.h build/opt/mtrand.h
+ build/opt/g_std/g_string.h build/opt/g_std/g_list.h build/opt/pad.h \
+ build/opt/mtrand.h

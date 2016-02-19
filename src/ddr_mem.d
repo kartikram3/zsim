@@ -1,8 +1,7 @@
 build/opt/ddr_mem.os: build/opt/ddr_mem.cpp build/opt/ddr_mem.h \
- build/opt/g_std/g_string.h \
- /home/kartik/zsim_kartik/src/g_std/stl_galloc.h build/opt/galloc.h \
- build/opt/intrusive_list.h build/opt/log.h build/opt/memory_hierarchy.h \
- build/opt/g_std/g_vector.h build/opt/g_std/stl_galloc.h \
+ build/opt/g_std/g_string.h build/opt/g_std/stl_galloc.h \
+ build/opt/galloc.h build/opt/intrusive_list.h build/opt/log.h \
+ build/opt/memory_hierarchy.h build/opt/g_std/g_vector.h \
  build/opt/galloc.h build/opt/locks.h build/opt/pad.h build/opt/stats.h \
  build/opt/bithacks.h build/opt/config.h build/opt/contention_sim.h \
  build/opt/event_recorder.h build/opt/slab_alloc.h build/opt/mutex.h \
