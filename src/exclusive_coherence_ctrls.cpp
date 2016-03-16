@@ -55,11 +55,10 @@ uint64_t exclusive_MESIBottomCC::processEviction(Address wbLineAddr, uint32_t li
 
 uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId, AccessType type, uint64_t cycle, uint32_t srcId, uint32_t flags) {
     uint64_t respCycle = cycle;
-
     if ((int) lineId == -1){
         assert( type == GETS || type == GETX );
         if (type == GETS) profGETSMiss.inc();
-        else profGETXMissIM.inc(); 
+        else profGETXMissIM.inc();
         if (!(flags & MemReq::INNER_COPY)){ //i.e. if line was found in inner levels in case of excl llc
            MESIState dummyState = I; // does this affect race conditions ?
            MemReq req = {lineAddr, type, selfId, &dummyState, cycle, &ccLock, dummyState , srcId, flags};
@@ -70,7 +69,6 @@ uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId
            profGETNetLat.inc(netLat);
            respCycle += nextLevelLat + netLat;
         }
-
         assert_msg(respCycle >= cycle, "XXX %ld %ld", respCycle, cycle);
         return respCycle;
     }
@@ -110,8 +108,12 @@ uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId
             } else {
                 profGETSHit.inc();
             }
-            *state = I;
+            if (!(flags & MemReq::PREFETCH))
+               *state = I;
+            else
+               *state = E; //this is prefetched data, brought in E state
             break;
+
         case GETX:
             if ((*state == I || *state == S) && (!(flags & MemReq::INNER_COPY)))  {
                 //Profile before access, state changes
@@ -128,7 +130,10 @@ uint64_t exclusive_MESIBottomCC::processAccess(Address lineAddr, uint32_t lineId
                 profGETXHit.inc();
 
             }
-            *state=I; //inv because cache is exclusive
+            if (!(flags & MemReq::PREFETCH))
+                *state=I; //inv because cache is exclusive
+            else
+                panic("We should not do GETX for exclusive LLC, which is a prefetch");
             break;
 
         default: panic("!?");
@@ -232,9 +237,7 @@ uint64_t exclusive_MESITopCC::processEviction(Address wbLineAddr, uint32_t lineI
 uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, AccessType type, uint32_t childId, bool haveExclusive,
                                   MESIState* childState, bool* inducedWriteback, uint64_t cycle, uint32_t srcId, uint32_t flags) {
 
-
     uint64_t respCycle = cycle;
-
     if ((int) lineId == -1){
         assert( type == GETS || type == GETX );
         if (!(flags & MemReq::INNER_COPY)){ //i.e. if line was not found in inner levels in case of excl llc
@@ -260,9 +263,7 @@ uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, A
         }
     }
 
-
     //Entry* e = &array[lineId]; //not needed for exclusive cache
-
 
     switch (type) {
         case PUTX:
@@ -279,15 +280,19 @@ uint64_t exclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineId, A
              assert (*childState == I);
              //assert_msg(search_inner_banks(lineAddr, childId) == 0, "Haveexclusive is %d", haveExclusive);
                                                             //this assertion is not correct
-             *childState = E; //could also be M
+             if (!(flags & MemReq::PREFETCH)){
+                *childState = E; //could also be M
                              //we just specified E
-                             //need to change this for accuracy 
+                             //need to change this for accuracy
+             }
             break;
         case GETX:
              //assert(search_inner_banks(lineAddr, childId) == 0); //this assertion is not correct
             assert(haveExclusive); //the current cache better have exclusive access to this line
 
-            *childState = M; //give in M directly
+             if (!(flags & MemReq::PREFETCH)){  //only works for L3 prefetches.
+                *childState = M; //give in M directly
+             }
             break;
 
         default: panic("!?");
@@ -322,4 +327,3 @@ uint64_t exclusive_MESITopCC::processInval(Address lineAddr, uint32_t lineId, In
 //
 //
 //}
-

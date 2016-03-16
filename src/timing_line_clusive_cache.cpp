@@ -195,7 +195,7 @@ uint64_t timing_line_clusive_cache::access(MemReq& req) {
       // controllers will know what to do
 
       if ((req.type == GETS || req.type == GETX)) {
-        if (duplicate) {
+        if (duplicate || (req.flags & MemReq::PREFETCH)) {
           evDoneCycle = cc->processEviction(req, wbLineAddr, lineId,
                                             respCycle);  // 1. if needed, send
           // invalidates/downgrades to lower level

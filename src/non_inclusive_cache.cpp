@@ -33,11 +33,11 @@ uint64_t non_inclusive_cache::access(MemReq& req) {
 
         if(llc){
               if(cc->search_inner_banks(req.lineAddr, req.childId))
-              req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
+                req.flags |= MemReq::INNER_COPY; //says that the private caches had a copy
         }
 
-        if (lineId == -1 && cc->shouldAllocate(req)) { //need to add inner level search
-                                                       //when miss at llc
+        if (lineId == -1 && cc->shouldAllocate(req)) {//need to add inner level search
+                                                      //when miss at llc
                                                       //if not PUTS or PUTX, only then
                                                       // we need to set the flag
 

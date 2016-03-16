@@ -47,7 +47,6 @@ class non_inclusive_MESIBottomCC : public GlobAlloc {
         g_vector<MemObject*> parents;
         g_vector<uint32_t> parentRTTs;
         uint32_t numLines;
-        uint32_t selfId;
 
         //Profiling counters
         Counter profGETSHit, profGETSMiss, profGETXHit, profGETXMissIM /*from invalid*/, profGETXMissSM /*from S, i.e. upgrade misses*/;
@@ -63,6 +62,7 @@ class non_inclusive_MESIBottomCC : public GlobAlloc {
         PAD();
 
     public:
+        uint32_t selfId;
         non_inclusive_MESIBottomCC(uint32_t _numLines, uint32_t _selfId ) : numLines(_numLines), selfId(_selfId)  {
             array = gm_calloc<MESIState>(numLines);
             for (uint32_t i = 0; i < numLines; i++) {
@@ -258,6 +258,10 @@ class non_inclusive_MESICC : public CC{
             bcc->initStats(cacheStat);
         }
 
+
+        uint32_t get_selfId(){
+            return bcc->selfId;
+        }
 
         //Access methods
         bool startAccess(MemReq& req) {

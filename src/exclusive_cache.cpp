@@ -28,6 +28,7 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
 
   bool skipAccess = cc->startAccess(req); //may need to skip access due to races (NOTE: may change req.type!)
 
+
   if (likely(!skipAccess)) {
 
         bool updateReplacement = (req.type == PUTS) || (req.type == PUTX); //writebacks update the replacement info
@@ -39,6 +40,7 @@ uint64_t exclusive_cache :: access( MemReq & req ){ //only for GETS and GETX
 
         int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
         respCycle += accLat;
+
 
         if(llc){
              if(cc->search_inner_banks(req.lineAddr, req.childId))

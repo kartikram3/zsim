@@ -110,6 +110,7 @@ timing_flexclusive_cache::timing_flexclusive_cache(uint32_t _numLines, CC* _cc, 
   // do the non-inclusive cache access here
   // also need to test multiple levels of non_inclusive
   // timing cache
+
 }
 
 void timing_flexclusive_cache::setasLLC() {  // invoked at cache creation only
@@ -145,7 +146,12 @@ uint64_t timing_flexclusive_cache::access(MemReq& req){
     int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
     respCycle += accLat;
 
-    CLUState cs = array->getCLU(req.lineAddr);
+    CLUState cs;
+    //if(MemReq::PREFETCH & req.flags)
+      //cs = array->getCLUPF(req.lineAddr);
+    //else
+      cs = array->getCLU(req.lineAddr);
+
 
     if (llc) {
       if (cc->search_inner_banks(req.lineAddr, req.childId))
@@ -154,7 +160,10 @@ uint64_t timing_flexclusive_cache::access(MemReq& req){
     }
 
     if(req.type == GETS || req.type == GETX){
-        array->updateCounters(req.lineAddr , lineId);
+        //if(MemReq::PREFETCH & req.flags)
+           //array->updateCountersPF(req.lineAddr , lineId);
+        //else
+           array->updateCounters(req.lineAddr , lineId);
     }
 
         if (lineId != -1 && (req.type == GETS || req.type == GETX)){ //means it is a hit
@@ -187,7 +196,7 @@ uint64_t timing_flexclusive_cache::access(MemReq& req){
       // info ("making space for new line");
 
       if (cs == EX) {
-        if ((req.type == PUTS) || (req.type == PUTX)) {
+        if ((req.type == PUTS) || (req.type == PUTX) || (req.flags & MemReq::PREFETCH)) {
           Address wbLineAddr;
           lineId = array->preinsert(req.lineAddr, &req,
                                     &wbLineAddr);  // find the lineId to replace

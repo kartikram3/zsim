@@ -9,9 +9,6 @@
 //Also, need to decide statistics for use with these
 //files
 
-
-
-
 flexclusive_cache::flexclusive_cache(uint32_t _numLines, CC* _cc,
                                      CacheArray* _array, ReplPolicy* _rp,
                                      uint32_t _accLat, uint32_t _invLat,

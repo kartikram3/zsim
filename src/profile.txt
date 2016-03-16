@@ -1,0 +1,4 @@
+Take the non inclusive cache --
+a. Data which was accessed once and then replaced --> should have been exclusive access
+b. Insertion of data which is already there --> should have been non inclusive access
+   -- what is the overlap between the two ? -- no overlap

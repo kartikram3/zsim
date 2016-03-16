@@ -105,8 +105,15 @@ uint64_t llc_StreamPrefetcher::access(MemReq& req) {
     tr = evRec->popRecord();
     // info ("popped record, with reqcycle = %d", tr.reqCycle);
   }
+  
   assert (tr.type != PUTS);
   assert (tr.type != PUTX);
+
+//  if (tr.type != GETS){ //for now don't do prefetch in these scenarios
+//      if (tr.isValid())
+//            evRec->pushRecord(tr);
+//      return respCycle;
+//  }
 
   // info ("req cycle is %d", reqCycle);
   //-------- got trae ---------//
@@ -442,7 +449,8 @@ uint64_t llc_StreamPrefetcher::access(MemReq& req) {
           }
 
           e.lastPrefetchPos = prefetchPos;
-          assert(state == I);  // prefetch access should not give us any permissions
+          assert(state == I);  // prefetch access should not give us any permissions -- for now disable this assertion
+          //does not affect correctness because 'state' is only a dummy variable
         }
       } else {
         profLowConfAccs.inc();

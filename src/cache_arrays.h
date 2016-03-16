@@ -38,7 +38,7 @@ typedef enum {
 } CLUState;
 
 typedef enum {
-   noDUP, 
+   noDUP,
    DUP
 } DUPState;
 
@@ -58,6 +58,10 @@ class CacheArray : public GlobAlloc {
         int32_t ni_access_counter;
         CLUState policy = NI;
 
+
+        int32_t ni_hit_counter_pf;
+        int32_t ex_hit_counter_pf;
+
         /* Returns tag's ID if present, -1 otherwise. If updateReplacement is set, call the replacement policy's update() on the line accessed*/
         virtual int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement) = 0;
 
@@ -76,18 +80,30 @@ class CacheArray : public GlobAlloc {
         virtual int32_t lookup_norpupdate(const Address lineAddr){return 0;};
 
         virtual CLUState getCLU(const Address lineAddr){ return NA; };
+ 
+        virtual CLUState getCLUPF(const Address lineAddr){ return NA; };
 
         virtual CLUState getCLU(uint32_t lineId){ return NA; };
 
         virtual void setCLU(uint32_t lineId, CLUState cs) {  };
 
         virtual void updateCounters(const Address lineAddr, uint32_t lineId){};
+        
+        virtual void updateCountersPF(const Address lineAddr, uint32_t lineId){};
 
         virtual void setDup(uint32_t lineId){};
-        
+
         virtual void setnoDup(uint32_t lineId){};
-        
+
         DUPState getDup(uint32_t lineId){return noDUP;};
+
+        virtual void setFetchTime(uint64_t cycle, int32_t lineId){};
+
+        virtual uint64_t getFetchTime(uint32_t lineId){ return 0; }
+
+        virtual bool getPrefetch(uint32_t lineId){ return 0 ; }
+
+        virtual void setPrefetch(uint32_t lineId, bool val){  }
 };
 
 class ReplPolicy;
@@ -98,13 +114,13 @@ class SetAssocArray : public CacheArray {
     protected:
         Address* array;
         ReplPolicy* rp;
+        bool *prefetch_array;
         HashFamily* hf;
         uint32_t numLines;
         uint32_t numSets;
         uint32_t assoc;
         uint32_t setMask;
-
-
+        int64_t* fetch_time;
 
     public:
         SetAssocArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);
@@ -114,11 +130,17 @@ class SetAssocArray : public CacheArray {
 
         uint32_t preinsert(const Address lineAddr, const MemReq* req, Address* wbLineAddr);
         void postinsert(const Address lineAddr, const MemReq* req, uint32_t candidate);
+
+        void setFetchTime(uint64_t cycle, int32_t lineId){ fetch_time[lineId] = cycle;    }
+        uint64_t getFetchTime(uint32_t lineId){ return fetch_time[lineId]; }
+
+        bool getPrefetch(uint32_t lineId){ return prefetch_array[lineId]; }
+
+        void setPrefetch(uint32_t lineId, bool val){ prefetch_array[lineId] = val; }
 };
 
 
 /* Flexclusive array -- set associative with set duelling */
-
 class FlexclusiveArray : public CacheArray {
      protected:
         Address* array;
@@ -155,6 +177,104 @@ class FlexclusiveArray : public CacheArray {
         virtual void updateCounters(const Address lineAddr, uint32_t lineId);
 } ;
 
+/* line based array -- set associative with fine grained duelling */
+/* Check the CPP file for a more detailed description */
+class lbSetDArray : public CacheArray {
+     protected:
+        Address* array;
+        ReplPolicy* rp;
+        HashFamily* hf;
+
+        CLUState *clu_array;
+        uint32_t hit_window_ex;
+        uint32_t hit_window_ni;
+
+        uint32_t hit_window_ex_pf;
+        uint32_t hit_window_ni_pf;
+
+        uint32_t numLines;
+        uint32_t numSets;
+        uint32_t assoc;
+        uint32_t setMask;
+
+        Counter state_ex;
+        Counter state_ni;
+
+        Counter duel_ni_hits;
+        Counter duel_ni_accesses;
+
+        Counter duel_ex_hits;
+        Counter duel_ex_accesses;
+
+    public:
+        lbSetDArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);
+
+        void initStats(AggregateStat * parentStat);
+
+
+        int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement);
+        int32_t lookup_norpupdate(const Address lineAddr);
+
+        uint32_t preinsert(const Address lineAddr, const MemReq* req, Address* wbLineAddr);
+        void postinsert(const Address lineAddr, const MemReq* req, uint32_t candidate);
+
+        CLUState getCLU(const Address lineAddr);
+        
+        CLUState getCLUPF(const Address lineAddr);
+
+        virtual void updateCounters(const Address lineAddr, uint32_t lineId);
+
+        virtual void updateCountersPF(const Address lineAddr, uint32_t lineId);
+} ;
+
+/* fine grained set duelling if page table has the same data */
+class lbSetDPageArray : public CacheArray {
+     protected:
+        Address* array;
+        ReplPolicy* rp;
+        HashFamily* hf;
+
+        CLUState *clu_array;
+        Address *page_array;
+        uint32_t hit_window_ex;
+        uint32_t hit_window_ni;
+
+        Address current_page;
+        CLUState current_policy;
+
+        uint32_t numLines;
+        uint32_t numSets;
+        uint32_t assoc;
+        uint32_t setMask;
+
+        Counter state_ex;
+        Counter state_ni;
+
+        Counter duel_ni_hits;
+        Counter duel_ni_accesses;
+
+        Counter duel_ex_hits;
+        Counter duel_ex_accesses;
+
+    public:
+        lbSetDPageArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);
+
+        void initStats(AggregateStat * parentStat);
+
+
+        int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement);
+        int32_t lookup_norpupdate(const Address lineAddr);
+
+        uint32_t preinsert(const Address lineAddr, const MemReq* req, Address* wbLineAddr);
+        void postinsert(const Address lineAddr, const MemReq* req, uint32_t candidate);
+
+        CLUState getCLU(const Address lineAddr);
+
+        virtual void updateCounters(const Address lineAddr, uint32_t lineId);
+} ;
+
+
+
 /* line-based clusion array */
 class  LineBasedArray : public CacheArray {
      protected:
@@ -185,7 +305,7 @@ class  LineBasedArray : public CacheArray {
         void setCLU(uint32_t lineId, CLUState cs);
 
         void setDup(uint32_t lineId);
-        
+
         void setnoDup(uint32_t lineId);
 
         DUPState getDup(uint32_t lineId);

@@ -31,7 +31,8 @@
 #include "g_std/g_string.h"
 #include "memory_hierarchy.h"
 #include "stats.h"
-
+#include "timing_event.h"
+#include "event_recorder.h"
 /* Prefetcher models: Basic operation is to interpose between cache levels, issue additional accesses,
  * and keep a small table with delays; when the demand access comes, we do it and account for the
  * latency as when it was first fetched (to avoid hit latencies on partial latency overlaps).
@@ -117,6 +118,8 @@ class StreamPrefetcher : public BaseCache {
         virtual void dumpLifetimeStats(){ };
         virtual uint64_t snoop() { return 0;  };
         virtual uint64_t lookup(const Address lineAddr) { return 0;}
+
+        uint64_t add_weave_events(TimingRecord &tr, EventRecorder * evRec, uint64_t reqCycle, uint64_t respCycle );
 };
 
 #endif  // PREFETCHER_H_

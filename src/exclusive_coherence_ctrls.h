@@ -330,7 +330,11 @@ class exclusive_MESICC : public CC{
                 //Prefetches are side requests and get handled a bit differently
                 bool isPrefetch = req.flags & MemReq::PREFETCH;
                 assert(!isPrefetch || req.type == GETS);
-                uint32_t flags = req.flags & ~MemReq::PREFETCH; //always clear PREFETCH, this flag cannot propagate up
+                //uint32_t flags = req.flags & ~MemReq::PREFETCH; //always clear PREFETCH, this flag cannot propagate up
+                uint32_t flags = req.flags; //we did not clear flags because we need to know if request is prefetch
+                                            //otherwise we should not allocate
+                                            //We can decouple this functionality from prefetch by setting another flag
+                                            //antoher TODO
 
                 //if needed, fetch line or upgrade miss from upper level
                 respCycle = bcc->processAccess(req.lineAddr, lineId, req.type, startCycle, req.srcId, flags);

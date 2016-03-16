@@ -83,9 +83,8 @@ class flexclusive_MESIBottomCC : public GlobAlloc {
   // TODO: Measuring writebacks is messy, do if needed
   Counter profGETNextLevelLat, profGETNetLat;
 
-  //data traffic due to exclusive cache
+  // data traffic due to exclusive cache
   Counter profExclWB;
-
 
   bool nonInclusiveHack;
 
@@ -128,7 +127,7 @@ class flexclusive_MESIBottomCC : public GlobAlloc {
     profGETNextLevelLat.init("latGETnl", "GET request latency on next level");
     profGETNetLat.init("latGETnet",
                        "GET request latency on network to next level");
-    profExclWB.init("exclWB","Writebacks to LLC because exclusive LLC"    );
+    profExclWB.init("exclWB", "Writebacks to LLC because exclusive LLC");
 
     parentStat->append(&profGETSHit);
     parentStat->append(&profGETXHit);
@@ -406,17 +405,19 @@ class flexclusive_MESICC : public CC {
         bool lowerLevelWriteback = false;
         bool haveExclusive = true;
         if (req.flags & MemReq::INNER_COPY) haveExclusive = false;
-        respCycle = tcc->processAccess(
-            req.lineAddr, lineId, req.type, req.childId, haveExclusive,
-            req.state, &lowerLevelWriteback, respCycle, req.srcId, req.flags,
-            false, cs);  // sets the state as E
+        if (!(req.flags & MemReq::PREFETCH))
+          respCycle = tcc->processAccess(
+              req.lineAddr, lineId, req.type, req.childId, haveExclusive,
+              req.state, &lowerLevelWriteback, respCycle, req.srcId, req.flags,
+              false, cs);  // sets the state as E
       } else {
         // Prefetches are side requests and get handled a bit differently
         bool isPrefetch = req.flags & MemReq::PREFETCH;
         assert(!isPrefetch || req.type == GETS);
-        uint32_t flags = req.flags & ~MemReq::PREFETCH;  // always clear
-                                                         // PREFETCH, this flag
-                                                         // cannot propagate up
+        uint32_t flags =
+            req.flags;  // dont clear this & ~MemReq::PREFETCH;  // always clear
+                        // PREFETCH, this flag
+                        // cannot propagate up
 
         // if needed, fetch line or upgrade miss from upper level
         respCycle = bcc->processAccess(req.lineAddr, lineId, req.type,
@@ -446,9 +447,10 @@ class flexclusive_MESICC : public CC {
         // Prefetches are side requests and get handled a bit differently
         bool isPrefetch = req.flags & MemReq::PREFETCH;
         assert(!isPrefetch || req.type == GETS);
-        uint32_t flags = req.flags & ~MemReq::PREFETCH;  // always clear
-                                                         // PREFETCH, this flag
-                                                         // cannot propagate up
+        uint32_t flags = req.flags;  // don't clear this & ~MemReq::PREFETCH;
+                                     // // always clear
+                                     // PREFETCH, this flag
+                                     // cannot propagate up
 
         // if needed, fetch line or upgrade miss from upper level
         respCycle = bcc->processAccess(req.lineAddr, lineId, req.type,

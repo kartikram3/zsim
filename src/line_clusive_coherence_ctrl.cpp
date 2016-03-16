@@ -541,6 +541,7 @@ uint64_t line_clusive_MESITopCC::processAccess(
           uint64_t respCycle;
           respCycle = sendInvalidates(lineAddr, lineId, INV, inducedWriteback,
                                       cycle, srcId, true);
+          //info ("Sent a hard invalidate");
 
           e->exclusive = true;
           e->numSharers = 1;
@@ -564,6 +565,8 @@ uint64_t line_clusive_MESITopCC::processAccess(
         // Invalidate all other copies
         respCycle = sendInvalidates(lineAddr, lineId, INV, inducedWriteback,
                                     cycle, srcId, false);
+
+        //info ("Sent a hard invalidate");
 
         // Set current sharer, mark exclusive
         e->sharers[childId] = true;

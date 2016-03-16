@@ -80,6 +80,8 @@ void Cache::initCacheStats(AggregateStat* cacheStat) {
    phase_hit_counter.init("phasehitHist", "phase line hit histogram", 100);
    hotInv.init("hotInv", "Number of hot lines invalidated");
    prefetchPollution.init("prefetchPollution", "Number of hot lines evicted due to prefetch");
+   should_be_exclusive_lines.init("should_be_excl", "lines which should have been fetched in exclusive");
+   excl_interval.init("excl_interval", "Cycles between fetching two potentially exclusive lines");
 
    cacheStat->append( &phase_lifetimes);
    cacheStat->append( &agg_lifetimes);
@@ -87,7 +89,8 @@ void Cache::initCacheStats(AggregateStat* cacheStat) {
    cacheStat->append( &agg_hit_counter);
    cacheStat->append( &hotInv );
    cacheStat->append( &prefetchPollution );
-
+   cacheStat->append( &should_be_exclusive_lines);
+   cacheStat->append( &excl_interval);
 
 }
 
@@ -96,17 +99,22 @@ uint64_t Cache::access(MemReq& req) {
     //accesses data in a non-inclusive/exclusive/line-wise
     //inclusive way also
 
-
     uint64_t respCycle = req.cycle;
               //request and response cycle
-              
+
     if ( req.flags & MemReq::LLC_PREFETCH){
        //info ("Here");
        assert (!llc);
        req.flags = req.flags & ~MemReq::LLC_PREFETCH ;  //works for inclusive
-                                            //for other kinds, maybe not
-       assert(req.flags & MemReq::PREFETCH);                                     
-       return cc->access_next_level(req);
+                                                        //for other kinds, maybe not
+       assert(req.flags & MemReq::PREFETCH);
+       //req.flags = req.flags & ~MemReq::PREFETCH ; // cleared the prefetch flag
+
+       int32_t lineId = array->lookup(req.lineAddr, &req, false);
+       if (lineId == -1){ //if line is not found then prefetch into non inclusive LLC
+          req.childId = cc->get_selfId();
+          return cc->access_next_level(req);
+       }
     }
 
     bool skipAccess = cc->startAccess(req); //may need to skip access due to races (NOTE: may change req.type!)
@@ -116,6 +124,7 @@ uint64_t Cache::access(MemReq& req) {
         bool updateReplacement = (req.type == GETS) || (req.type == GETX);
         int32_t lineId = array->lookup(req.lineAddr, &req, updateReplacement);
         respCycle += accLat;
+
 
         if (lineId != -1 && (req.type == GETS || req.type == GETX)){ //means it is a hit
              //phase_life_start[lineId] = req.cycle;
@@ -282,6 +291,7 @@ uint64_t Cache::finishInvalidate(const InvReq& req) {
 
   if (agg_hits[lineId] > 10){
       hotInv.inc();
+      //info ("The name of the cache with hotinv is %s", name.c_str());
   }
 
   assert_msg(lineId != -1, "[%s] Invalidate on non-existing address 0x%lx type %s lineId %d, reqWriteback %d", name.c_str(), req.lineAddr, InvTypeName(req.type), lineId, *req.writeback);
@@ -292,8 +302,6 @@ uint64_t Cache::finishInvalidate(const InvReq& req) {
 
     return respCycle + 1;
 }
-
-
 
         void Cache::dumpLifetimeStats(){
           info ("Dumping lifetime stats for cache lines which were never evicted");

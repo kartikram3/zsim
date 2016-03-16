@@ -14,7 +14,6 @@
 //failure
 
 
-
 // Events
 class HitEvent : public TimingEvent {
  private:
@@ -131,9 +130,7 @@ uint64_t timing_exclusive_cache::access(MemReq& req) {  // only for GETS and
 
   EventRecorder* evRec = zinfo->eventRecorders[req.srcId];
   assert_msg(evRec, "TimingCache is not connected to TimingCore");
-
   bool hit = false;
-
 
   TimingRecord writebackRecord, accessRecord;
   writebackRecord.clear();
@@ -183,11 +180,11 @@ uint64_t timing_exclusive_cache::access(MemReq& req) {  // only for GETS and
       // if writeback, we need to put the data into the
       // cache array
 
-      if (req.type == GETS || req.type == GETX) {
+      if ((req.type == GETS || req.type == GETX) && !(req.flags & MemReq::PREFETCH)) {
         // do nothing here, we need to access the next level in our search
         // or do the check if it is an LLC
         // this code works even if there is only 1 level of cache
-        ;
+         ;
       } else {
         // in case of PUTX or PUTS
         // we need to get the line so that we can do the writeback later
@@ -242,6 +239,7 @@ uint64_t timing_exclusive_cache::access(MemReq& req) {  // only for GETS and
     }
 
     uint64_t getDoneCycle = respCycle;
+    assert(!evRec->hasRecord());
     respCycle = cc->processAccess(req, lineId, respCycle, &getDoneCycle);
 
     if (lineId != -1) {  // means a PUTS/PUTX happened, so we need to allocate
@@ -265,14 +263,14 @@ uint64_t timing_exclusive_cache::access(MemReq& req) {  // only for GETS and
         // Hit
         if (hit){
         assert_msg(!writebackRecord.isValid(), "The access type is %d", req.type);
-        assert(!accessRecord.isValid());
+        assert_msg(!accessRecord.isValid(), "The access flags are %d", req.flags);
         uint64_t hitLat = respCycle - req.cycle;  // accLat + invLat
         HitEvent* ev = new (evRec) HitEvent(this, hitLat, domain);
         ev->setMinStartCycle(req.cycle);
         tr.startEvent = tr.endEvent = ev;
       } else {
         assert (evDoneCycle > 0);
-        assert (req.type == PUTS || req.type == PUTX);
+        assert (req.type == PUTS || req.type == PUTX || (req.flags & MemReq::PREFETCH));
         assert_msg(getDoneCycle == respCycle, "gdc %ld rc %ld", getDoneCycle,
                    respCycle);
         // getDoneCycle = respCycle;

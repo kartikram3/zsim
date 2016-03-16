@@ -22,6 +22,10 @@ class non_inclusive_cache_timing : public Cache {
   // Stats
   CycleBreakdownStat profOccHist;
   Counter profHitLat, profMissRespLat, profMissLat;
+  //Counter should_be_exclusive_lines; //lines who replaced hot lines in l3
+  //Counter non_inclusive_lines; //lines who were already there on a PUTS
+  //Counter in_between_time; //average time between fetching two exclusive lines
+
 
   uint32_t domain;
 

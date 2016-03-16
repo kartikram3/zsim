@@ -1,4 +1,4 @@
-/** $glic$
+/** $glic$  //just do same policy if same page
  * Copyright (C) 2012-2015 by Massachusetts Institute of Technology
  * Copyright (C) 2010-2013 by The Board of Trustees of Stanford University
  * Copyright (C) 2011 Google Inc.
@@ -130,6 +130,10 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         numHashes = 1;
     } else if (arrayType == "linebased") {
         numHashes = 1;
+    } else if (arrayType == "sd_linebased"){
+        numHashes = 1;
+    } else if (arrayType == "sd_page_linebased"){
+        numHashes = 1;
     } else if (arrayType == "Z") {
         numHashes = ways;
         assert(ways > 1);
@@ -190,13 +194,20 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
     } else if (replType == "Rand") {
         rp = new RandReplPolicy(candidates);
     } else if (replType == "CLRU") {
-        bool sharersAware = (replType == "LRU") && !isTerminal;
+        bool sharersAware = (replType == "CLRU") && !isTerminal;
         if (sharersAware) {
             rp = new CLU_LRU_ReplPolicy<true>(numLines);
         }else{
             rp = new CLU_LRU_ReplPolicy<false>(numLines);
         }
-    } else if (replType == "TAP"){
+    } else if (replType == "PacmanLRU"){
+        bool sharersAware = (replType == "PacmanLRU") && !isTerminal;
+        if (sharersAware) {
+            rp = new LRURepl_pacmanM_Policy<true>(numLines);
+        }else{
+            rp = new LRURepl_pacmanM_Policy<false>(numLines);
+        }
+    }else if (replType == "TAP"){
 
         panic("Replacement policy TAP not defined !");
 
@@ -296,6 +307,10 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         array = new FlexclusiveArray(numLines, ways, rp, hf);
     } else if (arrayType == "linebased"){
         array = new LineBasedArray(numLines, ways, rp, hf);
+    } else if (arrayType == "sd_linebased"){
+        array = new lbSetDArray(numLines, ways, rp, hf); 
+    } else if (arrayType == "sd_page_linebased"){
+        array = new lbSetDPageArray(numLines, ways, rp, hf);
     }
     else {
         panic("This should not happen, we already checked for it!"); //unless someone changed arrayStr...

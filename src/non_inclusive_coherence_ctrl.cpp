@@ -291,7 +291,7 @@ uint64_t non_inclusive_MESITopCC::processAccess(Address lineAddr, uint32_t lineI
               //we should INVX it
               //and then put it as a sharer in the TCC
 
-                  //info ("Found flag !");
+                 //info ("Found flag !");
 
                  //assert(e->isEmpty()); //need not be empty
                  //assert(e->sharers[0] == false);

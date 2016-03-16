@@ -165,7 +165,10 @@ uint64_t flexclusive_MESIBottomCC::processAccess(Address lineAddr,
         } else {
           profGETSHit.inc();
         }
-        *state = I;
+        if (!(flags & MemReq::PREFETCH))
+            *state = I;
+        else *state = E;
+
         break;
       case GETX:
         if ((*state == I || *state == S) && (!(flags & MemReq::INNER_COPY))) {
@@ -185,7 +188,10 @@ uint64_t flexclusive_MESIBottomCC::processAccess(Address lineAddr,
         } else {  // means state is E or M
           profGETXHit.inc();
         }
-        *state = I;  // inv because cache is exclusive
+        if (!(flags & MemReq::PREFETCH))
+            *state = I;  // inv because cache is exclusive
+        else
+            *state = E;
         break;
 
       default:
@@ -400,6 +406,7 @@ uint64_t flexclusive_MESITopCC::sendInvalidates(Address lineAddr,
                                                 bool* reqWriteback,
                                                 uint64_t cycle, uint32_t srcId,
                                                 bool non_incl) {
+
   // Send down downgrades/invalidates
   if((int)lineId == -1) {
     uint64_t maxCycle = cycle; //keep maximum cycle only, we assume all invals are sent in parallel
@@ -411,13 +418,13 @@ uint64_t flexclusive_MESITopCC::sendInvalidates(Address lineAddr,
         //uint32_t numChildren = children.size();
         uint32_t c;
         for (uint32_t i = 0; i < numChildren; i++) { //iterate through children
-
           c = valid_children[i];
           //if (i==childId ){ continue;} //no need to invalidate child
                                        //which sent the request
                                        //this should never happen
                 //info ("doing invalidate !, numchildren is %d", numChildren);
                 InvReq req = {lineAddr, type, reqWriteback, cycle, srcId};
+                info ("Type is %d", type);
                 uint64_t respCycle = children[c]->invalidate(req);
                 respCycle += childrenRTTs[c];
                 maxCycle = MAX(respCycle, maxCycle);
@@ -440,6 +447,7 @@ uint64_t flexclusive_MESITopCC::sendInvalidates(Address lineAddr,
       c = valid_children[i];
       InvReq req = {lineAddr, type, reqWriteback, cycle, srcId};
       if (e->sharers[c]) {
+        info ("Type is %d", type);
         uint64_t respCycle = children[c]->invalidate(req);
         respCycle += childrenRTTs[c];
         maxCycle = MAX(respCycle, maxCycle);

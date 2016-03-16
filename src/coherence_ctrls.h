@@ -74,6 +74,9 @@ class CC : public GlobAlloc {
 
         //skipaccess to the next level
         virtual uint64_t access_next_level(MemReq & req){ return req.cycle;};
+
+        //return the selfId
+        virtual uint32_t get_selfId(){ return 0; }
 };
 
 
@@ -98,7 +101,6 @@ class MESIBottomCC : public GlobAlloc {
         MESIState* array;
         g_vector<uint32_t> parentRTTs;
         uint32_t numLines;
-        uint32_t selfId;
 
         //Profiling counters
         Counter profGETSHit, profGETSMiss, profGETXHit, profGETXMissIM /*from invalid*/, profGETXMissSM /*from S, i.e. upgrade misses*/;
@@ -117,6 +119,7 @@ class MESIBottomCC : public GlobAlloc {
 
     public:
         g_vector<MemObject*> parents;
+        uint32_t selfId;
         MESIBottomCC(uint32_t _numLines, uint32_t _selfId, bool _nonInclusiveHack) : numLines(_numLines), selfId(_selfId), nonInclusiveHack(_nonInclusiveHack) {
             array = gm_calloc<MESIState>(numLines);
             for (uint32_t i = 0; i < numLines; i++) {
@@ -326,7 +329,9 @@ class MESICC : public CC {
             bcc->initStats(cacheStat);
         }
 
-
+        uint32_t get_selfId(){
+          return bcc->selfId;
+        }
 
         //Access methods
         bool startAccess(MemReq& req) {

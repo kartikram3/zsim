@@ -533,6 +533,7 @@ VOID EndOfPhaseActions() {
       for ( Cache * x : *(zinfo->cache_banks)){  // remove per phase stats ... make sure terminal cache is covered
           (x->phase_lifetimes).clear();
           (x->phase_hit_counter).clear();
+          (x->excl_interval).set(0);
         }
 
     }

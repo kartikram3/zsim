@@ -1,5 +1,4 @@
 /** $lic$
- * Copyright (C) 2012-2015 by Massachusetts Institute of Technology
  * Copyright (C) 2010-2013 by The Board of Trustees of Stanford University
  *
  * This file is part of zsim.
@@ -26,6 +25,7 @@
 #include "cache_arrays.h"
 #include "hash.h"
 #include "repl_policies.h"
+#include "memory_hierarchy.h"
 
 /* Set-associative array implementation */
 
@@ -33,6 +33,8 @@ SetAssocArray::SetAssocArray(uint32_t _numLines, uint32_t _assoc,
                              ReplPolicy* _rp, HashFamily* _hf)
     : rp(_rp), hf(_hf), numLines(_numLines), assoc(_assoc) {
   array = gm_calloc<Address>(numLines);
+  prefetch_array = gm_calloc<bool>(numLines);
+  fetch_time = gm_calloc<int64_t>(numLines);
   numSets = numLines / assoc;
   setMask = numSets - 1;
   assert_msg(isPow2(numSets),
@@ -52,8 +54,6 @@ int32_t SetAssocArray::lookup(const Address lineAddr, const MemReq* req,
         //means it was a cache hit
         rp->update(id, req);
       }
-
-
       return id;
     }
   }
@@ -80,6 +80,10 @@ uint32_t SetAssocArray::preinsert(
   uint32_t candidate = rp->rankCands(req, SetAssocCands(first, first + assoc));
 
   *wbLineAddr = array[candidate];
+  if(req->flags & (MemReq::PREFETCH))
+       prefetch_array[candidate] = true;
+  else
+       prefetch_array[candidate] = false;
   return candidate;
 }
 
@@ -93,7 +97,7 @@ void SetAssocArray::postinsert(const Address lineAddr, const MemReq* req,
 /* Set duelling array */
 
 void FlexclusiveArray::initStats(AggregateStat * parentStat){
-    
+
   AggregateStat* objStats = new AggregateStat();
   objStats->init("array", "FlexclusiveArray stats");
   state_ex.init("ni_to_ex", "No of times set ex policy");
@@ -221,12 +225,12 @@ void FlexclusiveArray::updateCounters(const Address lineAddr, uint32_t lineId) {
       state_ex.inc();
     }
 
-    info("The ni hit rate is %f, The ex hit rate is %f", ni_hit_rate,
-         ex_hit_rate);
-    info("The ni access counter is %d, the ex access counter is %d",
-         ni_access_counter, ex_access_counter);
-    info("The ni hit counter is %d, the ex hit counter is %d", ni_hit_counter,
-         ex_hit_counter);
+    //info("The ni hit rate is %f, The ex hit rate is %f", ni_hit_rate,
+         //ex_hit_rate);
+    //info("The ni access counter is %d, the ex access counter is %d",
+         //ni_access_counter, ex_access_counter);
+    //info("The ni hit counter is %d, the ex hit counter is %d", ni_hit_counter,
+         //ex_hit_counter);
 
     access_counter = 0;
     ni_hit_counter = 0;
@@ -234,8 +238,8 @@ void FlexclusiveArray::updateCounters(const Address lineAddr, uint32_t lineId) {
     ex_access_counter = 0;
     ni_access_counter = 0;
   }
-}
 
+}
 /* Line based clusion arrays */
 void LineBasedArray::initStats( AggregateStat * parentStat){
 
@@ -510,3 +514,298 @@ void ZArray::postinsert(const Address lineAddr, const MemReq* req,
 
   statSwaps.inc(swapArrayLen - 1);
 }
+
+// -- every time you bring in a line, check the set duelling status for the last 1000 accesses
+//  -- and set the inclusion property appropriately
+//  -- this way we set the inclusion property on a much more fine grained level compared to
+//  -- normal set dueling, where each phase only has a single policy
+//
+//  Implementation -- use a bitvector to store last 32 accesses and use a sliding window
+//  to keep changing the policy
+
+
+
+void lbSetDArray::initStats(AggregateStat * parentStat){
+
+  AggregateStat* objStats = new AggregateStat();
+  objStats->init("array", "lbSetDArray stats");
+  state_ex.init("ni_to_ex", "No of times set ex policy");
+  state_ni.init("ex_to_ni", "Num times set ni policy");
+  duel_ni_hits.init("duel_ni_hits", "NI cache line hits during set duelling");
+  duel_ni_accesses.init("duel_ni_acc", "NI cache line accesses during set duelling");
+  duel_ex_hits.init("duel_ex_hits", "EX cache line hits during set duelling");
+  duel_ex_accesses.init("duel_ex_accesses", "EX cache line accesses during set duelling");
+
+  objStats->append(&state_ex);
+  objStats->append(&state_ni);
+  objStats->append(&duel_ni_hits);
+  objStats->append(&duel_ni_accesses);
+  objStats->append(&duel_ex_hits);
+  objStats->append(&duel_ex_accesses);
+
+  parentStat->append(objStats);
+
+}
+
+lbSetDArray::lbSetDArray(uint32_t _numLines, uint32_t _assoc,
+                                   ReplPolicy* _rp, HashFamily* _hf)
+    : rp(_rp), hf(_hf), numLines(_numLines), assoc(_assoc) {
+  array = gm_calloc<Address>(numLines);
+  clu_array = gm_calloc<CLUState>(numLines);
+  numSets = numLines / assoc;
+  setMask = numSets - 1;
+  assert_msg(isPow2(numSets),
+             "must have a power of 2 # sets, but you specified %d", numSets);
+}
+
+
+
+int32_t lbSetDArray::lookup(const Address lineAddr, const MemReq* req,
+                                 bool updateReplacement) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+  uint32_t first = set * assoc;
+  for (uint32_t id = first; id < first + assoc; id++) {
+    if (array[id] == lineAddr) {
+      if (updateReplacement) rp->update(id, req);
+      return id;
+    }
+  }
+  return -1;
+}
+
+int32_t lbSetDArray::lookup_norpupdate(const Address lineAddr) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+  uint32_t first = set * assoc;
+  for (uint32_t id = first; id < first + assoc; id++) {
+    if (array[id] == lineAddr) {
+      return id;
+    }
+  }
+  return -1;
+}
+
+uint32_t lbSetDArray::preinsert(
+    const Address lineAddr, const MemReq* req,
+    Address* wbLineAddr) {  // TODO: Give out valid bit of wb cand?
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+  uint32_t first = set * assoc;
+
+  uint32_t candidate = rp->rankCands(req, SetAssocCands(first, first + assoc));
+
+  *wbLineAddr = array[candidate];
+  return candidate;
+}
+
+void lbSetDArray::postinsert(const Address lineAddr, const MemReq* req,
+                                  uint32_t candidate) {
+  rp->replaced(candidate);
+  array[candidate] = lineAddr;
+  rp->update(candidate, req);
+}
+
+CLUState lbSetDArray::getCLU(const Address lineAddr) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+
+  if ((set % 16) == 1) {
+    return NI;
+  } else if ((set % 16) == 0) {
+    return EX;
+  } else if (ni_hit_counter > ex_hit_counter - 4){
+     return NI;
+  } else return EX;
+}
+
+
+CLUState lbSetDArray::getCLUPF(const Address lineAddr) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+
+  if ((set % 16) == 1) {
+    return NI;
+  } else if ((set % 16) == 0) {
+    return EX;
+  } else if (ni_hit_counter_pf > ex_hit_counter_pf - 4){
+     return NI;
+  } else return EX;
+}
+
+
+void lbSetDArray::updateCounters(const Address lineAddr, uint32_t lineId) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+
+    if((int) lineId != -1){
+      if(set %16 == 1){
+           ni_hit_counter += !(hit_window_ni & 0x00000001) ;
+           hit_window_ni >> 1;
+           hit_window_ni = hit_window_ni | 0x80000000;
+      }else{
+           ex_hit_counter += !(hit_window_ex & 0x00000001) ;
+           hit_window_ex >> 1;
+           hit_window_ex = hit_window_ex | 0x80000000;
+      }
+    }else{
+      if(set %16 == 1){
+           ni_hit_counter -= (hit_window_ni & 0x00000001) ;
+           hit_window_ni >> 1;
+      }else{
+           hit_window_ex >> 1;
+           ex_hit_counter -= (hit_window_ex & 0x00000001) ;
+      }
+    }
+}
+
+
+void lbSetDArray::updateCountersPF(const Address lineAddr, uint32_t lineId) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+
+    if((int) lineId != -1){
+      if(set %16 == 1){
+           ni_hit_counter_pf += !(hit_window_ni & 0x00000001) ;
+           hit_window_ni_pf >> 1;
+           hit_window_ni_pf = hit_window_ni | 0x80000000;
+      }else{
+           ex_hit_counter_pf += !(hit_window_ex & 0x00000001) ;
+           hit_window_ex_pf >> 1;
+           hit_window_ex_pf = hit_window_ex | 0x80000000;
+      }
+    }else{
+      if(set %16 == 1){
+           ni_hit_counter_pf -= (hit_window_ni & 0x00000001) ;
+           hit_window_ni_pf >> 1;
+      }else{
+           hit_window_ex_pf >> 1;
+           ex_hit_counter_pf -= (hit_window_ex & 0x00000001) ;
+      }
+    }
+}
+
+
+//set duelling for each line and sometimes don't do it if same page as before
+void lbSetDPageArray::initStats(AggregateStat * parentStat){
+
+  AggregateStat* objStats = new AggregateStat();
+  objStats->init("array", "lbSetDPageArray stats");
+  state_ex.init("ni_to_ex", "No of times set ex policy");
+  state_ni.init("ex_to_ni", "Num times set ni policy");
+  duel_ni_hits.init("duel_ni_hits", "NI cache line hits during set duelling");
+  duel_ni_accesses.init("duel_ni_acc", "NI cache line accesses during set duelling");
+  duel_ex_hits.init("duel_ex_hits", "EX cache line hits during set duelling");
+  duel_ex_accesses.init("duel_ex_accesses", "EX cache line accesses during set duelling");
+
+  objStats->append(&state_ex);
+  objStats->append(&state_ni);
+  objStats->append(&duel_ni_hits);
+  objStats->append(&duel_ni_accesses);
+  objStats->append(&duel_ex_hits);
+  objStats->append(&duel_ex_accesses);
+
+  parentStat->append(objStats);
+
+}
+
+lbSetDPageArray::lbSetDPageArray(uint32_t _numLines, uint32_t _assoc,
+                                   ReplPolicy* _rp, HashFamily* _hf)
+    : rp(_rp), hf(_hf), numLines(_numLines), assoc(_assoc) {
+  array = gm_calloc<Address>(numLines);
+  clu_array = gm_calloc<CLUState>(numLines);
+  page_array = gm_calloc<Address>(numLines);
+  numSets = numLines / assoc;
+  setMask = numSets - 1;
+  assert_msg(isPow2(numSets),
+             "must have a power of 2 # sets, but you specified %d", numSets);
+}
+
+
+
+int32_t lbSetDPageArray::lookup(const Address lineAddr, const MemReq* req,
+                                 bool updateReplacement) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+  uint32_t first = set * assoc;
+  for (uint32_t id = first; id < first + assoc; id++) {
+    if (array[id] == lineAddr) {
+      if (updateReplacement) rp->update(id, req);
+      return id;
+    }
+  }
+  return -1;
+}
+
+int32_t lbSetDPageArray::lookup_norpupdate(const Address lineAddr) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+  uint32_t first = set * assoc;
+  for (uint32_t id = first; id < first + assoc; id++) {
+    if (array[id] == lineAddr) {
+      return id;
+    }
+  }
+  return -1;
+}
+
+uint32_t lbSetDPageArray::preinsert(
+    const Address lineAddr, const MemReq* req,
+    Address* wbLineAddr) {  // TODO: Give out valid bit of wb cand?
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+  uint32_t first = set * assoc;
+
+  uint32_t candidate = rp->rankCands(req, SetAssocCands(first, first + assoc));
+
+  *wbLineAddr = array[candidate];
+  return candidate;
+}
+
+void lbSetDPageArray::postinsert(const Address lineAddr, const MemReq* req,
+                                  uint32_t candidate) {
+  rp->replaced(candidate);
+  array[candidate] = lineAddr;
+  rp->update(candidate, req);
+}
+
+CLUState lbSetDPageArray::getCLU(const Address lineAddr) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+
+  uint64_t page = lineAddr >> 6;
+
+  if ((set % 16) == 1) {
+    current_policy = NI;
+    return NI;
+  } else if ((set % 16) == 0) {
+    current_policy = EX;
+    return EX;
+  } else if( current_page == page){  //just do same policy if same page
+    return current_policy;
+  } else if (ni_hit_counter > ex_hit_counter - 4){
+    current_policy = NI;
+    return NI;
+  } else {
+    current_policy = EX;
+    return EX;
+  }
+
+}
+
+void lbSetDPageArray::updateCounters(const Address lineAddr, uint32_t lineId) {
+  uint32_t set = hf->hash(0, lineAddr) & setMask;
+
+    Address page = lineAddr >> 6;
+    current_page = page;
+
+    if((int) lineId != -1){
+      if(set %16 == 1){
+           ni_hit_counter += !(hit_window_ni & 0x00000001) ;
+           hit_window_ni >> 1;
+           hit_window_ni = hit_window_ni | 0x80000000;
+      }else{
+           ex_hit_counter += !(hit_window_ex & 0x00000001) ;
+           hit_window_ex >> 1;
+           hit_window_ex = hit_window_ex | 0x80000000;
+      }
+    }else{
+      if(set %16 == 1){
+           ni_hit_counter -= (hit_window_ni & 0x00000001) ;
+           hit_window_ni >> 1;
+      }else{
+           hit_window_ex >> 1;
+           ex_hit_counter -= (hit_window_ex & 0x00000001) ;
+      }
+    }
+}
+

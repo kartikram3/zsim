@@ -265,7 +265,7 @@ uint64_t DDRMemory::access(MemReq& req) {
         uint64_t respCycle = req.cycle + (isWrite? minWrLatency : minRdLatency);
         if (zinfo->eventRecorders[req.srcId]) {
 
-            EventRecorder * evRec= zinfo->eventRecorders[req.srcId];
+               EventRecorder * evRec= zinfo->eventRecorders[req.srcId];
 
                if (!(zinfo->eventRecorders[req.srcId])->hasRecord()){
                //info("Adding mem record !");
@@ -274,6 +274,7 @@ uint64_t DDRMemory::access(MemReq& req) {
                memEv->setMinStartCycle(req.cycle);
                TimingRecord tr = {req.lineAddr, req.cycle, respCycle, req.type, memEv, memEv};
                zinfo->eventRecorders[req.srcId]->pushRecord(tr);
+
 
                 }else{ //never happens for inclusive timing cache
                info ("pushing record"); // does not happen for inclusive cache

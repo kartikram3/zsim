@@ -265,7 +265,7 @@ void OOOCoreRecorder::recordAccess(uint64_t curCycle, uint64_t dispatchCycle, ui
     } else {
 
         //info("Handling PUT: curCycle %ld", curCycle);
-        assert(IsPut(tr.type));
+        assert_msg(IsPut(tr.type), " The tr type is %d", tr.type);
 
         //Link request
         DelayEvent* putUp = new (eventRecorder) DelayEvent(tr.reqCycle-curCycle);

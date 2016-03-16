@@ -101,7 +101,7 @@ struct MemReq {
                             //this flag is used by exclusive LLC
         DONT_RECORD = (1<<7),  //used if we don't want to record contention simulation information
         LLC_PREFETCH  = (1<<8) //means prefetch only to LLC
-                            
+
     };
     uint32_t flags;
 
@@ -123,7 +123,7 @@ struct LookupReq {
 
     Address lineAddr; //the line address you are looking up
     uint64_t cycle; //the cycle where you began the lookup
-    uint32_t srcId; 
+    uint32_t srcId;
 
 };
 

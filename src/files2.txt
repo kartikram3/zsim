@@ -72,6 +72,8 @@
 /home/kartik/zsim_kartik/src/line_clusive_coherence_ctrl.cpp
 /home/kartik/zsim_kartik/src/line_clusive_coherence_ctrl.h
 /home/kartik/zsim_kartik/src/line_clusive_filter_cache.h
+/home/kartik/zsim_kartik/src/llc_prefetcher.cpp
+/home/kartik/zsim_kartik/src/llc_prefetcher.h
 /home/kartik/zsim_kartik/src/locks.h
 /home/kartik/zsim_kartik/src/log.cpp
 /home/kartik/zsim_kartik/src/log.h
@@ -87,9 +89,10 @@
 /home/kartik/zsim_kartik/src/network.h
 /home/kartik/zsim_kartik/src/non_inclusive_cache.cpp
 /home/kartik/zsim_kartik/src/non_inclusive_cache.h
+/home/kartik/zsim_kartik/src/non_inclusive_cache_timing.cpp
+/home/kartik/zsim_kartik/src/non_inclusive_cache_timing.h
 /home/kartik/zsim_kartik/src/non_inclusive_coherence_ctrl.cpp
 /home/kartik/zsim_kartik/src/non_inclusive_coherence_ctrl.h
-/home/kartik/zsim_kartik/src/non_inclusive_filter_cache.h
 /home/kartik/zsim_kartik/src/null_core.cpp
 /home/kartik/zsim_kartik/src/null_core.h
 /home/kartik/zsim_kartik/src/ooo_core.cpp
@@ -135,6 +138,12 @@
 /home/kartik/zsim_kartik/src/timing_core.h
 /home/kartik/zsim_kartik/src/timing_event.cpp
 /home/kartik/zsim_kartik/src/timing_event.h
+/home/kartik/zsim_kartik/src/timing_exclusive_cache.cpp
+/home/kartik/zsim_kartik/src/timing_exclusive_cache.h
+/home/kartik/zsim_kartik/src/timing_flexclusive_cache.cpp
+/home/kartik/zsim_kartik/src/timing_flexclusive_cache.h
+/home/kartik/zsim_kartik/src/timing_line_clusive_cache.cpp
+/home/kartik/zsim_kartik/src/timing_line_clusive_cache.h
 /home/kartik/zsim_kartik/src/trace_driver.cpp
 /home/kartik/zsim_kartik/src/trace_driver.h
 /home/kartik/zsim_kartik/src/tracing_cache.cpp

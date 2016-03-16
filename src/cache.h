@@ -79,6 +79,8 @@ class Cache : public BaseCache {
         VectorCounter agg_hit_counter;
         Counter hotInv;
         Counter prefetchPollution;
+        Counter should_be_exclusive_lines;
+        Counter excl_interval; //time between fetching two potentially exclusive lines
 
         Cache(uint32_t _numLines, CC* _cc, CacheArray* _array, ReplPolicy* _rp, uint32_t _accLat, uint32_t _invLat, const g_string& _name);
 
