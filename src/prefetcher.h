@@ -119,7 +119,7 @@ class StreamPrefetcher : public BaseCache {
         virtual uint64_t snoop() { return 0;  };
         virtual uint64_t lookup(const Address lineAddr) { return 0;}
 
-        uint64_t add_weave_events(TimingRecord &tr, EventRecorder * evRec, uint64_t reqCycle, uint64_t respCycle );
+        void add_weave_events(TimingRecord &tr, EventRecorder * evRec, uint64_t reqCycle, uint64_t respCycle, bool pureprefetch );
 };
 
 #endif  // PREFETCHER_H_

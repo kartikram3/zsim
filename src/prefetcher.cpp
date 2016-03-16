@@ -92,12 +92,12 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
   uint64_t respCycle = parent->access(req);
   uint64_t reqCycle = req.cycle;
 
-  assert_msg (*(req.state)  == S || *(req.state) == E, "The childstate is not S or E !")
+  assert_msg(*(req.state) == S || *(req.state) == E,
+             "The childstate is not S or E !")
 
-
-  //-------- get trace from current access ----------//
-  EventRecorder* evRec =
-      zinfo->eventRecorders[req.srcId];  // remove the current record
+      //-------- get trace from current access ----------//
+      EventRecorder* evRec =
+          zinfo->eventRecorders[req.srcId];  // remove the current record
   TimingRecord tr;
   tr.clear();
 
@@ -106,16 +106,16 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
     // info ("popped record, with reqcycle = %d", tr.reqCycle);
   }
 
-  //tr.type = GETS;
-  assert (tr.type != PUTS);
-  assert (tr.type != PUTX);
-  //
+  // tr.type = GETS;
+  assert(tr.type != PUTS);
+  assert(tr.type != PUTX);
+  bool pureprefetch = (tr.startEvent == nullptr);
 
-//  if (tr.type != GETS){ //for now don't do prefetch in these scenarios
-//      if (tr.isValid())
-//          evRec->pushRecord(tr);
-//      return respCycle;
-//  }
+  //  if (tr.type != GETS){ //for now don't do prefetch in these scenarios
+  //      if (tr.isValid())
+  //          evRec->pushRecord(tr);
+  //      return respCycle;
+  //  }
 
   // info ("req cycle is %d", reqCycle);
   //-------- got trae ---------//
@@ -233,135 +233,37 @@ uint64_t StreamPrefetcher::access(MemReq& req) {
           // ----- needs to be attached to the access trace as a second branch
           // ----- trace for prefetch access ---
 
-          add_weave_events(tr, evRec, reqCycle, respCycle  );
+          add_weave_events(tr, evRec, reqCycle, respCycle, pureprefetch);
 
           e.valid[prefetchPos] = true;
           e.times[prefetchPos].fill(reqCycle, pfRespCycle);
           profPrefetches.inc();
 
-          if (shortPrefetch && fetchDepth < 8 && prefetchPos + stride < 64 &&
-              !e.valid[prefetchPos + stride]) {
-            prefetchPos += stride;
-            pfReq.lineAddr += stride;
-            //info("doing pf2");
+          for (int i = 0; i < 2; i++) {  // more aggressive prefetch
+            if (shortPrefetch && fetchDepth < 8 && prefetchPos + stride < 64 &&
+                !e.valid[prefetchPos + stride]) {
+              prefetchPos += stride;
+              pfReq.lineAddr += stride;
+              // info("doing pf2");
 
-            TimingRecord tr_1;
-            tr_1.clear();
+              TimingRecord tr_1;
+              tr_1.clear();
 
-            if (evRec->hasRecord()) {
-              tr_1 = evRec->popRecord();
-            }
-
-            pfRespCycle = parent->access(pfReq);
-
-            pf2 = true;
-
-            if (evRec->hasRecord()) {
-              if ((tr_1.startEvent != nullptr)) {
-                assert_msg(tr_1.startEvent != nullptr,
-                           "The start event is not true");
-                TimingRecord acc = evRec->popRecord();
-                assert_msg(acc.startEvent != nullptr,
-                           "The start event is not true");
-                assert(tr_1.reqCycle >= reqCycle);
-                assert(acc.reqCycle >= reqCycle);
-                DelayEvent* startEv = new (evRec) DelayEvent(0);
-                DelayEvent* dWbEv =
-                    new (evRec) DelayEvent(tr_1.reqCycle - reqCycle);
-                DelayEvent* dAccEv =
-                    new (evRec) DelayEvent(acc.reqCycle - reqCycle);
-                startEv->setMinStartCycle(reqCycle);
-                dWbEv->setMinStartCycle(reqCycle);
-                dAccEv->setMinStartCycle(reqCycle);
-
-                assert_msg(dWbEv != nullptr, "the msg is not valid");
-                assert_msg(dAccEv != nullptr, "the msg is not valid");
-                assert_msg(tr_1.startEvent != nullptr, "null ptr start event");
-
-                TimingEvent* x = startEv->addChild(dWbEv, evRec);
-                // info ("The state is %d", (tr.startEvent)->state);
-                // info ("added first child");
-                assert(x);
-                TimingEvent* y = tr_1.startEvent;
-                assert_msg(y != nullptr, "y is a null ptr");
-                assert_msg(y != NULL, "y is a NULL");
-                assert_msg((long)y != 0, "y is 0");
-                assert(y != nullptr);
-                assert(y != NULL);
-                assert((long)y != 0);  // asserts don't work here
-                // info ("Printing y = %d", (long)y);
-
-                x->addChild(y, evRec);
-                startEv->addChild(dAccEv, evRec)
-                    ->addChild(acc.startEvent, evRec);
-
-                if (tr.startEvent ==
-                    nullptr) {  // means this is the second pure prefetch
-                  acc.startEvent = startEv;
-                  acc.endEvent = startEv;
-                  acc.respCycle = respCycle;
-                  acc.reqCycle = reqCycle;
-                  acc.type = tr.type;
-                  assert (tr.type == GETS);
-
-                }else{  //means this is second prefetch, but not pure
-                        //there was an actual access
-                        //there might have been a first prefetch but we don't know
-                        //as we only have the combined record
-
-
-                acc.reqCycle = reqCycle;
-                acc.startEvent = startEv;
-                acc.respCycle = tr_1.respCycle;
-                acc.endEvent = tr_1.endEvent;
-                acc.type = tr_1.type;
-                  assert (tr_1.type == GETS);
-                }
-
-                // endEvent / endCycle stay the same; wbAcc's endEvent not
-                // connected
-
-                // info ("returning stitched prefetch record");
-                evRec->pushRecord(acc);
-
-                // info ("req cycle is %d", acc.reqCycle);
-                // info ("resp cycle is %d", acc.respCycle);
-                //
-                // return acc.respCycle;
-                // return respCycle;
-              } else {  // means it is the first pure prefetch
-
-                DelayEvent* startEv = new (evRec) DelayEvent(0);
-                TimingRecord t = evRec->popRecord();
-                startEv->addChild(t.startEvent, evRec);
-                t.startEvent = startEv;
-                t.endEvent = t.startEvent;
-                t.respCycle = respCycle;
-                t.type = GETS;
-                evRec->pushRecord(t);  // pure prefetch
-                // info("here");
-              }
-            } else {
-              assert(!evRec->hasRecord());
-              // info ("returning non-stitched prefetch record");
-
-              if (tr_1.isValid()) {
-                evRec->pushRecord(tr_1);
+              if (evRec->hasRecord()) {
+                tr_1 = evRec->popRecord();
               }
 
-              // info ("req cycle is %d", tr.reqCycle);
-              // info ("resp cycle is %d", tr.respCycle);
-              // info ("pushed record");
-              //
+              pfRespCycle = parent->access(pfReq);
 
-              // return tr.respCycle;
-              // return respCycle;
+              pf2 = true;
+
+              add_weave_events(tr_1, evRec, reqCycle, respCycle, pureprefetch);
+
+              e.valid[prefetchPos] = true;
+              e.times[prefetchPos].fill(reqCycle, pfRespCycle);
+              profPrefetches.inc();
+              profDoublePrefetches.inc();
             }
-
-            e.valid[prefetchPos] = true;
-            e.times[prefetchPos].fill(reqCycle, pfRespCycle);
-            profPrefetches.inc();
-            profDoublePrefetches.inc();
           }
 
           e.lastPrefetchPos = prefetchPos;
@@ -412,92 +314,99 @@ uint64_t StreamPrefetcher::invalidate(const InvReq& req) {
   return child->invalidate(req);
 }
 
-void add_weave_events(TimingRecord &tr, EventRecorder *evRec, uint64_t reqCycle, uint64_t respCycle  ){
-          if (evRec->hasRecord()) {
-            if ((tr.startEvent != nullptr)) {
-              assert_msg(tr.startEvent != nullptr,
-                         "The start event is not true");
-              TimingRecord acc = evRec->popRecord();
-              assert_msg(acc.startEvent != nullptr,
-                         "The start event is not true");
-              assert(tr.reqCycle >= reqCycle);
-              assert(acc.reqCycle >= reqCycle);
-              DelayEvent* startEv = new (evRec) DelayEvent(0);
-              DelayEvent* dWbEv =
-                  new (evRec) DelayEvent(tr.reqCycle - reqCycle);
-              DelayEvent* dAccEv = new (evRec) DelayEvent(499);
-              // DelayEvent* dAccEv = new (evRec) DelayEvent(acc.reqCycle -
-              // reqCycle);
-              startEv->setMinStartCycle(reqCycle);
-              dWbEv->setMinStartCycle(reqCycle);
-              dAccEv->setMinStartCycle(reqCycle);
+void StreamPrefetcher::add_weave_events(TimingRecord& tr, EventRecorder* evRec,
+                                        uint64_t reqCycle, uint64_t respCycle,
+                                        bool pureprefetch) {
+  if (evRec->hasRecord()) {
+    if ((tr.startEvent != nullptr)) {
+      assert_msg(tr.startEvent != nullptr, "The start event is not true");
+      TimingRecord acc = evRec->popRecord();
+      assert_msg(acc.startEvent != nullptr, "The start event is not true");
+      assert(tr.reqCycle >= reqCycle);
+      assert(acc.reqCycle >= reqCycle);
+      DelayEvent* startEv = new (evRec) DelayEvent(0);
+      DelayEvent* dWbEv = new (evRec) DelayEvent(tr.reqCycle - reqCycle);
+      DelayEvent* dAccEv = new (evRec) DelayEvent(acc.reqCycle - reqCycle);
+      startEv->setMinStartCycle(reqCycle);
+      dWbEv->setMinStartCycle(reqCycle);
+      dAccEv->setMinStartCycle(reqCycle);
 
-              assert_msg(dWbEv != nullptr, "the msg is not valid");
-              assert_msg(dAccEv != nullptr, "the msg is not valid");
-              assert_msg(tr.startEvent != nullptr, "null ptr start event");
+      assert_msg(dWbEv != nullptr, "the msg is not valid");
+      assert_msg(dAccEv != nullptr, "the msg is not valid");
+      assert_msg(tr.startEvent != nullptr, "null ptr start event");
 
-              TimingEvent* x = startEv->addChild(dWbEv, evRec);
-              // info ("The state is %d", (tr.startEvent)->state);
-              // info ("added first child");
-              assert(x);
-              TimingEvent* y = tr.startEvent;
-              assert_msg(y != nullptr, "y is a null ptr");
-              assert_msg(y != NULL, "y is a NULL");
-              assert_msg((long)y != 0, "y is 0");
-              assert(y != nullptr);
-              assert(y != NULL);
-              assert((long)y != 0);  // asserts don't work here
-              // info ("Printing y = %d", (long)y);
+      TimingEvent* x = startEv->addChild(dWbEv, evRec);
+      // info ("The state is %d", (tr.startEvent)->state);
+      // info ("added first child");
+      assert(x);
+      TimingEvent* y = tr.startEvent;
+      assert_msg(y != nullptr, "y is a null ptr");
+      assert_msg(y != NULL, "y is a NULL");
+      assert_msg((long)y != 0, "y is 0");
+      assert(y != nullptr);
+      assert(y != NULL);
+      assert((long)y != 0);  // asserts don't work here
+      // info ("Printing y = %d", (long)y);
 
-              x->addChild(y, evRec);  //-> addChild(dAccEv,
-                                      //evRec)->addChild(acc.startEvent, evRec);
-              startEv->addChild(dAccEv, evRec)->addChild(acc.startEvent, evRec);
+      x->addChild(y, evRec);
+      startEv->addChild(dAccEv, evRec)->addChild(acc.startEvent, evRec);
 
-              acc.reqCycle = reqCycle;
-              acc.startEvent = startEv;
+      if (pureprefetch) {
+        acc.startEvent = startEv;
+        acc.endEvent = startEv;
+        acc.respCycle = respCycle;
+        acc.reqCycle = reqCycle;
+        acc.type = tr.type;
+        assert(tr.type == GETS);
 
-              acc.endEvent = tr.endEvent;
-              acc.respCycle = tr.respCycle;
-              acc.type = tr.type;
-              // endEvent / endCycle stay the same; wbAcc's endEvent not
-              // connected
+      } else {  // means this is second prefetch, but not pure
+        // there was an actual access
+        // there might have been a first prefetch but we don't know
+        // as we only have the combined record
 
-              // info (" PREFETCH returning stitched prefetch record");
-              evRec->pushRecord(acc);
+        acc.reqCycle = reqCycle;
+        acc.startEvent = startEv;
+        acc.respCycle = tr.respCycle;
+        acc.endEvent = tr.endEvent;
+        acc.type = tr.type;
+        assert(tr.type == GETS);
+      }
 
-              // info ("req cycle is %d", acc.reqCycle);
-              // info ("resp cycle is %d", acc.respCycle);
-              //
-              // return acc.respCycle;
-              // return respCycle;
-            } else {
-              DelayEvent* startEv = new (evRec) DelayEvent(0);
+      // endEvent / endCycle stay the same; wbAcc's endEvent not
+      // connected
 
-              TimingRecord t = evRec->popRecord();
-              startEv->addChild(t.startEvent, evRec);
-              t.startEvent = startEv;
-              t.endEvent = t.startEvent;
-              t.respCycle = respCycle;
-              t.type = GETS;
-              // t.type = PUTX;  //so that prefetch not on critical path
-              evRec->pushRecord(t);  // pure prefetch
-              //            info ("PREFETCH Pure timing record");
-              //            info("here");
-            }
-          } else {
-            assert(!evRec->hasRecord());
-            // info (" NO PREFETCH returning non-stitched prefetch record");
+      // info ("returning stitched prefetch record");
+      evRec->pushRecord(acc);
 
-            if (tr.isValid()) {
-              evRec->pushRecord(tr);
-            }
+      // info ("req cycle is %d", acc.reqCycle);
+      // info ("resp cycle is %d", acc.respCycle);
+      //
+      // return acc.respCycle;
+      // return respCycle;
+    } else {  // means it is the first pure prefetch
+      DelayEvent* startEv = new (evRec) DelayEvent(0);
+      TimingRecord t = evRec->popRecord();
+      startEv->addChild(t.startEvent, evRec);
+      t.startEvent = startEv;
+      t.endEvent = t.startEvent;
+      t.respCycle = respCycle;
+      t.type = GETS;
+      evRec->pushRecord(t);  // pure prefetch
+      // info("here");
+    }
+  } else {
+    assert(!evRec->hasRecord());
+    // info ("returning non-stitched prefetch record");
 
-            // info ("req cycle is %d", tr.reqCycle);
-            // info ("resp cycle is %d", tr.respCycle);
-            // info ("pushed record");
+    if (tr.isValid()) {
+      evRec->pushRecord(tr);
+    }
 
-            // return tr.respCycle;
-            // return respCycle;
-          }
+    // info ("req cycle is %d", tr.reqCycle);
+    // info ("resp cycle is %d", tr.respCycle);
+    // info ("pushed record");
 
-};
+    // return tr.respCycle;
+    // return respCycle;
+  }
+}

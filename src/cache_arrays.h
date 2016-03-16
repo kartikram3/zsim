@@ -42,6 +42,13 @@ typedef enum {
    DUP
 } DUPState;
 
+typedef enum {
+    IM, //immediate,
+    N, //near_immediate,
+    F, //far,
+    D //distant
+} DRRIP;
+
 /* General interface of a cache array. The array is a fixed-size associative container that
  * translates addresses to line IDs. A line ID represents the position of the tag. The other
  * cache components store tag data in non-associative arrays indexed by line ID.
@@ -61,6 +68,8 @@ class CacheArray : public GlobAlloc {
 
         int32_t ni_hit_counter_pf;
         int32_t ex_hit_counter_pf;
+
+        DRRIP *repl_state;
 
         /* Returns tag's ID if present, -1 otherwise. If updateReplacement is set, call the replacement policy's update() on the line accessed*/
         virtual int32_t lookup(const Address lineAddr, const MemReq* req, bool updateReplacement) = 0;
@@ -121,6 +130,7 @@ class SetAssocArray : public CacheArray {
         uint32_t assoc;
         uint32_t setMask;
         int64_t* fetch_time;
+
 
     public:
         SetAssocArray(uint32_t _numLines, uint32_t _assoc, ReplPolicy* _rp, HashFamily* _hf);

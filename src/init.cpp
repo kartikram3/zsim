@@ -212,12 +212,12 @@ BaseCache* BuildCacheBank(Config& config, const string& prefix, g_string& name, 
         panic("Replacement policy TAP not defined !");
 
     } else if (replType == "DRRIP"){
-        panic ("Replacement policy DRRIP  not defined");
-
-    } else if (replType == "RRIP"){
-
-        panic ("Replacement policy RRIP not defined");
-
+        bool sharersAware = (replType == "DRRIP") && !isTerminal;
+        if (sharersAware) {
+            rp = new DRRIPPolicy<true>(numLines);
+        }else{
+            rp = new DRRIPPolicy<false>(numLines);
+        }
     } else if (replType == "WayPart" || replType == "Vantage" || replType == "IdealLRUPart") {
         if (replType == "WayPart" && arrayType != "SetAssoc") panic("WayPart replacement requires SetAssoc array");
 

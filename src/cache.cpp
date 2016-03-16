@@ -283,7 +283,7 @@ void Cache::startInvalidate() {
 }
 
 uint64_t Cache::finishInvalidate(const InvReq& req) {
-  int32_t lineId = array->lookup(req.lineAddr, nullptr, false);
+  int32_t lineId = array->lookup_norpupdate(req.lineAddr);
 
   if (lineId == -1 ){ panic("Problem, as lineId was -1 in cache %s", name.c_str()); cc->unlock_bcc(); return req.cycle; }; //means no invalidate happens
                                         //have to remove this bug
